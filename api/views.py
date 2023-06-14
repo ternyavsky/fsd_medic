@@ -1,5 +1,4 @@
 import re
-import regex
 from django.shortcuts import render, redirect
 from .forms import AdminRegistrationForm, UserRegistrationForm, UserRegistrationForm2, UserAuthorizationForm, \
     InterviewRegistrationForm, InterviewRegistrationForm2
