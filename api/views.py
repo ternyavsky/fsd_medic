@@ -19,9 +19,10 @@ from django.contrib.auth.hashers import check_password
 
 # REST IMPORTS
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import permission_classes
 
 
 # NEWS BLOCK
@@ -34,18 +35,52 @@ class LikeView(APIView):
             try:
                 like = Like.objects.get(news=news, user=request.user)
                 like.delete()
-                return Response({'result': f'Вы убрали лайк с записи с id {id}'}, status=status.HTTP_200_OK)
+                return Response({'result': f'Вы убрали лайк с новости с id {id}'}, status=status.HTTP_200_OK)
             except:
                 like = Like(news=news, user=request.user)
                 like.save()
-                return Response({'result': f'Вы оценили запись с id {id}'}, status=status.HTTP_200_OK)
+                return Response({'result': f'Вы оценили новость с id {id}'}, status=status.HTTP_200_OK)
         except:
-            return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class NewsView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+class NewsDetailView(APIView):
 
+    @permission_classes([IsAuthenticated])
+    def get(self, request, id):
+        try:
+            serializer = NewsSerializer(News.objects.get(id=id))
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Need custom permission for doctor
+
+    @permission_classes([IsAdminUser])
+    def delete(self, request, id):
+        try:
+            news = News.objects.get(id=id)
+            news.delete()
+            return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
+    @permission_classes([IsAdminUser])
+    def put(self, request, id):
+        try:
+            news = News.objects.get(id=id)
+            serializer = NewsSerializer(news, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class NewsView(generics.ListCreateAPIView):
+
+    @permission_classes([IsAuthenticated])
     def get(self, request):
         user = User.objects.get(id=request.user.id)
         if user.desease is not None:
@@ -57,6 +92,15 @@ class NewsView(generics.ListAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = NewsSerializer(news, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+#add doctor permission too
+    @permission_classes([IsAdminUser])
+    def post(self, request):
+        serializer = NewsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def index(request):

@@ -25,6 +25,7 @@ ALLOWED_HOSTS = ['127.0.0.1','containers-us-west-36.railway.app']
 
 REST_FRAMEWORK = {
 
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
 
         'rest_framework_simplejwt.authentication.JWTAuthentication',
