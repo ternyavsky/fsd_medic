@@ -82,12 +82,12 @@ class User(AbstractBaseUser):
         return self.login
 
     def delete(self, using=None, keep_parents=False):
-
         group = Groups.objects.get(id=self.group_id)
         group.number_of_people -= 1
         group.save(update_fields=['number_of_people'])
 
         super(User, self).delete()
+
     def has_perm(self, perm, obj=None):
         return self.is_staff
 
@@ -146,6 +146,7 @@ class Email_Codes(models.Model):
     interview = models.OneToOneField('Interviews', on_delete=models.SET_NULL,
                                      null=True, blank=True)
 
+
 class Countries(models.Model):
     name = models.CharField(verbose_name=_('Название страны'), max_length=50, unique=True)
     number_code = models.CharField(verbose_name=_('Телефонный код страны'), max_length=15, null=True)
@@ -176,22 +177,22 @@ class Interviews(models.Model):
     def __str__(self):
         return str(self.date)
 
+
 class News(models.Model):
-    title = models.CharField(verbose_name=_('Заголовок новости'),max_length=40,null=True,blank=True)
-    text = models.TextField(verbose_name=_('Текст новости'),max_length=500, null=True,blank=True)
+    title = models.CharField(verbose_name=_('Заголовок новости'), max_length=40, null=True, blank=True)
+    text = models.TextField(verbose_name=_('Текст новости'), max_length=500, null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фото к новости'), upload_to='news_photos/')
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.SET_NULL, null=True, blank=True)
-    desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL,null=True, blank=True)
+    desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
+                                blank=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата обновления'), auto_now=True, null=True)
-
 
     class Meta:
         verbose_name_plural = 'Новости'
 
     def __str__(self):
         return self.title
-
 
     @property
     def image_url(self):
@@ -201,19 +202,27 @@ class News(models.Model):
             url = ''
         return url
 
+
 class Like(models.Model):
-    news = models.ForeignKey('News',verbose_name=_('Новость'),on_delete=models.CASCADE)
-    user = models.ForeignKey('User',verbose_name=_('Пользователь'),on_delete=models.CASCADE)
+    news = models.ForeignKey('News', verbose_name=_('Новость'), on_delete=models.CASCADE)
+    user = models.ForeignKey('User', verbose_name=_('Пользователь'), on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = 'Лайки'
+
+    def __str__(self):
+        return f'{self.user} - {self.news}'
+
 
 class Country_Codes(models.Model):
     country = models.CharField(verbose_name=_('Название страны'), max_length=30)
     code = models.IntegerField(verbose_name=_('Код страны'))
 
+
 class Saved(models.Model):
-    user = models.OneToOneField('User',on_delete=models.CASCADE,null=True,blank=True)
-    news = models.ForeignKey('News',verbose_name=_('Новость'), on_delete=models.CASCADE,null=True,blank=True)
+    user = models.OneToOneField('User', on_delete=models.CASCADE, null=True, blank=True)
+    news = models.ForeignKey('News', verbose_name=_('Новость'), on_delete=models.CASCADE, null=True, blank=True)
+
 
 class Desease(models.Model):
-        pass
-
-
+    pass

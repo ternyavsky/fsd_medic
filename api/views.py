@@ -14,6 +14,25 @@ from .service import *
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 
+# REST IMPORTS
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework import status
+
+
+# NEWS BLOCK
+class LikeView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    def post(self, request, id):
+        try:
+            news = News.objects.get(id=id)
+            like = Like(news=news, user=request.user)
+            like.save()
+            return Response({'result': f'Вы оценили запись с id {id}'}, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
 
 def index(request):
     return render(request, template_name='api/index.html', context={'user': request.user, })
@@ -202,18 +221,18 @@ def USER_SIGN_UP_2(request, parameter):
                       context={'title': 'Регистрация',
                                'form': form, 'parameter': parameter})
     raise Http404
-    
 
-def LIKE(request,news_id):
+
+def LIKE(request, news_id):
     if request.user.is_active:
         if request.method == 'POST':
-            create_or_delete(Like,news=news_id,user=request.user)
+            create_or_delete(Like, news=news_id, user=request.user)
             return redirect('home_url')
         else:
-            messages.error(request,'Ошибка!')
+            messages.error(request, 'Ошибка!')
     else:
         raise Http404
-    
+
 
 def INTERVIEW_SIGN_UP(request):
     if request.method == 'POST':

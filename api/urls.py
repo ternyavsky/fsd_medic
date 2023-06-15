@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index, ADMIN_SIGN_UP, INTERVIEW_SIGN_UP, INTERVIEW_SIGN_UP_2, USER_SIGN_UP, USER_SIGN_UP_2, LOGOUT, \
-    USER_SIGN_IN, Account, Like
+    USER_SIGN_IN, Account, LikeView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -9,8 +9,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-
+    path('api/like/<int:id>', LikeView.as_view(), name='like_view'),
 
     path('', index, name='home_url'),
     path('createadmin', ADMIN_SIGN_UP, name='create_admin_url'),
@@ -21,5 +20,4 @@ urlpatterns = [
     path('userparameters/<str:parameter>', USER_SIGN_UP_2, name='create_user_2_url'),
     path('interviewparameters/<str:parameter>', INTERVIEW_SIGN_UP_2, name='create_interview_2_url'),
     path('account', Account, name='account_url'),
-    path('like/<int:news_id>', Like, name='like')
 ]
