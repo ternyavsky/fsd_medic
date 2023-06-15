@@ -72,6 +72,7 @@ class User(AbstractBaseUser):
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True)
+    desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True)
     USERNAME_FIELD = 'login'

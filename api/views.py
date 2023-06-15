@@ -1,8 +1,11 @@
 import re
+
+from rest_framework import generics
 from django.shortcuts import render, redirect
 from .forms import AdminRegistrationForm, UserRegistrationForm, UserRegistrationForm2, UserAuthorizationForm, \
     InterviewRegistrationForm, InterviewRegistrationForm2
 from .models import *
+from .serializers import NewsSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -16,22 +19,44 @@ from django.contrib.auth.hashers import check_password
 
 # REST IMPORTS
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
 
 # NEWS BLOCK
 class LikeView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, id):
         try:
             news = News.objects.get(id=id)
-            like = Like(news=news, user=request.user)
-            like.save()
-            return Response({'result': f'Вы оценили запись с id {id}'}, status=status.HTTP_200_OK)
+            try:
+                like = Like.objects.get(news=news, user=request.user)
+                like.delete()
+                return Response({'result': f'Вы убрали лайк с записи с id {id}'}, status=status.HTTP_200_OK)
+            except:
+                like = Like(news=news, user=request.user)
+                like.save()
+                return Response({'result': f'Вы оценили запись с id {id}'}, status=status.HTTP_200_OK)
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class NewsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+        if user.desease is not None:
+            news = News.objects.filter(desease=user.desease)
+        elif user.center is not None:
+            news = News.objects.filter(center=user.center)
+        else:
+            return Response({'result': 'Для доступа к новостям, вам следует указать центр или заболевание'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = NewsSerializer(news, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 def index(request):
