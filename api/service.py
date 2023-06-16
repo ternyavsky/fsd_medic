@@ -1,11 +1,14 @@
 from django.core.mail import send_mail
 from dotenv import load_dotenv
 import os
+from rest_framework.response import Response
+from rest_framework import status
 import random
 
 from fsd_medic.settings import BASE_DIR
 import random
 from .models import Countries
+
 load_dotenv(BASE_DIR / ".env")
 
 
@@ -18,13 +21,17 @@ def Send_email(user_email, message):
         fail_silently=False,
     )
 
+
 def create_or_delete(classmodel, **kwargs):
     try:
         obj = classmodel.objects.get(**kwargs)
         obj.delete()
+        return Response({'result': f'обьект {classmodel.__name__} удален'}, status=status.HTTP_200_OK)
+
     except:
         obj = classmodel.objects.create(**kwargs)
         obj.save()
+        return Response({'result': f'обьект {classmodel.__name__} создан'}, status=status.HTTP_200_OK)
 
 
 def generate_email_code():
@@ -37,4 +44,3 @@ def get_number_code_list():
     for item in Countries.objects.all():
         choises_list.append([item.number_code + '/' + item.number_length, f'{item.name}  {item.number_code}'])
     return choises_list
-

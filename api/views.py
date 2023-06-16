@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 from .service import *
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
+from .permissions import IsStaffUser
 
 # REST IMPORTS
 from rest_framework.views import APIView
@@ -32,16 +33,10 @@ class LikeView(APIView):
     def post(self, request, id):
         try:
             news = News.objects.get(id=id)
-            try:
-                like = Like.objects.get(news=news, user=request.user)
-                like.delete()
-                return Response({'result': f'Вы убрали лайк с новости с id {id}'}, status=status.HTTP_200_OK)
-            except:
-                like = Like(news=news, user=request.user)
-                like.save()
-                return Response({'result': f'Вы оценили новость с id {id}'}, status=status.HTTP_200_OK)
+            return create_or_delete(Like, user=request.user, news=news)
         except:
-            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 class NewsDetailView(APIView):
@@ -54,9 +49,7 @@ class NewsDetailView(APIView):
         except:
             return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Need custom permission for doctor
-
-    @permission_classes([IsAdminUser])
+    @permission_classes([IsAdminUser, IsStaffUser])
     def delete(self, request, id):
         try:
             news = News.objects.get(id=id)
@@ -65,7 +58,7 @@ class NewsDetailView(APIView):
         except:
             return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
-    @permission_classes([IsAdminUser])
+    @permission_classes([IsAdminUser, IsStaffUser])
     def put(self, request, id):
         try:
             news = News.objects.get(id=id)
@@ -93,8 +86,8 @@ class NewsView(generics.ListCreateAPIView):
         serializer = NewsSerializer(news, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-#add doctor permission too
-    @permission_classes([IsAdminUser])
+    # add doctor permission too
+    @permission_classes([IsAdminUser, IsStaffUser])
     def post(self, request):
         serializer = NewsSerializer(data=request.data)
         if serializer.is_valid():
