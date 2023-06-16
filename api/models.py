@@ -7,14 +7,16 @@ from abc import ABC, abstractmethod
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, number, email, password=None,
+    def create_user(self, number, password=None,
                     commit=True):
-        email_name = email.strip().rsplit("@", 1)[0] + str(random.randrange(start=1, stop=9))
-        login = email_name
+        login = number
 
-        user = self.model(login=login, number=number, email=self.normalize_email(email), password=password)
-
-        user_group = Groups.objects.get(name='Пользователи')
+        user = self.model(login=login, number=number, password=password)
+        try:
+            user_group = Groups.objects.get(name='Пользователи')
+        except:
+            user_group = Groups(name='Пользователи')
+            user_group.save()
         user_group.number_of_people += 1
         user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
@@ -60,12 +62,12 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    login = models.CharField(verbose_name=_('Логин'), max_length=50, blank=True, unique=True)
-    is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
-    group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, default='2', )
+    login = models.CharField(verbose_name=_('Логин'), max_length=50, blank=True,null=True, unique=True)
+    is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False, blank=True)
+    group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE,)
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
-    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True)
+    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     birthday = models.DateField(verbose_name=_('День рождения'), null=True, blank=True)
@@ -73,8 +75,8 @@ class User(AbstractBaseUser):
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True)
     desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True)
-    updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True)
+    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True,null=True,)
+    updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True,null=True,)
     USERNAME_FIELD = 'login'
 
     objects = UserManager()

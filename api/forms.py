@@ -18,17 +18,12 @@ class AdminRegistrationForm(forms.Form):
 class UserRegistrationForm(forms.Form):
     number_code = forms.ChoiceField(choices=get_number_code_list())
     number = forms.CharField(label=_('Номер:'))
-    email = forms.CharField(label=_('Почта:'))
     password1 = forms.CharField(label=_('Пароль:'))
     password2 = forms.CharField(label=_('Подтверждение паролья:'))
-    agree_terms = forms.BooleanField(label=_('Согласен с условиями пользования:'), required=False, initial=True)
-
-
-class UserRegistrationForm2(forms.Form):
     center = forms.ModelChoiceField(label=_('Центр:'), queryset=Centers.objects.all(), empty_label='Выберите центр')
     is_patient = forms.BooleanField(label=_('Пациент?'), required=False, initial=True)
-    code = forms.IntegerField(label=_('Код, который пришел вам на почту:'), )
-
+    code = forms.IntegerField(label=_('Код, который пришел вам на почту:'))
+    agree_terms = forms.BooleanField(label=_('Согласен с условиями пользования:'), required=False, initial=True)
 
 class InterviewRegistrationForm(forms.Form):
     type = forms.ChoiceField(choices=(('Врач', 'Врач'), ('Центр', 'Центр'), ('Клиника', 'Клиника')))

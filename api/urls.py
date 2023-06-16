@@ -1,17 +1,19 @@
 from django.urls import path
 from .views import index, ADMIN_SIGN_UP, INTERVIEW_SIGN_UP, INTERVIEW_SIGN_UP_2, USER_SIGN_UP, USER_SIGN_UP_2, LOGOUT, \
-    USER_SIGN_IN, Account, LikeView, NewsView
+    USER_SIGN_IN, Account, LikeView, NewsView, CreateUserView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
 urlpatterns = [
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/like/<int:id>', LikeView.as_view(), name='like_view'),
-    path('api/news', NewsView.as_view(), name='news_view'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair_url'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
+    path('api/like/<int:id>', LikeView.as_view(), name='like_view_url'),
+    path('api/news', NewsView.as_view(), name='news_view_url'),
 
+
+    path('registration', CreateUserView.as_view(), name='user_view_url'),
 
     path('', index, name='home_url'),
     path('createadmin', ADMIN_SIGN_UP, name='create_admin_url'),

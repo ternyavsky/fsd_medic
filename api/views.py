@@ -1,25 +1,21 @@
 import re
-
 from rest_framework import generics
 from django.shortcuts import render, redirect
-from .forms import AdminRegistrationForm, UserRegistrationForm, UserRegistrationForm2, UserAuthorizationForm, \
+from .forms import AdminRegistrationForm, UserRegistrationForm, UserAuthorizationForm, \
     InterviewRegistrationForm, InterviewRegistrationForm2
-from .models import *
-from .serializers import NewsSerializer
+from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News
+from .serializers import NewsSerializer, UserSerializer
 from django.contrib import messages
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
-from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
-from .service import *
+from .service import Send_email, generate_email_code, create_or_delete
 from django.utils.crypto import get_random_string
-from django.contrib.auth.hashers import check_password
 
 # REST IMPORTS
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -56,8 +52,21 @@ class NewsView(generics.ListAPIView):
             return Response({'result': 'Для доступа к новостям, вам следует указать центр или заболевание'},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = NewsSerializer(news, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class CreateUserView(generics.ListCreateAPIView):
+    permission_classes = [AllowAny]
+    model = User
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def index(request):
     return render(request, template_name='api/index.html', context={'user': request.user, })
@@ -223,7 +232,7 @@ def USER_SIGN_UP_2(request, parameter):
             Send_email(user_email=user.email,
                        message=f'Ваш код для подтверждения:{email_code}')
         if request.method == 'POST':
-            form = UserRegistrationForm2(request.POST, request.FILES)
+            form = ''
             if form.is_valid():
                 user_code = Email_Codes.objects.get(user_id=user_id)
                 data = form.cleaned_data
@@ -241,7 +250,7 @@ def USER_SIGN_UP_2(request, parameter):
             else:
                 messages.error(request, 'Ошибка при заполнении формы')
         else:
-            form = UserRegistrationForm2
+            form = ''
         return render(request, template_name='api/CreateUserForm2.html',
                       context={'title': 'Регистрация',
                                'form': form, 'parameter': parameter})
