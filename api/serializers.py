@@ -44,6 +44,7 @@ class CreateUserSerializer(serializers.Serializer):
 
 
 class NewsSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = News
         fields = '__all__'
