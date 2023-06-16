@@ -221,6 +221,11 @@ class Saved(models.Model):
     user = models.OneToOneField('User', on_delete=models.CASCADE, null=True, blank=True)
     news = models.ForeignKey('News', verbose_name=_('Новость'), on_delete=models.CASCADE, null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = 'Сохраненное'
+    def __str__(self):
+        return f'{self.user} - {self.news}'
+
 
 class Desease(models.Model):
     pass

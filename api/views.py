@@ -3,7 +3,7 @@ from rest_framework import generics
 from django.shortcuts import render, redirect
 from .forms import AdminRegistrationForm, UserRegistrationForm, UserAuthorizationForm, \
     InterviewRegistrationForm, InterviewRegistrationForm2
-from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News
+from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News, Saved
 from .serializers import NewsSerializer, CreateUserSerializer
 from django.contrib import messages
 from django.http import Http404
@@ -20,11 +20,23 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import permission_classes, action
 
 
-# NEWS BLOCK
-class LikeView(APIView):
+### NEWS BLOCK ###
+
+class SaveView(APIView):  # Append and delete saved news
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id):
+        try:
+            news = News.objects.get(id=id)
+            return create_or_delete(Saved, user=request.user, news=news)
+        except:
+            return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LikeView(APIView):  # Append and delete like
     permission_classes = [IsAuthenticated]
 
     def post(self, request, id):
@@ -35,11 +47,10 @@ class LikeView(APIView):
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
 
-
-class NewsDetailView(APIView):
+class NewsDetailView(APIView):  # Single news view
 
     @permission_classes([IsAuthenticated])
-    def get(self, request, id):
+    def get(self, request, id):  # get single news
         try:
             serializer = NewsSerializer(News.objects.get(id=id))
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -47,7 +58,7 @@ class NewsDetailView(APIView):
             return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
     @permission_classes([IsAdminUser, IsStaffUser])
-    def delete(self, request, id):
+    def delete(self, request, id):  # delete single news
         try:
             news = News.objects.get(id=id)
             news.delete()
@@ -56,7 +67,7 @@ class NewsDetailView(APIView):
             return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
     @permission_classes([IsAdminUser, IsStaffUser])
-    def put(self, request, id):
+    def put(self, request, id):  # update single news
         try:
             news = News.objects.get(id=id)
             serializer = NewsSerializer(news, data=request.data)
@@ -70,7 +81,7 @@ class NewsDetailView(APIView):
 
 class NewsView(generics.ListCreateAPIView):
 
-    @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])  # Get all news from user_id
     def get(self, request):
         user = User.objects.get(id=request.user.id)
         if user.desease is not None:
@@ -84,9 +95,8 @@ class NewsView(generics.ListCreateAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # add doctor permission too
     @permission_classes([IsAdminUser, IsStaffUser])
-    def post(self, request):
+    def post(self, request):  # Create news
         serializer = NewsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -105,6 +115,7 @@ class CreateUserView(generics.ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def index(request):
     return render(request, template_name='api/index.html', context={'user': request.user, })
