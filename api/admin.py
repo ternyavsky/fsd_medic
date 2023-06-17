@@ -5,7 +5,7 @@ from .models import *
 # Register your models here.
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['id', 'number', 'email', 'first_name', 'last_name','birthday', 'group', 'center', 'desease', 'country', 'city', 'is_staff',
+    list_display = ['id', 'number', 'email', 'first_name', 'last_name','birthday', 'group', 'center', 'disease', 'country', 'city', 'is_staff',
                        'is_required', 'created_at', 'updated_at', ]
     search_fields = ['login', 'number', 'email', 'first_name', 'last_name', ]
     list_editable = ['is_required',]
@@ -45,5 +45,5 @@ admin.site.register(Interviews)
 admin.site.register(Countries, CountriesAdmin)
 admin.site.register(News)
 admin.site.register(Like)
-admin.site.register(Desease)
+admin.site.register(Disease)
 admin.site.register(Saved)

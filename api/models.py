@@ -67,7 +67,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True)
-    desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True)
+    disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
@@ -189,7 +189,7 @@ class News(models.Model):
     text = models.TextField(verbose_name=_('Текст новости'), max_length=500, null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фото к новости'), upload_to='news_photos/')
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.SET_NULL, null=True, blank=True)
-    desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
+    disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
                                 blank=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата обновления'), auto_now=True, null=True)
@@ -227,8 +227,12 @@ class Saved(models.Model):
         return f'{self.user} - {self.news}'
 
 
-class Desease(models.Model):
+class Disease(models.Model):
     pass
+
+    class Meta:
+        verbose_name_plural = 'Заболевания'
+
 
 
 class Images(models.Model):

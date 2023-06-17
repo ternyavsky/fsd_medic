@@ -13,7 +13,7 @@ from django.contrib.auth import login, logout
 from .service import Send_email, generate_email_code, create_or_delete
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
-from .permissions import IsStaffUser
+from .permissions import IsAdminOrReadOnly
 
 # REST IMPORTS
 from rest_framework.views import APIView
@@ -48,8 +48,8 @@ class LikeView(APIView):  # Append and delete like
 
 
 class NewsDetailView(APIView):  # Single news view
+    permission_classes = [IsAdminOrReadOnly]
 
-    @permission_classes([IsAuthenticated])
     def get(self, request, id):  # get single news
         try:
             serializer = NewsSerializer(News.objects.get(id=id))
@@ -57,7 +57,6 @@ class NewsDetailView(APIView):  # Single news view
         except:
             return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
-    @permission_classes([IsAdminUser, IsStaffUser])
     def delete(self, request, id):  # delete single news
         try:
             news = News.objects.get(id=id)
@@ -66,7 +65,6 @@ class NewsDetailView(APIView):  # Single news view
         except:
             return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
-    @permission_classes([IsAdminUser, IsStaffUser])
     def put(self, request, id):  # update single news
         try:
             news = News.objects.get(id=id)
@@ -80,22 +78,24 @@ class NewsDetailView(APIView):  # Single news view
 
 
 class NewsView(generics.ListCreateAPIView):
+    permission_classes = [IsAdminOrReadOnly]
 
-    @permission_classes([IsAuthenticated])  # Get all news from user_id
+    # Get all news from user_id
     def get(self, request):
-        user = User.objects.get(id=request.user.id)
-        if user.desease is not None:
-            news = News.objects.filter(desease=user.desease)
-        elif user.center is not None:
-            news = News.objects.filter(center=user.center)
+        if request.user.is_staff:
+            news = News.objects.all()
         else:
-            return Response({'result': 'Для доступа к новостям, вам следует указать центр или заболевание'},
+            user = User.objects.get(id=request.user.id)
+            if user.disease is not None:
+                news = News.objects.filter(disease=user.disease)
+            elif user.center is not None:
+                news = News.objects.filter(center=user.center)
+            else:
+                return Response({'result': 'Для доступа к новостям, вам следует указать центр или заболевание'},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = NewsSerializer(news, many=True)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @permission_classes([IsAdminUser, IsStaffUser])
     def post(self, request):  # Create news
         serializer = NewsSerializer(data=request.data)
         if serializer.is_valid():

@@ -16,7 +16,7 @@ class CreateUserSerializer(serializers.Serializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.birthday = validated_data.get('birthday', instance.birthday)
         instance.center = validated_data.get('center', instance.center)
-        instance.desease = validated_data.get('desease', instance.desease)
+        instance.disease = validated_data.get('disease', instance.desease)
         password = validated_data.get('password', instance.password1)
         instance.set_pssword(password)
         instance.save()
@@ -57,7 +57,7 @@ class NewsSerializer(serializers.ModelSerializer):
         instance.text = validated_data.get('text', instance.text)
         instance.image = validated_data.get('image', instance.image)
         instance.center = validated_data.get('center', instance.center)
-        instance.desease = validated_data.get('desease', instance.desease)
+        instance.disease = validated_data.get('disease', instance.disease)
         instance.save()
         return instance
 
