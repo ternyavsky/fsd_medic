@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from .forms import AdminRegistrationForm, UserRegistrationForm, UserAuthorizationForm, \
     InterviewRegistrationForm, InterviewRegistrationForm2
 from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News
-from .serializers import NewsSerializer, CreateUserSerializer
+from .serializers import NewsSerializer, UserSerializer
 from django.contrib import messages
 from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
@@ -35,9 +35,7 @@ class LikeView(APIView):
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
 
-
 class NewsDetailView(APIView):
-
     @permission_classes([IsAuthenticated])
     def get(self, request, id):
         try:
@@ -97,14 +95,30 @@ class NewsView(generics.ListCreateAPIView):
 class CreateUserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     model = User
-    serializer_class = CreateUserSerializer
+    serializer_class = UserSerializer
 
     def post(self, request):
-        serializer = CreateUserSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateUserView(generics.ListCreateAPIView):
+    permission_classes = [AllowAny]
+    model = User
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        serializer = UserSerializer()
+        # serializer.update(instance=request.user, validated_data=request.data)
+        serializer.update(validated_data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def index(request):
     return render(request, template_name='api/index.html', context={'user': request.user, })

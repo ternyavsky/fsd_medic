@@ -7,11 +7,10 @@ from abc import ABC, abstractmethod
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, number, password=None,
-                    commit=True):
-        login = number
+    def create_user(self, number, password, center_id, is_patient, disese_id):
 
-        user = self.model(login=login, number=number, password=password)
+        user = self.model(login=number, is_required=True, number=number)
+
         try:
             user_group = Groups.objects.get(name='Пользователи')
         except:
@@ -21,32 +20,44 @@ class UserManager(BaseUserManager):
         user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
 
+        user.center_id = center_id
+
+        user.disease_id = disese_id
+
+        user.country_id = Centers.objects.get(id=center_id).country_id
+
         user.set_password(password)
-        if commit:
-            user.save()
+
+        user.save()
         return user
 
-    def update_user(self, user, center=None, is_patient=None):
-        if is_patient:
-            user_group = Groups.objects.get(name='Пациенты')
-            last_user_group = Groups.objects.get(name='Пользователи')
+    def update_user(self, user, number=None, email=None, password=None, first_name=None, last_name=None, surname=None,
+                    center_id=None, is_patient=None, disease_id=None):
+        updated_fields = ["updated_at"]
+        if is_patient is not None:
+            if is_patient:
+                user_group = Groups.objects.get(name='Пациенты')
+                last_user_group = Groups.objects.get(name='Пользователи')
+                user.group_id = user_group.id
+                user.is_patient = True
+                updated_fields += "is_patient"
+            else:
+                user_group = Groups.objects.get(name='Пользователи')
+                last_user_group = Groups.objects.get(name='Пациенты')
             user_group.number_of_people += 1
             user_group.save(update_fields=['number_of_people'])
             last_user_group.number_of_people -= 1
             last_user_group.save(update_fields=['number_of_people'])
-            user.group_id = user_group.id
-            user.is_required = True
-            user.center_id = center.id
-            user.save(update_fields=["center_id", "is_required", "group_id", "updated_at"])
-            return user
 
-        user.is_required = True
-        user.center_id = center.id
-        user.country_id = center.country_id
-        user.save(update_fields=["center_id", "is_required", "updated_at"])
+        if center_id is not None:
+            user.center_id = center_id
+            user.country_id = Centers.objects.get(id=center_id).country_id
+            updated_fields += 'center_id'
+
+        user.save(update_fields=updated_fields)
         return user
 
-    def create_superuser(self, first_name, last_name, email, number, password=None):
+    def create_superuser(self, first_name, last_name, surname=None, email=None, number=None, password=None):
         email_name = email.strip().rsplit("@", 1)[0] + str(random.randrange(start=1, stop=9))
         login = email_name
         superuser = self.model(login=login, number=number, email=email, first_name=first_name, last_name=last_name)
@@ -67,7 +78,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True)
-    desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True)
+    disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
@@ -189,7 +200,7 @@ class News(models.Model):
     text = models.TextField(verbose_name=_('Текст новости'), max_length=500, null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фото к новости'), upload_to='news_photos/')
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.SET_NULL, null=True, blank=True)
-    desease = models.ForeignKey('Desease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
+    disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
                                 blank=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата обновления'), auto_now=True, null=True)
@@ -222,9 +233,10 @@ class Saved(models.Model):
     news = models.ForeignKey('News', verbose_name=_('Новость'), on_delete=models.CASCADE, null=True, blank=True)
 
 
-class Desease(models.Model):
-    pass
-
+class Disease(models.Model):
+    class Meta:
+        verbose_name_plural = 'Болезни'
+        verbose_name = 'Болезнь'
 
 class Images(models.Model):
     title = models.CharField(verbose_name=_('Описание фотографии'), max_length=20)

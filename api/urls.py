@@ -14,7 +14,8 @@ urlpatterns = [
     path('api/news/', NewsView.as_view(), name='news_url'),
     path('api/news/<int:id>/', NewsDetailView.as_view(), name='news_detail_url'),
 
-    path('registration', CreateUserView.as_view(), name='user_view_url'),
+    path('api/createuser', CreateUserView.as_view(), name='create_user_url'),
+    path('api/updateuser', CreateUserView.as_view(), name='update_user_url'),
 
     path('', index, name='home_url'),
     path('createadmin', ADMIN_SIGN_UP, name='create_admin_url'),
