@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% block css %}{% endblock css %}
+</head>
+<body>
+
+{% block content %}{% endblock content %}
+{% block extra_js %}{% endblock extra_js %}
+<form action="" method="post">
+    <h1>{{ request.user.login }}</h1>
+    <input type="text" name="text">
+    <button type="submit">Отправить</button>
+</form>
+</body>
+</html>
