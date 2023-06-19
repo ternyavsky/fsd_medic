@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< HEAD
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 virtualenv at D:\Programming\Python\Django\djangovenv" project-jdk-type="Python SDK" />
+=======
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (Fsd_medic)" project-jdk-type="Python SDK" />
+>>>>>>> 2e108af3068f0042b861313ba4e13c7de6657cce
 </project>

@@ -232,11 +232,18 @@ class Saved(models.Model):
     user = models.OneToOneField('User', on_delete=models.CASCADE, null=True, blank=True)
     news = models.ForeignKey('News', verbose_name=_('Новость'), on_delete=models.CASCADE, null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = 'Сохраненное'
+    def __str__(self):
+        return f'{self.user} - {self.news}'
 
 class Disease(models.Model):
+    pass
+
     class Meta:
-        verbose_name_plural = 'Болезни'
-        verbose_name = 'Болезнь'
+        verbose_name_plural = 'Заболевания'
+        verbose_name = 'Заболевание'
+
 
 class Images(models.Model):
     title = models.CharField(verbose_name=_('Описание фотографии'), max_length=20)

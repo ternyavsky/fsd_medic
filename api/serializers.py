@@ -25,6 +25,18 @@ class UserSerializer(serializers.Serializer):
                                  disease_id=validated_data['disease_id'])
         return validated_data['instance']
 
+        instance.number = validated_data.get('number', instance.number)
+        instance.email = validated_data.get('email', instance.email)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.birthday = validated_data.get('birthday', instance.birthday)
+        instance.center = validated_data.get('center', instance.center)
+        instance.disease = validated_data.get('disease', instance.desease)
+        password = validated_data.get('password', instance.password1)
+        instance.set_pssword(password)
+        instance.save()
+        return instance
+
     def create_validate(self, data):
         number_pattern = re.compile('^[+]+[0-9]+$')
         email_pattern = re.compile('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
@@ -54,8 +66,6 @@ class UserSerializer(serializers.Serializer):
         if data['password1'] != data['password2']:
             raise serializers.ValidationError('Пароли должны совподать')
 
-
-
     def update_validate(self, data):
         if data['password1'] != data['password2']:
             raise serializers.ValidationError('Пароли должны совподать')
@@ -71,6 +81,7 @@ class UserSerializer(serializers.Serializer):
     password2 = serializers.CharField(write_only=True)
     center_id = serializers.IntegerField()
 
+
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
@@ -84,6 +95,6 @@ class NewsSerializer(serializers.ModelSerializer):
         instance.text = validated_data.get('text', instance.text)
         instance.image = validated_data.get('image', instance.image)
         instance.center = validated_data.get('center', instance.center)
-        instance.disease = validated_data.get('desease', instance.desease)
+        instance.disease = validated_data.get('disease', instance.disease)
         instance.save()
         return instance
