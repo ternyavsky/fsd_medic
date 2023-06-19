@@ -9,9 +9,10 @@ class UserSerializer(serializers.Serializer):
         return User.objects.create_user(
             number=validated_data['number'],
             password=validated_data['password1'],
-            center_id=validated_data['center_id'],
             is_patient=validated_data['is_patient'],
+            center_id=validated_data['center_id'],
             disese_id=validated_data['disease_id'],
+            group_name=validated_data['group_name']
         )
 
     def update(self, validated_data):
@@ -24,18 +25,6 @@ class UserSerializer(serializers.Serializer):
                                  center_id=validated_data['center_id'], is_patient=validated_data['is_patient'],
                                  disease_id=validated_data['disease_id'])
         return validated_data['instance']
-
-        instance.number = validated_data.get('number', instance.number)
-        instance.email = validated_data.get('email', instance.email)
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
-        instance.birthday = validated_data.get('birthday', instance.birthday)
-        instance.center = validated_data.get('center', instance.center)
-        instance.disease = validated_data.get('disease', instance.desease)
-        password = validated_data.get('password', instance.password1)
-        instance.set_pssword(password)
-        instance.save()
-        return instance
 
     def create_validate(self, data):
         number_pattern = re.compile('^[+]+[0-9]+$')
@@ -52,34 +41,37 @@ class UserSerializer(serializers.Serializer):
             raise serializers.ValidationError('Подтвердите пароль')
         if data['center_id'] is None:
             raise serializers.ValidationError('Выберите центр')
-        # Проверка Номера
-        if not number_pattern.match(data['number']):
-            raise serializers.ValidationError('Введен неоректный номер телефона')
-        if User.objects.filter(number=data['number']).exists() or Interviews.objects.filter(
-                number=data['number']).exists():
-            raise serializers.ValidationError('Номер уже используется')
-        # Проверка паролей
-        if not password_pattern.match(data['password1']):
-            raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
-        if len(data['password1']) < 8:
-            raise serializers.ValidationError('Пароль не может быть кароче 8 символов')
-        if data['password1'] != data['password2']:
-            raise serializers.ValidationError('Пароли должны совподать')
+        if data['is_patient'] is None:
+            data['is_patient'] = None
+        if data['disease_id'] is None:
+            data['disease_id'] = None
+        if data['group_name'] == 'Пользователи':
+            # Проверка Номера
+            if not number_pattern.match(data['number']):
+                raise serializers.ValidationError('Введен неоректный номер телефона')
+            if User.objects.filter(number=data['number']).exists() or Interviews.objects.filter(
+                    number=data['number']).exists():
+                raise serializers.ValidationError('Номер уже используется')
+            # Проверка паролей
+            if not password_pattern.match(data['password1']):
+                raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
+            if len(data['password1']) < 8:
+                raise serializers.ValidationError('Пароль не может быть кароче 8 символов')
+            if data['password1'] != data['password2']:
+                raise serializers.ValidationError('Пароли должны совподать')
 
     def update_validate(self, data):
-        if data['password1'] != data['password2']:
-            raise serializers.ValidationError('Пароли должны совподать')
-        try:
-            email = data['email']
+        if data['email'] is not None:
             if User.objects.filter(email=data['email']).exists():
                 raise serializers.ValidationError('Почта уже используется')
-        except:
-            pass
 
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
+    is_patient = serializers.IntegerField()
     center_id = serializers.IntegerField()
+    disease_id = serializers.IntegerField()
+    group_name = serializers.CharField()
 
 
 class NewsSerializer(serializers.ModelSerializer):

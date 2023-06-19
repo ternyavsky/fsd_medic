@@ -7,22 +7,21 @@ from abc import ABC, abstractmethod
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, number, password, center_id, is_patient, disese_id):
+    def create_user(self, number, password, group_name, center_id, is_patient=None, disease_id=None):
+        user = self.model(login=number, number=number, is_required=True, )
 
-        user = self.model(login=number, is_required=True, number=number)
-
-        try:
-            user_group = Groups.objects.get(name='Пользователи')
-        except:
-            user_group = Groups(name='Пользователи')
-            user_group.save()
+        user_group = Groups.objects.get(name=group_name)
         user_group.number_of_people += 1
         user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
 
         user.center_id = center_id
 
-        user.disease_id = disese_id
+        if disease_id is not None:
+            user.disease_id = disease_id
+
+        if is_patient is not None:
+            user.is_patient = is_patient
 
         user.country_id = Centers.objects.get(id=center_id).country_id
 
@@ -32,7 +31,8 @@ class UserManager(BaseUserManager):
         return user
 
     def update_user(self, user, number=None, email=None, password=None, first_name=None, last_name=None, surname=None,
-                    center_id=None, is_patient=None, disease_id=None):
+                    is_patient=None,
+                    center_id=None, disease_id=None):
         updated_fields = ["updated_at"]
         if is_patient is not None:
             if is_patient:
@@ -54,20 +54,30 @@ class UserManager(BaseUserManager):
             user.country_id = Centers.objects.get(id=center_id).country_id
             updated_fields += 'center_id'
 
+        if number is not None:
+            user.number = number
+
+        if email is not None:
+            user.email = email
+
+        if password is not None:
+            user.set_password()
+
         user.save(update_fields=updated_fields)
         return user
 
-    def create_superuser(self, first_name, last_name, surname=None, email=None, number=None, password=None):
-        email_name = email.strip().rsplit("@", 1)[0] + str(random.randrange(start=1, stop=9))
-        login = email_name
-        superuser = self.model(login=login, number=number, email=email, first_name=first_name, last_name=last_name)
+    def create_superuser(self, number, email, first_name, last_name, password=None):
+        superuser = self.model(login=number, number=number, email=email, first_name=first_name, last_name=last_name)
+
         superuser.set_password(password)
         superuser.is_staff = True
-        superuser.is_required = True
+        superuser.is_required = False
+
         superuser_group = Groups.objects.get(name='Администраторы')
         superuser_group.number_of_people += 1
         superuser_group.save(update_fields=['number_of_people'])
         superuser.group_id = superuser_group.id
+
         superuser.save()
         return superuser
 
@@ -152,8 +162,8 @@ class Url_Params(models.Model):
     parameter = models.CharField(max_length=50, )
     user = models.OneToOneField('User', on_delete=models.SET_NULL,
                                 null=True, blank=True)
-    interview = models.OneToOneField('Interviews', on_delete=models.SET_NULL,
-                                     null=True, blank=True)
+    interview = models.OneToNOneField('Interviews', on_delete=models.SET_NULL,
+                                      null=True, blank=True)
 
 
 class Email_Codes(models.Model):
@@ -234,8 +244,10 @@ class Saved(models.Model):
 
     class Meta:
         verbose_name_plural = 'Сохраненное'
+
     def __str__(self):
         return f'{self.user} - {self.news}'
+
 
 class Disease(models.Model):
     pass
