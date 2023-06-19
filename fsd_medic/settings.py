@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv('SEC_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG_STATUS')
 
-ALLOWED_HOSTS = ['127.0.0.1','containers-us-west-36.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1','containers-us-west-36.railway.app',]
 
 
 REST_FRAMEWORK = {
