@@ -167,6 +167,9 @@ class Centers(models.Model):
         verbose_name_plural = 'Центры'
         verbose_name = 'Центр'
 
+class Clinics(models.Model):
+    pass
+
 
 class Url_Params(models.Model):
     parameter = models.CharField(verbose_name=_('Ссылка'), max_length=50, )

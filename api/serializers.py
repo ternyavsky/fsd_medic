@@ -1,7 +1,7 @@
 import re
 
 from rest_framework import serializers
-from .models import News, User, Interviews
+from .models import News, User, Interviews, Centers, Clinics
 
 
 class UserSerializer(serializers.Serializer):
@@ -147,10 +147,8 @@ class AdminSerializer(serializers.Serializer):
         if data['password1'] != data['password2']:
             raise serializers.ValidationError('Пароли должны совподвать')
 
-
     def update_validate(self, data):
         pass
-
 
     number = serializers.CharField()
     email = serializers.CharField()
@@ -161,6 +159,10 @@ class AdminSerializer(serializers.Serializer):
 
 
 
+class UserGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
@@ -177,3 +179,23 @@ class NewsSerializer(serializers.ModelSerializer):
         instance.disease = validated_data.get('disease', instance.disease)
         instance.save()
         return instance
+
+
+class ClinicSerializer(serializers.Serializer):
+    class Meta:
+        model = Clinics
+        fields = '__all__'
+
+
+class CenterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Centers
+        fields = '__all__'
+
+
+class SearchSerializer(serializers.Serializer):
+    clinics = ClinicSerializer(read_only=True, many=True)
+    centers = CenterSerializer(read_only=True, many=True)
+    users = UserGetSerializer(read_only=True, many=True)
+    class Meta:
+        fields = '__all__'
