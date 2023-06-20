@@ -6,6 +6,13 @@ from .models import News, User, Interviews
 
 class UserSerializer(serializers.Serializer):
     def create(self, validated_data):
+        self.create_validate(self, validated_data)
+        if validated_data['group_name'] == 'Администраторы':
+            return User.objects.create_superuser(number=validated_data['number'],
+                                                 email=validated_data['email'],
+                                                 first_name=validated_data['first_name'],
+                                                 last_name=validated_data['last_name'],
+                                                 password=validated_data['password1'])
         return User.objects.create_user(
             number=validated_data['number'],
             password=validated_data['password1'],
@@ -72,6 +79,86 @@ class UserSerializer(serializers.Serializer):
     center_id = serializers.IntegerField()
     disease_id = serializers.IntegerField()
     group_name = serializers.CharField()
+
+
+class AdminSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        self.create_validate(validated_data)
+        return User.objects.create_superuser(number=validated_data['number'],
+                                             email=validated_data['email'],
+                                             first_name=validated_data['first_name'],
+                                             last_name=validated_data['last_name'],
+                                             password=validated_data['password1'])
+
+    def update(self, validated_data):
+        pass
+
+    def create_validate(self, data):
+        number_pattern = re.compile('^[+]+[0-9]+$')
+        email_pattern = re.compile('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+        name_pattern = re.compile('^[а-яА-Я]+$')
+        password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
+
+        # Проверка присувствия данных
+        if data['number'] is None:
+            raise serializers.ValidationError('Введите номер')
+        if data['email'] is None:
+            raise serializers.ValidationError('Введите почту')
+        if data['first_name'] is None:
+            raise serializers.ValidationError('Введите Имя')
+        if data['last_name'] is None:
+            raise serializers.ValidationError('Введите Фамилию')
+        if data['password1'] is None:
+            raise serializers.ValidationError('Введите пароль')
+        elif data['password2'] is None:
+            raise serializers.ValidationError('Подтвердите пароль')
+        # Проверка Номера
+        if not number_pattern.match(data['number']):
+            raise serializers.ValidationError('Введен неоректный номер телефона')
+
+        if User.objects.filter(number=data['number']).exists() or Interviews.objects.filter(
+                number=data['number']).exists():
+            raise serializers.ValidationError('Номер уже используется')
+        # Проверка Почты
+        if not email_pattern.match(data['email']):
+            raise serializers.ValidationError('Введена некоректная почта')
+        if User.objects.filter(email=data['email']).exists() or Interviews.objects.filter(
+                email=data['email']).exists():
+            raise serializers.ValidationError('Почта уже используется')
+        # Проверка Имени
+        if not name_pattern.match(data['first_name']):
+            raise serializers.ValidationError('Имя может состоять только из букв кирилицы')
+        if len(data['first_name']) < 3:
+            raise serializers.ValidationError('Имя не может быть кароче 3 символов')
+        if len(data['first_name']) > 20:
+            raise serializers.ValidationError('Имя не может быть длинее 20 символов')
+        # Проверка Фамилии
+        if not name_pattern.match(data['last_name']):
+            raise serializers.ValidationError('Фамилия может состоять только из букв кирилицы')
+        if len(data['last_name']) < 3:
+            raise serializers.ValidationError('Фамилия не может быть кароче 3 символов')
+        if len(data['last_name']) > 30:
+            raise serializers.ValidationError('Фамилия не может быть длинее 30 символов')
+        # Проверка паролей
+        if not password_pattern.match(data['password1']):
+            raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
+        if len(data['password1']) < 8:
+            raise serializers.ValidationError('Пароль не может быть кароче 8 символов')
+        if data['password1'] != data['password2']:
+            raise serializers.ValidationError('Пароли должны совподвать')
+
+
+    def update_validate(self, data):
+        pass
+
+
+    number = serializers.CharField()
+    email = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    password1 = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
+
 
 
 class NewsSerializer(serializers.ModelSerializer):

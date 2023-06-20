@@ -3,10 +3,10 @@ from rest_framework import generics
 from django.shortcuts import render, redirect
 from .forms import AdminRegistrationForm, UserRegistrationForm, UserAuthorizationForm, \
     InterviewRegistrationForm, InterviewRegistrationForm2
-from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News, Saved
-from .serializers import NewsSerializer, UserSerializer
+from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News, Saved, Groups
+from .serializers import NewsSerializer, UserSerializer, AdminSerializer
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
 from django.contrib.auth import login, logout
@@ -23,8 +23,22 @@ from rest_framework import status
 from rest_framework.decorators import permission_classes, action
 
 
-### NEWS BLOCK ###
+def index(request, parameter):
+    if Url_Params.objects.filter(parameter=parameter).exists():
+        group_id = Url_Params.objects.get(parameter='qXSRpAUGjRyxVdFJ3vVB92nGAstWBLnEIzn3tdZ7jPlUHXlK7p').group_id
+        group_name = Groups.objects.get(id=group_id).name
+        if group_name == 'Администраторы':
+            return HttpResponse('Здесь будет форма регистрации админа')
+        elif group_name == 'Администраторы Центров':
+            return HttpResponse('Здесь будет форма регистрации центра и его админа')
+        elif group_name == 'Администраторы Клиник':
+            return HttpResponse('Здесь будет форма регистрации клиники и его админа')
+        elif group_name == 'Врачи':
+            return HttpResponse('Здесь будет форма регистрации врача')
+    raise Http404
 
+
+### NEWS BLOCK ###
 class SaveView(APIView):  # Append and delete saved news
     permission_classes = [IsAuthenticated]
 
@@ -45,6 +59,7 @@ class LikeView(APIView):  # Append and delete like
             return create_or_delete(Like, user=request.user, news=news)
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class NewsDetailView(APIView):  # Single news view
     permission_classes = [IsAdminOrReadOnly]
@@ -102,7 +117,7 @@ class NewsView(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+### USER BLOCK ###
 class CreateUserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     model = User
@@ -131,8 +146,17 @@ class UpdateUserView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def index(request):
-    return render(request, template_name='api/index.html', context={'user': request.user, })
+class CreateAdminView(APIView):
+    permission_classes = [AllowAny]
+    model = User
+    serializer_class = AdminSerializer
+
+    def post(self, request):
+        serializer = AdminSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def LOGOUT(request):
@@ -153,52 +177,6 @@ def ADMIN_SIGN_UP(request):
             email_pattern = re.compile('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
             name_pattern = re.compile('^[а-яА-Я]+$')
             password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
-            # Проверка Имени
-            if not name_pattern.match(data['first_name']):
-                form_is_valid = False
-                messages.error(request, 'Имя может состоять только из букв кирилицы')
-            if len(data['first_name']) < 3:
-                form_is_valid = False
-                messages.error(request, 'Имя не может быть кароче 3 символов')
-            if len(data['first_name']) > 20:
-                form_is_valid = False
-                messages.error(request, 'Имя не может быть длинее 20 символов')
-            # Проверка Фамилии
-            if not name_pattern.match(data['last_name']):
-                form_is_valid = False
-                messages.error(request, 'Фамилия может состоять только из букв кирилицы')
-            if len(data['last_name']) < 3:
-                form_is_valid = False
-                messages.error(request, 'Фамилия не может быть кароче 3 символов')
-            if len(data['last_name']) > 30:
-                form_is_valid = False
-                messages.error(request, 'Фамилия не может быть длинее 30 символов')
-            # Проверка Номера
-            if not number_pattern.match(data['number']):
-                form_is_valid = False
-                messages.error(request, 'Введен неоректный номер телефона')
-            if User.objects.filter(number=number).exists() or Interviews.objects.filter(
-                    number=number).exists():
-                form_is_valid = False
-                messages.error(request, 'Номер уже используется')
-            # Проверка Почты
-            if not email_pattern.match(data['email']):
-                form_is_valid = False
-                messages.error(request, 'Введена некоректная почта')
-            if User.objects.filter(email=data['email']).exists() or Interviews.objects.filter(
-                    email=data['email']).exists():
-                form_is_valid = False
-                messages.error(request, 'Почта уже используется')
-            # Проверка паролей
-            if not password_pattern.match(data['password1']):
-                form_is_valid = False
-                messages.error(request, 'Пароль должен состоять из цифр и букв обоих регистров')
-            if len(data['password1']) < 8:
-                form_is_valid = False
-                messages.error(request, 'Пароль не может быть кароче 8 символов')
-            if data['password1'] != data['password2']:
-                form_is_valid = False
-                messages.error(request, 'Пароли должны совподвать')
 
             if form_is_valid:
                 User.objects.create_superuser(first_name=data['first_name'], last_name=data['last_name'],

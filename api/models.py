@@ -1,14 +1,16 @@
 import random
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.db import models
+from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from abc import ABC, abstractmethod
 
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, number, password, group_name, center_id, is_patient=None, disease_id=None):
-        user = self.model(login=number, number=number, is_required=True, )
+    def create_user(self, number, password, group_name, center_id, email=None, first_name=None, last_name=None,
+                    is_patient=None, disease_id=None):
+        user = self.model(login=number, number=number)
 
         user_group = Groups.objects.get(name=group_name)
         user_group.number_of_people += 1
@@ -17,15 +19,19 @@ class UserManager(BaseUserManager):
 
         user.center_id = center_id
 
-        if disease_id is not None:
-            user.disease_id = disease_id
-
-        if is_patient is not None:
-            user.is_patient = is_patient
-
-        user.country_id = Centers.objects.get(id=center_id).country_id
+        user.country_id = Centers.objects.get(id=center_id).country_i
 
         user.set_password(password)
+
+        if group_name == 'Пользователи':
+            user.disease_id = disease_id
+            user.is_patient = is_patient
+            user.is_required = True
+        else:
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.is_required = False
 
         user.save()
         return user
@@ -69,14 +75,15 @@ class UserManager(BaseUserManager):
     def create_superuser(self, number, email, first_name, last_name, password=None):
         superuser = self.model(login=number, number=number, email=email, first_name=first_name, last_name=last_name)
 
-        superuser.set_password(password)
-        superuser.is_staff = True
-        superuser.is_required = False
-
         superuser_group = Groups.objects.get(name='Администраторы')
         superuser_group.number_of_people += 1
         superuser_group.save(update_fields=['number_of_people'])
         superuser.group_id = superuser_group.id
+
+        superuser.is_staff = True
+        superuser.is_required = False
+
+        superuser.set_password(password)
 
         superuser.save()
         return superuser
@@ -123,6 +130,7 @@ class User(AbstractBaseUser):
 
     class Meta:
         verbose_name_plural = 'Пользователи'
+        verbose_name = 'Пользователь'
         ordering = ['-created_at']
 
 
@@ -135,6 +143,7 @@ class Groups(models.Model):
 
     class Meta:
         verbose_name_plural = 'Группы'
+        verbose_name = 'Группа'
 
 
 class Centers(models.Model):
@@ -156,14 +165,23 @@ class Centers(models.Model):
 
     class Meta:
         verbose_name_plural = 'Центры'
+        verbose_name = 'Центр'
 
 
 class Url_Params(models.Model):
-    parameter = models.CharField(max_length=50, )
-    user = models.OneToOneField('User', on_delete=models.SET_NULL,
-                                null=True, blank=True)
-    interview = models.OneToNOneField('Interviews', on_delete=models.SET_NULL,
-                                      null=True, blank=True)
+    parameter = models.CharField(verbose_name=_('Ссылка'), max_length=50, )
+    group_id = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, null=True)
+
+    def save(self):
+        self.parameter = get_random_string(length=50)
+        super(Url_Params, self).save()
+
+    def __str__(self):
+        return self.parameter
+
+    class Meta:
+        verbose_name_plural = 'Ссылки для регистрации'
+        verbose_name = 'Ссылка'
 
 
 class Email_Codes(models.Model):
@@ -184,6 +202,16 @@ class Countries(models.Model):
 
     class Meta:
         verbose_name_plural = 'Страны'
+        verbose_name = 'Страна'
+
+
+class Country_Codes(models.Model):
+    country = models.CharField(verbose_name=_('Название страны'), max_length=30)
+    code = models.IntegerField(verbose_name=_('Код страны'))
+
+    class Meta:
+        verbose_name_plural = 'Номерные коды'
+        verbose_name = 'Номерной код'
 
 
 class Interviews(models.Model):
@@ -200,6 +228,7 @@ class Interviews(models.Model):
 
     class Meta:
         verbose_name_plural = 'Интервью'
+        verbose_name = 'Интервью'
 
     def __str__(self):
         return str(self.date)
@@ -217,6 +246,7 @@ class News(models.Model):
 
     class Meta:
         verbose_name_plural = 'Новости'
+        verbose_name = 'Новость'
 
     def __str__(self):
         return self.title
@@ -231,11 +261,6 @@ class Like(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.news}'
-
-
-class Country_Codes(models.Model):
-    country = models.CharField(verbose_name=_('Название страны'), max_length=30)
-    code = models.IntegerField(verbose_name=_('Код страны'))
 
 
 class Saved(models.Model):
@@ -255,8 +280,3 @@ class Disease(models.Model):
     class Meta:
         verbose_name_plural = 'Заболевания'
         verbose_name = 'Заболевание'
-
-
-class Images(models.Model):
-    title = models.CharField(verbose_name=_('Описание фотографии'), max_length=20)
-    image = models.ImageField(verbose_name=_('Фотография Сайта'), upload_to='site_photos/', blank=True)
