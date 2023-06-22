@@ -16,8 +16,10 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
             ],
         ),
-        migrations.DeleteModel(
-            name='Images',
+        migrations.RenameField(
+            model_name='url_params',
+            old_name='group_id',
+            new_name='group',
         ),
         migrations.AlterModelOptions(
             name='centers',
@@ -55,5 +57,13 @@ class Migration(migrations.Migration):
             model_name='url_params',
             name='parameter',
             field=models.CharField(max_length=50, verbose_name='Ссылка'),
+        ),
+        migrations.RemoveField(
+            model_name='centers',
+            name='coordinate_latitude',
+        ),
+        migrations.RemoveField(
+            model_name='centers',
+            name='coordinate_longitude',
         ),
     ]

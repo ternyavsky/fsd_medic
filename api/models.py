@@ -105,7 +105,8 @@ class User(AbstractBaseUser):
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='media/site_photos/AccauntPreview.png')
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
-    city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
+    city = models.CharField(verbose_name=_('Город'), max_length=50, null=True)
+    address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
     USERNAME_FIELD = 'login'
@@ -155,7 +156,6 @@ class Centers(models.Model):
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
-    coordinate = models.FloatField(verbose_name=_('Координаты'), null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
 
@@ -165,9 +165,6 @@ class Centers(models.Model):
     class Meta:
         verbose_name_plural = 'Центры'
         verbose_name = 'Центр'
-
-class Clinics(models.Model):
-    pass
 
 
 class Clinics(models.Model):
@@ -179,7 +176,6 @@ class Clinics(models.Model):
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
-    coordinate = models.FloatField(verbose_name=_('Координаты'), null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
 
