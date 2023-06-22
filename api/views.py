@@ -3,8 +3,8 @@ from rest_framework import generics
 from django.shortcuts import render, redirect
 from .forms import AdminRegistrationForm, UserRegistrationForm, UserAuthorizationForm, \
     InterviewRegistrationForm, InterviewRegistrationForm2
-from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News, Saved, Groups
-from .serializers import NewsSerializer, UserSerializer, AdminSerializer
+from .models import User, Countries, Centers, Url_Params, Email_Codes, Interviews, News, Saved, Groups, Clinics
+from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -14,13 +14,14 @@ from .service import Send_email, generate_email_code, create_or_delete
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
+import json
 
 # REST IMPORTS
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import permission_classes, action
+from rest_framework.decorators import permission_classes, action, api_view
 
 
 def index(request):
@@ -121,6 +122,16 @@ class NewsView(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+### SEARCH ###
+
+class SearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        search = {'clinics': Clinics.objects.all(), 'centers': Centers.objects.all(),
+                  'users': User.objects.filter(is_staff=True)}
+        serializer = SearchSerializer(search)
+        return Response(serializer.data)
 
 ### USER BLOCK ###
 class CreateUserView(generics.ListCreateAPIView):

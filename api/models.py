@@ -166,6 +166,9 @@ class Centers(models.Model):
         verbose_name_plural = 'Центры'
         verbose_name = 'Центр'
 
+class Clinics(models.Model):
+    pass
+
 
 class Clinics(models.Model):
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100, null=True)
