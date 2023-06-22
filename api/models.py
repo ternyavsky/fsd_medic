@@ -130,7 +130,7 @@ class User(AbstractBaseUser):
 
     class Meta:
         verbose_name_plural = 'Пользователи'
-        verbose_name = 'Пользователь'
+        verbose_name = 'Пользователья'
         ordering = ['-created_at']
 
 
@@ -143,7 +143,7 @@ class Groups(models.Model):
 
     class Meta:
         verbose_name_plural = 'Группы'
-        verbose_name = 'Группа'
+        verbose_name = 'Группу'
 
 
 class Centers(models.Model):
@@ -155,8 +155,7 @@ class Centers(models.Model):
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
-    coordinate_latitude = models.FloatField(verbose_name=_('Широта'), null=True)
-    coordinate_longitude = models.FloatField(verbose_name=_('Долгата'), null=True)
+    coordinate = models.FloatField(verbose_name=_('Координаты'), null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
 
@@ -168,9 +167,30 @@ class Centers(models.Model):
         verbose_name = 'Центр'
 
 
+class Clinics(models.Model):
+    name = models.CharField(verbose_name=_('Название Клиники'), max_length=100, null=True)
+    is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
+    number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
+    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
+    employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'), null=True)
+    country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
+    city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
+    address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
+    coordinate = models.FloatField(verbose_name=_('Координаты'), null=True)
+    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Клиники'
+        verbose_name = 'Клинику'
+
+
 class Url_Params(models.Model):
     parameter = models.CharField(verbose_name=_('Ссылка'), max_length=50, )
-    group_id = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, null=True)
 
     def save(self):
         self.parameter = get_random_string(length=50)
@@ -181,7 +201,7 @@ class Url_Params(models.Model):
 
     class Meta:
         verbose_name_plural = 'Ссылки для регистрации'
-        verbose_name = 'Ссылка'
+        verbose_name = 'Ссылку'
 
 
 class Email_Codes(models.Model):
@@ -202,7 +222,7 @@ class Countries(models.Model):
 
     class Meta:
         verbose_name_plural = 'Страны'
-        verbose_name = 'Страна'
+        verbose_name = 'Страну'
 
 
 class Country_Codes(models.Model):
@@ -269,6 +289,7 @@ class Saved(models.Model):
 
     class Meta:
         verbose_name_plural = 'Сохраненное'
+        verbose_name = 'Сохранение'
 
     def __str__(self):
         return f'{self.user} - {self.news}'

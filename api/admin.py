@@ -32,20 +32,20 @@ class CountriesAdmin(admin.ModelAdmin):
 
 
 class CentersAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'is_required', 'employees_number', 'country', 'address', 'coordinate_latitude',
-                    'coordinate_longitude', 'created_at', 'updated_at', ]
+    list_display = ['id', 'name', 'is_required', 'employees_number', 'country', 'address',
+                   'created_at', 'updated_at', ]
     search_fields = ['name', 'address']
     list_editable = ['is_required']
     list_filter = ['is_required', 'country', 'created_at', 'updated_at']
-    fields = ['name', 'is_required', 'employees_number', 'country', 'address', 'coordinate_latitude',
-              'coordinate_longitude']
+    fields = ['name', 'is_required', 'employees_number', 'country', 'address',
+         ]
     readonly_fields = ['id', 'created_at', 'updated_at']
 
 
 class UrlParamsAdmin(admin.ModelAdmin):
-    list_display = ['id','get_parameter','group_id']
-    list_filter = ['group_id']
-    fields = ['group_id']
+    list_display = ['id','get_parameter','group']
+    list_filter = ['group']
+    fields = ['group']
 
     @admin.display
     def get_parameter(self, obj):

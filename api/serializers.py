@@ -7,12 +7,6 @@ from .models import News, User, Interviews
 class UserSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(self, validated_data)
-        if validated_data['group_name'] == 'Администраторы':
-            return User.objects.create_superuser(number=validated_data['number'],
-                                                 email=validated_data['email'],
-                                                 first_name=validated_data['first_name'],
-                                                 last_name=validated_data['last_name'],
-                                                 password=validated_data['password1'])
         return User.objects.create_user(
             number=validated_data['number'],
             password=validated_data['password1'],

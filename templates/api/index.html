@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,16 +12,5 @@
     {% endfor %}
 </ul>
 
-<h1>{{ list }}</h1>
-{% if user.is_active %}
-    <h2><a href="{% url 'account_url' %}">{{ user }}</a></h2>
-    <h3><a href="{% url 'logout_url' %}">Выйти</a></h3>
-{% else %}
-    <h2><a href="{% url 'create_user_url' %}">Зарегистрироваться</a></h2>
-    <h2><a href="{% url 'login_user_url' %}">Войти</a></h2>
-{% endif %}
-<h2><a href="{% url 'create_interview_url' %}">Отправить заявку на собеседование</a></h2>
-
-<h1>Главная страница</h1>
 </body>
 </html>

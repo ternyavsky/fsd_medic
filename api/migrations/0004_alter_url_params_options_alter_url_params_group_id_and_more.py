@@ -11,6 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.DeleteModel(
+            name='Images',
+        ),
         migrations.AlterModelOptions(
             name='url_params',
             options={'verbose_name': 'Параметер', 'verbose_name_plural': 'Параметры'},

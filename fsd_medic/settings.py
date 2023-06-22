@@ -20,11 +20,9 @@ SECRET_KEY = os.getenv('SEC_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG_STATUS')
 
-ALLOWED_HOSTS = ['127.0.0.1','containers-us-west-36.railway.app',]
-
+ALLOWED_HOSTS = ['127.0.0.1', 'containers-us-west-36.railway.app', ]
 
 REST_FRAMEWORK = {
-
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
 
@@ -44,15 +42,11 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'templates',
-
-
     'rest_framework',
-    ]
-
-
-
+]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -61,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
@@ -149,9 +145,10 @@ EMAIL_HOST_USER = os.getenv('EM_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EM_HOST_PASSWORD')
 EMAIL_PORT = os.getenv('EM_PORT')
 
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_URL = 'static/'
 
-STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+GEOIP_PATH = os.path.join(BASE_DIR, 'geoip/')

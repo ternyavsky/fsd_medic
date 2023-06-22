@@ -23,9 +23,13 @@ from rest_framework import status
 from rest_framework.decorators import permission_classes, action
 
 
-def index(request, parameter):
+def index(request):
+    return render(request, template_name='api/index.html')
+
+
+def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
-        group_id = Url_Params.objects.get(parameter='qXSRpAUGjRyxVdFJ3vVB92nGAstWBLnEIzn3tdZ7jPlUHXlK7p').group_id
+        group_id = Url_Params.objects.get(parameter=parameter).group_id
         group_name = Groups.objects.get(id=group_id).name
         if group_name == 'Администраторы':
             return HttpResponse('Здесь будет форма регистрации админа')
@@ -116,6 +120,7 @@ class NewsView(generics.ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 ### USER BLOCK ###
 class CreateUserView(generics.ListCreateAPIView):
