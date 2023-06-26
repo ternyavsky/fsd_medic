@@ -195,6 +195,8 @@ class Url_Params(models.Model):
         self.parameter = get_random_string(length=50)
         super(Url_Params, self).save()
 
+    
+
     def __str__(self):
         return self.parameter
 
