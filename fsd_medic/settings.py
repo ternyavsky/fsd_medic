@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'social.apps.SocialConfig',
     'templates',
     'rest_framework',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
