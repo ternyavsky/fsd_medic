@@ -5,6 +5,7 @@ from .models import News, User, Interviews, Centers, Clinics
 
 
 class UserSerializer(serializers.Serializer):
+
     def create(self, validated_data):
         self.create_validate(self, validated_data)
         return User.objects.create_user(
@@ -36,7 +37,7 @@ class UserSerializer(serializers.Serializer):
         # Проверка присувствия данных
         if data['number'] is None:
             raise serializers.ValidationError('Введите номер')
-        if data['password1'] is None:
+        if data['pas1sword1'] is None:
             raise serializers.ValidationError('Введите пароль')
         elif data['password2'] is None:
             raise serializers.ValidationError('Подтвердите пароль')
