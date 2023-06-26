@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'social.apps.SocialConfig',
     'templates',
     'rest_framework',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -57,13 +56,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173'
+    '*'
 ]
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=23),
