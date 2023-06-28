@@ -107,19 +107,9 @@ class AdminSerializer(serializers.Serializer):
             raise serializers.ValidationError('Введите пароль')
         elif data['password2'] is None:
             raise serializers.ValidationError('Подтвердите пароль')
-        # Проверка Номера
-        if not number_pattern.match(data['number']):
-            raise serializers.ValidationError('Введен неоректный номер телефона')
-
-        if User.objects.filter(number=data['number']).exists() or Interviews.objects.filter(
-                number=data['number']).exists():
-            raise serializers.ValidationError('Номер уже используется')
         # Проверка Почты
         if not email_pattern.match(data['email']):
             raise serializers.ValidationError('Введена некоректная почта')
-        if User.objects.filter(email=data['email']).exists() or Interviews.objects.filter(
-                email=data['email']).exists():
-            raise serializers.ValidationError('Почта уже используется')
         # Проверка Имени
         if not name_pattern.match(data['first_name']):
             raise serializers.ValidationError('Имя может состоять только из букв кирилицы')
@@ -153,11 +143,12 @@ class AdminSerializer(serializers.Serializer):
     password2 = serializers.CharField(write_only=True)
 
 
-
 class UserGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
@@ -192,5 +183,6 @@ class SearchSerializer(serializers.Serializer):
     clinics = ClinicSerializer(read_only=True, many=True)
     centers = CenterSerializer(read_only=True, many=True)
     users = UserGetSerializer(read_only=True, many=True)
+
     class Meta:
         fields = '__all__'

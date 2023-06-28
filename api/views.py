@@ -162,7 +162,7 @@ class UpdateUserView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CreateAdminView(APIView):
+class CreateAdminView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     model = User
     serializer_class = AdminSerializer

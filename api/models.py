@@ -10,7 +10,7 @@ class UserManager(BaseUserManager):
 
     def create_user(self, number, password, group_name, center_id, email=None, first_name=None, last_name=None,
                     is_patient=None, disease_id=None):
-        user = self.model(login=number, number=number)
+        user = self.model(number=number)
 
         user_group = Groups.objects.get(name=group_name)
         user_group.number_of_people += 1
@@ -73,7 +73,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, number, email, first_name, last_name, password=None):
-        superuser = self.model(login=number, number=number, email=email, first_name=first_name, last_name=last_name)
+        superuser = self.model(number=number, email=email, first_name=first_name, last_name=last_name)
 
         superuser_group = Groups.objects.get(name='Администраторы')
         superuser_group.number_of_people += 1
@@ -90,7 +90,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    login = models.CharField(verbose_name=_('Логин'), max_length=50, blank=True, null=True, unique=True)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False, blank=True)
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
@@ -109,12 +108,12 @@ class User(AbstractBaseUser):
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
-    USERNAME_FIELD = 'login'
+    USERNAME_FIELD = 'number'
 
     objects = UserManager()
 
     def __str__(self):
-        return self.login
+        return self.number
 
     def delete(self, using=None, keep_parents=False):
         group = Groups.objects.get(id=self.group_id)
