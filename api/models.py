@@ -194,8 +194,6 @@ class Url_Params(models.Model):
         self.parameter = get_random_string(length=50)
         super(Url_Params, self).save()
 
-    
-
     def __str__(self):
         return self.parameter
 
@@ -204,18 +202,18 @@ class Url_Params(models.Model):
         verbose_name = 'Ссылку'
 
 
-class Email_Codes(models.Model):
+class EmailCodes(models.Model):
     code = models.IntegerField()
-    user = models.OneToOneField('User', on_delete=models.SET_NULL,
-                                null=True, blank=True)
-    interview = models.OneToOneField('Interviews', on_delete=models.SET_NULL,
-                                     null=True, blank=True)
+    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
+
+
+class NumberCodes(models.Model):
+    code = models.IntegerField()
+    number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
 
 
 class Countries(models.Model):
     name = models.CharField(verbose_name=_('Название страны'), max_length=50, unique=True)
-    number_code = models.CharField(verbose_name=_('Телефонный код страны'), max_length=15, null=True)
-    number_length = models.CharField(verbose_name=_('Длина номера'), max_length=2, null=True)
 
     def __str__(self):
         return self.name
@@ -223,15 +221,6 @@ class Countries(models.Model):
     class Meta:
         verbose_name_plural = 'Страны'
         verbose_name = 'Страну'
-
-
-class Country_Codes(models.Model):
-    country = models.CharField(verbose_name=_('Название страны'), max_length=30)
-    code = models.IntegerField(verbose_name=_('Код страны'))
-
-    class Meta:
-        verbose_name_plural = 'Номерные коды'
-        verbose_name = 'Номерной код'
 
 
 class Interviews(models.Model):

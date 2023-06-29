@@ -25,9 +25,9 @@ class GroupsAdmin(admin.ModelAdmin):
 
 
 class CountriesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'number_code', 'number_length']
+    list_display = ['id', 'name',]
     search_fields = ['name']
-    fields = ['name', 'number_code', 'number_length']
+    fields = ['name']
     readonly_fields = ['id']
 
 

@@ -1,7 +1,7 @@
 import re
 
 from rest_framework import serializers
-from .models import News, User, Interviews, Centers, Clinics
+from .models import News, User, NumberCodes, Centers, Clinics
 
 
 class UserSerializer(serializers.Serializer):
@@ -30,10 +30,23 @@ class UserSerializer(serializers.Serializer):
 
     def create_validate(self, data):
         number_pattern = re.compile('^[+]+[0-9]+$')
-        email_pattern = re.compile('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-        name_pattern = re.compile('^[а-яА-Я]+$')
         password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
 
+        if data['stage'] == 1:
+            # Проверка Номера
+            if User.objects.filter(number=data['number']).exists():
+                raise serializers.ValidationError('Номер уже используется')
+            if not number_pattern.match(data['number']):
+                raise serializers.ValidationError('Введен неоректный номер телефона')
+            # Проверка паролей
+            if data['password1'] != data['password2']:
+                raise serializers.ValidationError('Пароли должны совподать')
+            if not password_pattern.match(data['password1']):
+                raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
+            if len(data['password1']) < 8:
+                raise serializers.ValidationError('Пароль не может быть кароче 8 символов')
+        if data['stage'] == 3:
+            pass
         # Проверка присувствия данных
         if data['number'] is None:
             raise serializers.ValidationError('Введите номер')
@@ -47,20 +60,6 @@ class UserSerializer(serializers.Serializer):
             data['is_patient'] = None
         if data['disease_id'] is None:
             data['disease_id'] = None
-        if data['group_name'] == 'Пользователи':
-            # Проверка Номера
-            if not number_pattern.match(data['number']):
-                raise serializers.ValidationError('Введен неоректный номер телефона')
-            if User.objects.filter(number=data['number']).exists() or Interviews.objects.filter(
-                    number=data['number']).exists():
-                raise serializers.ValidationError('Номер уже используется')
-            # Проверка паролей
-            if not password_pattern.match(data['password1']):
-                raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
-            if len(data['password1']) < 8:
-                raise serializers.ValidationError('Пароль не может быть кароче 8 символов')
-            if data['password1'] != data['password2']:
-                raise serializers.ValidationError('Пароли должны совподать')
 
     def update_validate(self, data):
         if data['email'] is not None:
@@ -94,9 +93,6 @@ class AdminSerializer(serializers.Serializer):
         name_pattern = re.compile('^[а-яА-Я]+$')
         password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
 
-        # Проверка присувствия данных
-        if data['number'] is None:
-            raise serializers.ValidationError('Введите номер')
         if data['email'] is None:
             raise serializers.ValidationError('Введите почту')
         if data['first_name'] is None:

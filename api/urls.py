@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import index, ADMIN_SIGN_UP, INTERVIEW_SIGN_UP, INTERVIEW_SIGN_UP_2, USER_SIGN_UP, USER_SIGN_UP_2, LOGOUT, \
-    USER_SIGN_IN, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, CreateAdminView, \
+from .views import index, LOGOUT,  Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, CreateAdminView, \
     UpdateUserView, SearchView, registration
 
 from rest_framework_simplejwt.views import (
@@ -25,9 +24,6 @@ urlpatterns = [
     path('registration/<str:parameter>', registration, name='registration_url'),
     path('', index, name='home_url'),
 
-    path('registration', USER_SIGN_UP, name='create_user_url'),
-    path('createinterview', INTERVIEW_SIGN_UP, name='create_interview_url'),
-    path('authorization', USER_SIGN_IN, name='login_user_url'),
     path('logout', LOGOUT, name='logout_url'),
     path('account', Account, name='account_url'),
 ]
