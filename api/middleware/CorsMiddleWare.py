@@ -4,4 +4,5 @@ def open_access_middleware(get_response):
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Headers"] = "*"
         return response
+
     return middleware
