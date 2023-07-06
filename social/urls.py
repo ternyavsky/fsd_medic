@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import room
-from . import views
+from .views import ChatView, MessageView
+
 urlpatterns = [
-    path('<str:uuid>/', room, name='room'),
+    path('api/chat/<int:user_id>/', ChatView.as_view(), name='chat_view_url'),
+    path('api/messages/<int:chat_id>/', MessageView.as_view(), name='messages_view_url'),
 ]

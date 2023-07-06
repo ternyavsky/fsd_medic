@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import index, LOGOUT,  Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, CreateAdminView, \
     UpdateUserView, SearchView, registration
+from social.views import ChatView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -22,6 +23,8 @@ urlpatterns = [
     path('api/update/admin', UpdateUserView.as_view(), name='update_admin_url'),
 
     path('registration/<str:parameter>', registration, name='registration_url'),
+
+
     path('', index, name='home_url'),
 
     path('logout', LOGOUT, name='logout_url'),

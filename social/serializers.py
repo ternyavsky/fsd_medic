@@ -22,20 +22,16 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class ChatSerializer(serializers.Serializer):
+class ChatSerializer(serializers.ModelSerializer):
     user1 = UserSerializer()
     user2 = UserSerializer()
 
-    def create(self, validated_data):
-        chat = Chat(
-            user1=validated_data['user1'],
-            user2=validated_data['user2']
-        )
-        chat.save()
-        return chat
-
     class Meta:
-        fields = ['pk', 'uuid', 'user1', 'user2']
+        model = Chat
+        fields = ['id', 'uuid', 'user1', 'user2']
+
+
+
 
 
 class MessageSerializer(serializers.ModelSerializer):
