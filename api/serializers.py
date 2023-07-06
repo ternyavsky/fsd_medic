@@ -1,6 +1,7 @@
 import json
 import re
 
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from .models import News, User, NumberCodes, Centers, Clinics
 
@@ -18,20 +19,18 @@ class UserSerializer(serializers.Serializer):
         self.create_validate(validated_data)
 
         stage = self.context['request'].data.get('stage')
-        print('текущий этап', stage)
-        print(type(stage))
         user = None
 
         if stage == '1':
             user = User.objects.create_user(
                 number=validated_data['number'],
                 password=validated_data['password1'],
-                center_id = validated_data['center_id'],
                 group=validated_data['group']
             )
             user.stage = stage
             validated_data['stage'] = stage
-        elif stage == '3':
+
+        if stage == '3':
             center_id = validated_data.get('center_id')
             disease_id = validated_data.get('disease_id')
 
@@ -40,7 +39,9 @@ class UserSerializer(serializers.Serializer):
 
             try:
                 user = User.objects.get(number=validated_data['number'])
-                user.center_id = center_id
+                center = Centers.objects.get(id=center_id)
+                user.center_id = center.id
+                user.country = center.country
                 user.disease_id = disease_id
                 user.save()
 
@@ -49,9 +50,6 @@ class UserSerializer(serializers.Serializer):
 
             user.stage = stage
             validated_data['stage'] = stage
-
-            # with open('res.json', 'w') as file:
-            #     json.dump(validated_data, file, indent=4, ensure_ascii=False)
 
         return user
 
@@ -67,37 +65,48 @@ class UserSerializer(serializers.Serializer):
         return validated_data['instance']
 
     def create_validate(self, data):
-        number_pattern = re.compile('^[+]+[0-9]+$')
-        password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
+        number_pattern = re.compile(r'^\+7[0-9]{10}$')
+        password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
 
-        stage = data.get('stage')
-        if stage == 1:
+        stage = self.context['request'].data.get('stage')
+        print(type(stage), 'тип stage')
+        if stage == '1':
             # Проверка Номера
             if User.objects.filter(number=data['number']).exists():
                 raise serializers.ValidationError('Номер уже используется')
-            if not number_pattern.match(data['number']):
-                raise serializers.ValidationError('Введен неоректный номер телефона')
-            # Проверка паролей
-            if data['password1'] != data['password2']:
-                raise serializers.ValidationError('Пароли должны совподать')
-            if not password_pattern.match(data['password1']):
-                raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
-            if len(data['password1']) < 8:
-                raise serializers.ValidationError('Пароль не может быть кароче 8 символов')
-        if stage == 3:
-            pass
-        # Проверка присувствия данных
-        if data['number'] is None:
-            raise serializers.ValidationError('Введите номер')
-        if data['password1'] is None:
-            raise serializers.ValidationError('Введите пароль')
-        elif data['password2'] is None:
-            raise serializers.ValidationError('Подтвердите пароль')
-        if data['center_id'] is None:
-            raise serializers.ValidationError('Выберите центр')
 
-        if data['disease_id'] is None:
-            data['disease_id'] = None
+            if not number_pattern.match(data['number']):
+                raise serializers.ValidationError('Введен некорректный номер телефона')
+
+
+            # Проверка паролей
+            password1 = data.get('password1')
+            password2 = data.get('password2')
+            if password1 != password2:
+                raise serializers.ValidationError({'password2': 'Пароли должны совпадать'})
+
+            if not password_pattern.match(password1):
+                raise serializers.ValidationError(
+                    {'password1': 'Пароль должен состоять из цифр и букв обоих регистров'})
+
+            if len(password1) < 8:
+                raise serializers.ValidationError({'password1': 'Пароль должен быть не менее 8 символов'})
+
+
+        if stage == '3':
+
+        # Проверка присувствия данных
+            if data['number'] is None:
+                raise serializers.ValidationError('Введите номер')
+            if data['password1'] is None:
+                raise serializers.ValidationError('Введите пароль')
+            elif data['password2'] is None:
+                raise serializers.ValidationError('Подтвердите пароль')
+            if data['center_id'] is None:
+                raise serializers.ValidationError('Выберите центр')
+
+            if data['disease_id'] is None:
+                raise serializers.ValidationError('Выберите заболевания')
 
 
 

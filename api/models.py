@@ -9,14 +9,14 @@ from abc import ABC, abstractmethod
 class UserManager(BaseUserManager):
     def create_user(self, number, password, group=None, center_id=None, email=None, first_name=None, last_name=None,
                     disease_id=None):
-        user = self.model(number=number)  # добавляем аргумент stage
+        user = self.model(number=number)
         user_group = Groups.objects.get(name='Пользователи')
         user_group.number_of_people += 1
         user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
-        user.center_id = center_id
-        user.country_id = Centers.objects.get(id=center_id).country_id
+
         user.set_password(password)
+
         if group == 'Пользователи':
             user.disease_id = disease_id
             user.is_required = True
@@ -26,8 +26,13 @@ class UserManager(BaseUserManager):
             user.last_name = last_name
             user.is_required = False
 
+        if center_id is not None:
+            user.center_id = center_id
+            user.country = Centers.objects.get(id=center_id).country
+
         user.save()
         return user
+
     def update_user(self, user, number=None, email=None, password=None, first_name=None, last_name=None, surname=None,
                     center_id=None, disease_id=None):
 
