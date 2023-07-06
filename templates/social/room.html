@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Room</title>
+</head>
+<body>
+    <div class="" id="app">
+        <h5>{{ user.password }}</h5>
+       <h5> {{ user.username }}</h5>
+
+        <ol>
+            <li v-for="message in messages">
+                [[ message.text ]]
+
+
+            </li>
+        </ol>
+    </div>
+    <input id="chat-message-delete" type="button" value="Удалить">
+    <h1 id="room_name">{{ chat }}</h1>
+    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <input id="chat-message-input" type="text" size="100"><br>
+    <input id="chat-message-submit" type="button" value="Send">
+    <input id="delete_message" type="button" value="Удалить">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script>
+
+
+        var app = new Vue({
+            el: '#app',
+            delimiters: ["[[", "]]"],
+            data() {
+                return {
+                    messages: [],
+                };
+            },
+            methods: {
+                reverse: function(){
+                    this.message = this.message.split('').reverse().join('')
+                }
+            },
+
+        })
+        const user_id = '{{ request.user.pk }}'
+        const chat_uuid = '{{ chat }}'
+        const user = '{{ user }}'
+        console.log(user_id)
+        const request_id = new Date().getTime()
+        const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${chat_uuid}/${user_id}/`);
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data)
+                if(data.action === 'send'){
+                    document.querySelector('#chat-log').value += `user connect ${data.connect}`
+                }
+
+                if(data.action === 'send_message'){
+                    console.log(data.message.data)
+                    app.$data.messages.push(data.message.data);
+                }
+                if(data.action === 'list_message'){
+                    app.$data.messages = data.messages.data;
+
+                    app.$forceUpdate();
+
+                }if (data.action === 'delete_message'){
+                    const messageToDelete = data.message.data
+                    console.log(messageToDelete)
+                    app.$data.messages.filter((message) => message !== messageToDelete);
+
+                };
+            }
+
+
+
+
+
+        document.querySelector('#delete_message').onclick = function(e) {
+                ws.send(JSON.stringify({
+                    action: 'delete_message',
+                    pk: 357,
+                }))
+            }
+
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+
+            ws.send(JSON.stringify({
+                action: 'send_message',
+                chat_uuid: chat_uuid,
+                text:  message,
+                user_id: user_id,
+            }));
+            messageInputDom.value = ''
+        };
+    </script>
+    <script>
+
+    </script>
+</body>
+</html>
