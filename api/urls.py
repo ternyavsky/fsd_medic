@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from phone_verify.api import VerificationViewSet
 from .views import index, LOGOUT,  Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, CreateAdminView, \
     UpdateUserView, SearchView, registration
 
@@ -7,7 +9,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+default_router = DefaultRouter(trailing_slash=False)
+default_router.register('phone', VerificationViewSet, basename='phone')
+
 urlpatterns = [
+    path('api/', include(default_router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair_url'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
     path('api/news/', NewsView.as_view(), name='news_view_url'),
@@ -26,4 +32,4 @@ urlpatterns = [
 
     path('logout', LOGOUT, name='logout_url'),
     path('account', Account, name='account_url'),
-]
+] + default_router.urls

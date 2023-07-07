@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 class UserManager(BaseUserManager):
     def create_user(self, number, password, group=None, center_id=None, email=None, first_name=None, last_name=None,
-                    disease_id=None):
+                    disease_id=None, *args, **kwargs):
         user = self.model(number=number)
         user_group = Groups.objects.get(name='Пользователи')
         user_group.number_of_people += 1
@@ -25,7 +25,7 @@ class UserManager(BaseUserManager):
             user.first_name = first_name
             user.last_name = last_name
             user.is_required = False
-
+        # это UserManager(BaseUserManager)
         if center_id is not None:
             user.center_id = center_id
             user.country = Centers.objects.get(id=center_id).country

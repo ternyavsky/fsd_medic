@@ -69,7 +69,7 @@ class UserSerializer(serializers.Serializer):
         password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
 
         stage = self.context['request'].data.get('stage')
-        print(type(stage), 'тип stage')
+        # print(type(stage), 'тип stage')
         if stage == '1':
             # Проверка Номера
             if User.objects.filter(number=data['number']).exists():
@@ -159,6 +159,10 @@ class AdminSerializer(serializers.Serializer):
         if len(data['first_name']) > 20:
             raise serializers.ValidationError('Имя не может быть длинее 20 символов')
         # Проверка Фамилии
+        # Проверка телефона
+        if User.objects.filter(number=data['number']).exists():
+            raise serializers.ValidationError('Номер уже используется')
+
         if not name_pattern.match(data['last_name']):
             raise serializers.ValidationError('Фамилия может состоять только из букв кирилицы')
         if len(data['last_name']) < 3:
