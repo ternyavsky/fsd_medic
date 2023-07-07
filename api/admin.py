@@ -25,7 +25,7 @@ class GroupsAdmin(admin.ModelAdmin):
 
 
 class CountriesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name',]
+    list_display = ['id', 'name', ]
     search_fields = ['name']
     fields = ['name']
     readonly_fields = ['id']
@@ -33,17 +33,17 @@ class CountriesAdmin(admin.ModelAdmin):
 
 class CentersAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'is_required', 'employees_number', 'country', 'address',
-                   'created_at', 'updated_at', ]
+                    'created_at', 'updated_at', ]
     search_fields = ['name', 'address']
     list_editable = ['is_required']
     list_filter = ['is_required', 'country', 'created_at', 'updated_at']
     fields = ['name', 'is_required', 'employees_number', 'country', 'address',
-         ]
+              ]
     readonly_fields = ['id', 'created_at', 'updated_at']
 
 
 class UrlParamsAdmin(admin.ModelAdmin):
-    list_display = ['id','get_parameter','group']
+    list_display = ['id', 'get_parameter', 'group']
     list_filter = ['group']
     fields = ['group']
 
@@ -53,7 +53,9 @@ class UrlParamsAdmin(admin.ModelAdmin):
 
     get_parameter.short_description = 'Ссылка'
 
+
 admin.site.register(Centers, CentersAdmin)
+admin.site.register(Clinics)
 admin.site.register(User, UserAdmin)
 admin.site.register(Groups, GroupsAdmin)
 admin.site.register(Interviews)

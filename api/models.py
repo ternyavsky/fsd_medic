@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from abc import ABC, abstractmethod
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class UserManager(BaseUserManager):
@@ -92,8 +93,8 @@ class User(AbstractBaseUser):
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
     birthday = models.DateField(verbose_name=_('День рождения'), null=True, blank=True)
-    image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
-                              default='media/site_photos/AccauntPreview.png')
+    image = models.ImageField(verbose_name=_('Фотография Пользователя'), upload_to='users_photos/', blank=True,
+                              default='site_photos/AccauntPreview.png')
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
@@ -122,7 +123,7 @@ class User(AbstractBaseUser):
 
     class Meta:
         verbose_name_plural = 'Пользователи'
-        verbose_name = 'Пользователья'
+        verbose_name = 'Пользователь'
         ordering = ['-created_at']
 
 
@@ -139,7 +140,12 @@ class Groups(models.Model):
 
 
 class Centers(models.Model):
-    name = models.CharField(verbose_name=_('Название Центра'), max_length=100, null=True)
+    name = models.CharField(verbose_name=_('Название центра'), max_length=255, null=True)
+    image = models.ImageField(verbose_name=_('Фото центра'), upload_to='centers_photos/', blank=True,
+                              default='centers_photos/center_photo.jpg')
+    rating = models.FloatField(verbose_name=_('Рейтинг центра'), max_length=5, default=5,
+                               validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
+    description = models.TextField(verbose_name=_('Описание центра'), blank=True, null=True, max_length=550)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
@@ -161,9 +167,15 @@ class Centers(models.Model):
 class Clinics(models.Model):
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100, null=True)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
+    rating = models.FloatField(verbose_name=_('Рейтинг клиники'), default=5,
+                               validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
+    description = models.TextField(verbose_name=_('Описание клиники'), blank=True, null=True, max_length=550)
+    image = models.ImageField(verbose_name=_('Фото клиники'), upload_to='clinics_photos/',
+                              default='centers_photos/clinic_photo.jpg', blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
     employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'), null=True)
+    supported_diseases = models.ManyToManyField('Disease')
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
@@ -175,7 +187,7 @@ class Clinics(models.Model):
 
     class Meta:
         verbose_name_plural = 'Клиники'
-        verbose_name = 'Клинику'
+        verbose_name = 'Клиника'
 
 
 class Url_Params(models.Model):

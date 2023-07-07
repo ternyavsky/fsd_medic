@@ -3,7 +3,7 @@ import re
 
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import News, User, NumberCodes, Centers, Clinics
+from .models import News, User, NumberCodes, Centers, Clinics, Disease
 
 
 class UserSerializer(serializers.Serializer):
@@ -212,10 +212,21 @@ class NewsSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ClinicSerializer(serializers.Serializer):
+class DiseaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Disease
+        fields = '__all__'
+
+
+class ClinicSerializer(serializers.ModelSerializer):
+    supported_diseases = serializers.SerializerMethodField()
     class Meta:
         model = Clinics
         fields = '__all__'
+
+    def get_supported_diseases(self, obj):
+        return DiseaseSerializer(obj.supported_diseases.all(), many=True).data
+
 
 
 class CenterSerializer(serializers.ModelSerializer):
@@ -225,9 +236,12 @@ class CenterSerializer(serializers.ModelSerializer):
 
 
 class SearchSerializer(serializers.Serializer):
+
     clinics = ClinicSerializer(read_only=True, many=True)
     centers = CenterSerializer(read_only=True, many=True)
     users = UserGetSerializer(read_only=True, many=True)
 
     class Meta:
         fields = '__all__'
+
+
