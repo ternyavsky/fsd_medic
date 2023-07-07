@@ -139,7 +139,11 @@ class Groups(models.Model):
 
 
 class Centers(models.Model):
-    name = models.CharField(verbose_name=_('Название Центра'), max_length=100, null=True)
+    name = models.CharField(verbose_name=_('Название центра'), max_length=255, null=True)
+    image = models.ImageField(verbose_name=_('Фото центра'), upload_to='centers_photos/', blank=True,
+                              default='centers_photos/center_photo.jpg')
+    rating = models.FloatField(verbose_name=_('Рейтинг центра'), max_length=5, default=5)
+    description = models.TextField(verbose_name=_('Описание центра'), blank=True, null=True, max_length=550)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
