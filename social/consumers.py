@@ -125,8 +125,27 @@ class MyConsumer(AsyncWebsocketConsumer):
                         "message": dict(data=self.serializer(instance=obj).data)
                     }
                 )
-
+            case 'update_message':
+                upd = await self.update_message_db(data["pk"], data["text"])
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "update_message",
+                        "action": action,
+                        "message": dict(data=self.serializer(instance=upd). data)
+                    }
+                )
             ### ACTION WITH CALLED WHEN SEND MESSAGE ###
+
+    async def update_message(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "action": event["action"],
+                    "message": event["message"]
+                }
+            )
+        )
 
     async def send_message(self, event):
         await self.send(
@@ -154,6 +173,13 @@ class MyConsumer(AsyncWebsocketConsumer):
     ### ACTION WITH CALLED WHEN SEND MESSAGE ###
     # Receive message from room group.
     #####  UTILS FOR DATABASE ####
+
+
+    @database_sync_to_async
+    def update_message_db(self, id, text):
+        Message.objects.filter(id=id).update(text=text)
+        message = Message.objects.get(id=id)
+        return message
 
     @database_sync_to_async
     def delete_message_db(self, id):
