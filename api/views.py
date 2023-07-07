@@ -138,11 +138,13 @@ class CreateUserView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
 
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data, context={'request': request})  # Передаем request в контекст
         if serializer.is_valid():
             serializer.save()
+            # print(request.data, 'data from views')
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class UpdateUserView(generics.ListCreateAPIView):
