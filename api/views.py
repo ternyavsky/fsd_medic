@@ -1,4 +1,6 @@
 import re
+import time
+
 from rest_framework import generics
 from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
@@ -19,6 +21,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import mixins
 from rest_framework.decorators import permission_classes, action, api_view
 
 
@@ -39,7 +42,6 @@ def registration(request, parameter):
         elif group_name == 'Врачи':
             return HttpResponse('Здесь будет форма регистрации врача')
     raise Http404
-
 
 ### NEWS BLOCK ###
 class SaveView(APIView):  # Append and delete saved news
@@ -121,10 +123,10 @@ class NewsView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 ### SEARCH ###
 
 class SearchView(APIView):
+
     def get(self, request, *args, **kwargs):
         search = {'clinics': Clinics.objects.all(), 'centers': Centers.objects.all(),
                   'users': User.objects.filter(is_staff=True)}

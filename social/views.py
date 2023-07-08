@@ -32,7 +32,7 @@ class MessageView(APIView):
             return Response({'result': 'Сообщений нет'})
 
 class ChatView(APIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
         obj = get_chat(Chat, user_id)
