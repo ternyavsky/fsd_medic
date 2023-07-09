@@ -4,7 +4,7 @@ from rest_framework import generics
 from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
-    VerifyCodeSerializer
+    VerifyCodeSerializer, ResendCodeSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -141,36 +141,33 @@ class SearchView(APIView):
 ### USER BLOCK ###
 
 
+def send_sms(number, code):
+    # account_sid = ''
+    # auth_token = ''
+    # client = Client(account_sid, auth_token)
+    # message = client.messages \
+    #     .create(
+    #     body=f'test тестовое сообщение - {code}',
+    #     from_='+18335872557',
+    #     to=str(number)
+    # )
+
+    print(f'на {number} был отправлен код {code}')
+
 
 
 class CreateUserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     model = User
     serializer_class = UserSerializer
-
-    def send_sms(self, number, code):
-        # account_sid = ''
-        # auth_token = ''
-        # client = Client(account_sid, auth_token)
-        # message = client.messages \
-        #     .create(
-        #     body=f'test тестовое сообщение - {code}',
-        #     from_='+18335872557',
-        #     to=str(number)
-        # )
-
-        print(f'на {number} был отправлен код {code}')
-
     def post(self, request):
         code = generate_verification_code()
         serializer = UserSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = serializer.save()
-
-
-            print(code, '-code')
-            if request.data['stage'] == '3':
-                self.send_sms(user.number, code)
+            # print(code, '-code')
+            if int(request.data['stage']) == 3:
+                send_sms(user.number, code)
                 user.verification_code = code
                 user.save()
 
@@ -178,7 +175,27 @@ class CreateUserView(generics.ListCreateAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ResendSmsView(APIView):
+    def post(self, request, user_id):
+        serializer = ResendCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            number = serializer.validated_data['number']
 
+            try:
+                user = User.objects.get(id=user_id, number=number)
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+            code = generate_verification_code()
+            # print(code, 'code from res')
+            send_sms(user.number, code)
+            user.verification_code = code
+            user.save()
+
+            return Response({'detail': 'SMS resended successfully'}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyCodeView(APIView):
     def patch(self, request, user_id):
@@ -186,7 +203,7 @@ class VerifyCodeView(APIView):
         if serializer.is_valid():
             number = serializer.validated_data.get('number')
             verification_code = serializer.validated_data.get('verification_code')
-            print(verification_code, 'check current code from serializer')
+            # print(verification_code, ' current code from serializer')
 
             try:
                 user = User.objects.get(id=user_id)

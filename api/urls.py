@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import index, LOGOUT, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, \
     CreateAdminView, \
-    UpdateUserView, SearchView, registration, VerifyCodeView
+    UpdateUserView, SearchView, registration, VerifyCodeView, ResendSmsView
 from social.views import ChatView
 
 from rest_framework_simplejwt.views import (
@@ -28,7 +28,7 @@ urlpatterns = [
     path('api/create/admin', CreateAdminView.as_view(), name='create_admin_url'),
     path('api/update/admin', UpdateUserView.as_view(), name='update_admin_url'),
     path('api/verify-code/<int:user_id>/', VerifyCodeView.as_view(), name='verify_code'),
-
+    path('resend-sms/<int:user_id>/', ResendSmsView.as_view(), name='resend-sms'),
     path('registration/<str:parameter>', registration, name='registration_url'),
 
 

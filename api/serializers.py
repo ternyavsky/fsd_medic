@@ -2,7 +2,7 @@ import json
 import re
 import random
 
-from django.contrib.auth.hashers import make_password
+
 from rest_framework import serializers
 from .models import News, User, NumberCodes, Centers, Clinics, Disease
 
@@ -31,11 +31,13 @@ class UserSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(validated_data)
         code = self.context['request'].data.get('code')
-        print(code, 'code from serializer')
+        # print(code, 'code from serializer')
         stage = self.context['request'].data.get('stage')
+        stage = int(stage)
+        # print(type(stage))
         user = None
 
-        if stage == '1':
+        if stage == 1:
             user = User.objects.create_user(
                 number=validated_data['number'],
                 password=validated_data['password1'],
@@ -44,7 +46,7 @@ class UserSerializer(serializers.Serializer):
             user.stage = stage
             validated_data['stage'] = stage
 
-        if stage == '2':
+        if stage == 2:
             center_id = validated_data.get('center_id')
 
             user = User.objects.get(number=validated_data['number'])
@@ -65,7 +67,7 @@ class UserSerializer(serializers.Serializer):
 
 
 
-        if stage == '3':
+        if stage == 3:
             try:
                 user = User.objects.get(number=validated_data['number'])
                 validated_data['stage'] = stage
@@ -147,7 +149,8 @@ class VerifyCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
     verification_code = serializers.IntegerField()
 
-
+class ResendCodeSerializer(serializers.Serializer):
+    number = serializers.CharField()
 class AdminSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(validated_data)
