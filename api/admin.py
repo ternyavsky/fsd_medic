@@ -7,7 +7,7 @@ from .models import *
 # Register your models here.
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'center', 'disease',
+    list_display = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'center',
                     'country', 'city', 'is_staff',
                     'is_required', 'created_at', 'updated_at', 'verification_code',]
     search_fields = ['login', 'number', 'email', 'first_name', 'last_name', ]
