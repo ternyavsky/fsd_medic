@@ -99,6 +99,7 @@ class User(AbstractBaseUser):
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
+    verification_code = models.PositiveIntegerField(verbose_name='СМС код подтверждения', default=1)
     USERNAME_FIELD = 'number'
 
 

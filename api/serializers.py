@@ -1,9 +1,11 @@
 import json
 import re
-
+import random
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from .models import News, User, NumberCodes, Centers, Clinics
+
+
 
 
 class UserSerializer(serializers.Serializer):
@@ -15,9 +17,12 @@ class UserSerializer(serializers.Serializer):
     stage = serializers.IntegerField(read_only=True)
     group = serializers.CharField()
 
+
+
     def create(self, validated_data):
         self.create_validate(validated_data)
-
+        code = self.context['request'].data.get('code')
+        print(code, 'code from serializer')
         stage = self.context['request'].data.get('stage')
         user = None
 
@@ -30,12 +35,12 @@ class UserSerializer(serializers.Serializer):
             user.stage = stage
             validated_data['stage'] = stage
 
-        if stage == '3':
+        if stage == '2':
             center_id = validated_data.get('center_id')
             disease_id = validated_data.get('disease_id')
 
             if not center_id or not disease_id:
-                raise serializers.ValidationError('center_id and disease_id are required for stage 3')
+                raise serializers.ValidationError('center_id and disease_id are required for stage 2')
 
             try:
                 user = User.objects.get(number=validated_data['number'])
@@ -46,10 +51,15 @@ class UserSerializer(serializers.Serializer):
                 user.save()
 
             except User.DoesNotExist:
-                raise serializers.ValidationError('User does not exist for stage 3')
+                raise serializers.ValidationError('User does not exist for stage 2')
 
             user.stage = stage
             validated_data['stage'] = stage
+
+        if stage == '3':
+            user = User.objects.get(number=validated_data['number'])
+            validated_data['stage'] = stage
+            user.save()
 
         return user
 
@@ -65,7 +75,7 @@ class UserSerializer(serializers.Serializer):
         return validated_data['instance']
 
     def create_validate(self, data):
-        number_pattern = re.compile(r'^\+7[0-9]{10}$')
+        number_pattern = re.compile(r'^\+[0-9]{10}$')
         password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
 
         stage = self.context['request'].data.get('stage')
@@ -75,8 +85,8 @@ class UserSerializer(serializers.Serializer):
             if User.objects.filter(number=data['number']).exists():
                 raise serializers.ValidationError('Номер уже используется')
 
-            if not number_pattern.match(data['number']):
-                raise serializers.ValidationError('Введен некорректный номер телефона')
+            # if not number_pattern.match(data['number']):
+            #     raise serializers.ValidationError('Введен некорректный номер телефона')
 
 
             # Проверка паролей
@@ -93,7 +103,7 @@ class UserSerializer(serializers.Serializer):
                 raise serializers.ValidationError({'password1': 'Пароль должен быть не менее 8 символов'})
 
 
-        if stage == '3':
+        if stage == '2':
 
         # Проверка присувствия данных
             if data['number'] is None:
@@ -116,8 +126,9 @@ class UserSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Почта уже используется')
 
 
-
-
+class VerifyCodeSerializer(serializers.Serializer):
+    number = serializers.CharField()
+    verification_code = serializers.IntegerField()
 
 
 class AdminSerializer(serializers.Serializer):

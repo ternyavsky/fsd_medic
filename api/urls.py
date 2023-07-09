@@ -1,8 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from phone_verify.api import VerificationViewSet
-from .views import index, LOGOUT,  Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, CreateAdminView, \
-    UpdateUserView, SearchView, registration
+
+from .views import index, LOGOUT, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, \
+    CreateAdminView, \
+    UpdateUserView, SearchView, registration, VerifyCodeView
 from social.views import ChatView
 
 from rest_framework_simplejwt.views import (
@@ -10,11 +11,10 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-default_router = DefaultRouter(trailing_slash=False)
-default_router.register('phone', VerificationViewSet, basename='phone')
+
 
 urlpatterns = [
-    path('api/', include(default_router.urls)),
+
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair_url'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
     path('api/news/', NewsView.as_view(), name='news_view_url'),
@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/update/user', UpdateUserView.as_view(), name='update_user_url'),
     path('api/create/admin', CreateAdminView.as_view(), name='create_admin_url'),
     path('api/update/admin', UpdateUserView.as_view(), name='update_admin_url'),
+    path('api/verify-code/<int:user_id>/', VerifyCodeView.as_view(), name='verify_code'),
 
     path('registration/<str:parameter>', registration, name='registration_url'),
 
@@ -35,4 +36,4 @@ urlpatterns = [
 
     path('logout', LOGOUT, name='logout_url'),
     path('account', Account, name='account_url'),
-] + default_router.urls
+]

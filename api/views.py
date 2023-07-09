@@ -1,8 +1,10 @@
 import re
+from twilio.rest import Client
 from rest_framework import generics
 from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
-from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer
+from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
+    VerifyCodeSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -13,7 +15,8 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
 import json
-
+import requests
+import random
 # REST IMPORTS
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
@@ -25,6 +28,10 @@ from rest_framework.decorators import permission_classes, action, api_view
 def index(request):
     return render(request, template_name='api/index.html')
 
+def generate_verification_code():
+
+    code = random.randint(1000, 9999)
+    return str(code)
 
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
@@ -132,20 +139,69 @@ class SearchView(APIView):
         return Response(serializer.data)
 
 ### USER BLOCK ###
+
+
+
+
 class CreateUserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     model = User
     serializer_class = UserSerializer
 
+    def send_sms(self, number, code):
+        # account_sid = ''
+        # auth_token = ''
+        # client = Client(account_sid, auth_token)
+        # message = client.messages \
+        #     .create(
+        #     body=f'test тестовое сообщение - {code}',
+        #     from_='+18335872557',
+        #     to=str(number)
+        # )
+
+        print(f'на {number} был отправлен код {code}')
+
     def post(self, request):
-        serializer = UserSerializer(data=request.data, context={'request': request})  # Передаем request в контекст
+        code = generate_verification_code()
+        serializer = UserSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
-            # print(request.data, 'data from views')
+            user = serializer.save()
+
+
+            print(code, '-code')
+            if request.data['stage'] == '3':
+                self.send_sms(user.number, code)
+                user.verification_code = code
+                user.save()
+
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+class VerifyCodeView(APIView):
+    def patch(self, request, user_id):
+        serializer = VerifyCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            number = serializer.validated_data.get('number')
+            verification_code = serializer.validated_data.get('verification_code')
+            print(verification_code, 'check current code from serializer')
+
+            try:
+                user = User.objects.get(id=user_id)
+                print(user.id, 'id текущего пользователя')
+                print(user.verification_code, 'verif_code from current user')
+            except User.DoesNotExist:
+                return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+            if verification_code == user.verification_code:
+                # print(verification_code, 'текущий verif_code')
+                user.is_required = True
+                user.save()
+                return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateUserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
