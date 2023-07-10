@@ -1,57 +1,87 @@
 import json
 import re
+import random
 
-from django.contrib.auth.hashers import make_password
+
 from rest_framework import serializers
 from .models import News, User, NumberCodes, Centers, Clinics, Disease
+
 
 
 class UserSerializer(serializers.Serializer):
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    center_id = serializers.IntegerField(required=False)
-    disease_id = serializers.IntegerField(required=False)
+    center_id = serializers.IntegerField(allow_null=True, required=False)
+    disease_id = serializers.PrimaryKeyRelatedField(
+        queryset=Disease.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True
+    )
     stage = serializers.IntegerField(read_only=True)
     group = serializers.CharField()
 
+
+
     def create(self, validated_data):
         self.create_validate(validated_data)
-
+        code = self.context['request'].data.get('code')
+        # print(code, 'code from serializer')
         stage = self.context['request'].data.get('stage')
+        stage = int(stage)
+        # print(type(stage))
         user = None
 
-        if stage == '1':
+        if stage == 1:
             user = User.objects.create_user(
                 number=validated_data['number'],
                 password=validated_data['password1'],
                 group=validated_data['group']
             )
+            print(validated_data)
             user.stage = stage
             validated_data['stage'] = stage
+            validated_data['id'] =  user.id
 
-        if stage == '3':
+        if stage == 2:
             center_id = validated_data.get('center_id')
-            disease_id = validated_data.get('disease_id')
 
-            if not center_id or not disease_id:
-                raise serializers.ValidationError('center_id and disease_id are required for stage 3')
-
+            user = User.objects.get(number=validated_data['number'])
             try:
-                user = User.objects.get(number=validated_data['number'])
                 center = Centers.objects.get(id=center_id)
                 user.center_id = center.id
                 user.country = center.country
-                user.disease_id = disease_id
-                user.save()
+            except Centers.DoesNotExist:
+                user.center_id = None
 
-            except User.DoesNotExist:
-                raise serializers.ValidationError('User does not exist for stage 3')
+            for i in validated_data['disease_id']:
+                user.disease.add(i)
+                if user.disease.count() >= 5:
+                    raise serializers.ValidationError('You cannot specify more than 5 diseases')
+                print(validated_data['disease_id'], ' test_data')
 
             user.stage = stage
             validated_data['stage'] = stage
+            user.save()
+
+
+
+        if stage == 3:
+            try:
+                user = User.objects.get(number=validated_data['number'])
+                validated_data['stage'] = stage
+                user.save()
+            except User.DoesNotExist:
+                raise serializers.ValidationError('User does not exist for stage 3')
+        
 
         return user
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['disease_id'] = instance.disease.values_list('id', flat=True)
+        return representation
 
     def update(self, validated_data):
         self.update_validate(validated_data)
@@ -65,7 +95,7 @@ class UserSerializer(serializers.Serializer):
         return validated_data['instance']
 
     def create_validate(self, data):
-        number_pattern = re.compile(r'^\+7[0-9]{10}$')
+        number_pattern = re.compile(r'^\+[0-9]{10}$')
         password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
 
         stage = self.context['request'].data.get('stage')
@@ -75,8 +105,8 @@ class UserSerializer(serializers.Serializer):
             if User.objects.filter(number=data['number']).exists():
                 raise serializers.ValidationError('Номер уже используется')
 
-            if not number_pattern.match(data['number']):
-                raise serializers.ValidationError('Введен некорректный номер телефона')
+            # if not number_pattern.match(data['number']):
+            #     raise serializers.ValidationError('Введен некорректный номер телефона')
 
 
             # Проверка паролей
@@ -93,7 +123,7 @@ class UserSerializer(serializers.Serializer):
                 raise serializers.ValidationError({'password1': 'Пароль должен быть не менее 8 символов'})
 
 
-        if stage == '3':
+        if stage == '2':
 
         # Проверка присувствия данных
             if data['number'] is None:
@@ -102,11 +132,11 @@ class UserSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Введите пароль')
             elif data['password2'] is None:
                 raise serializers.ValidationError('Подтвердите пароль')
-            if data['center_id'] is None:
-                raise serializers.ValidationError('Выберите центр')
-
-            if data['disease_id'] is None:
-                raise serializers.ValidationError('Выберите заболевания')
+            # if data['center_id'] is None:
+            #     raise serializers.ValidationError('Выберите центр')
+            #
+            # if data['disease_id'] is None:
+            #     raise serializers.ValidationError('Выберите заболевания')
 
 
 
@@ -116,10 +146,12 @@ class UserSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Почта уже используется')
 
 
+class VerifyCodeSerializer(serializers.Serializer):
+    number = serializers.CharField()
+    verification_code = serializers.IntegerField()
 
-
-
-
+class ResendCodeSerializer(serializers.Serializer):
+    number = serializers.CharField()
 class AdminSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(validated_data)
@@ -186,7 +218,6 @@ class AdminSerializer(serializers.Serializer):
     last_name = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-
 
 class UserGetSerializer(serializers.ModelSerializer):
     class Meta:

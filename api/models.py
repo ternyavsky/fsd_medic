@@ -86,20 +86,21 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True, blank=True)
-    disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True, blank=True)
+    disease = models.ManyToManyField('Disease', verbose_name=_('Заболевание'),  blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
     birthday = models.DateField(verbose_name=_('День рождения'), null=True, blank=True)
-    image = models.ImageField(verbose_name=_('Фотография Пользователя'), upload_to='users_photos/', blank=True,
-                              default='site_photos/AccauntPreview.png')
+    image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
+                              default='media/site_photos/AccauntPreview.png')
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
+    verification_code = models.PositiveIntegerField(verbose_name='СМС код подтверждения', default=1)
     USERNAME_FIELD = 'number'
 
 
@@ -123,7 +124,7 @@ class User(AbstractBaseUser):
 
     class Meta:
         verbose_name_plural = 'Пользователи'
-        verbose_name = 'Пользователь'
+        verbose_name = 'Пользователья'
         ordering = ['-created_at']
 
 
@@ -137,7 +138,6 @@ class Groups(models.Model):
     class Meta:
         verbose_name_plural = 'Группы'
         verbose_name = 'Группу'
-
 
 class Centers(models.Model):
     name = models.CharField(verbose_name=_('Название центра'), max_length=255, null=True)

@@ -1,10 +1,10 @@
 import re
-import time
-
+from twilio.rest import Client
 from rest_framework import generics
 from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
-from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer
+from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
+    VerifyCodeSerializer, ResendCodeSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -15,19 +15,23 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
 import json
-
+import requests
+import random
 # REST IMPORTS
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import mixins
 from rest_framework.decorators import permission_classes, action, api_view
 
 
 def index(request):
     return render(request, template_name='api/index.html')
 
+def generate_verification_code():
+
+    code = random.randint(1000, 9999)
+    return str(code)
 
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
@@ -42,6 +46,7 @@ def registration(request, parameter):
         elif group_name == 'Врачи':
             return HttpResponse('Здесь будет форма регистрации врача')
     raise Http404
+
 
 ### NEWS BLOCK ###
 class SaveView(APIView):  # Append and delete saved news
@@ -123,10 +128,10 @@ class NewsView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 ### SEARCH ###
 
 class SearchView(APIView):
-
     def get(self, request, *args, **kwargs):
         search = {'clinics': Clinics.objects.all(), 'centers': Centers.objects.all(),
                   'users': User.objects.filter(is_staff=True)}
@@ -134,18 +139,86 @@ class SearchView(APIView):
         return Response(serializer.data)
 
 ### USER BLOCK ###
+
+
+def send_sms(number, code):
+    # account_sid = ''
+    # auth_token = ''
+    # client = Client(account_sid, auth_token)
+    # message = client.messages \
+    #     .create(
+    #     body=f'test тестовое сообщение - {code}',
+    #     from_='+18335872557',
+    #     to=str(number)
+    # )
+
+    print(f'на {number} был отправлен код {code}')
+
+
+
 class CreateUserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     model = User
     serializer_class = UserSerializer
-
     def post(self, request):
-        serializer = UserSerializer(data=request.data, context={'request': request})  # Передаем request в контекст
+        code = generate_verification_code()
+        serializer = UserSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
-            # print(request.data, 'data from views')
+            user = serializer.save()
+            # print(code, '-code')
+            if int(request.data['stage']) == 3:
+                send_sms(user.number, code)
+                user.verification_code = code
+                user.save()
+
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ResendSmsView(APIView):
+    def post(self, request):
+        serializer = ResendCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            number = serializer.validated_data['number']
+
+            try:
+                user = User.objects.get(number=number)
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+            code = generate_verification_code()
+            # print(code, 'code from res')
+            send_sms(user.number, code)
+            user.verification_code = code
+            user.save()
+
+            return Response({'detail': 'SMS resend successfully'}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VerifyCodeView(APIView):
+    def post(self, request):
+        serializer = VerifyCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            number = serializer.validated_data.get('number')
+            verification_code = serializer.validated_data.get('verification_code')
+            # print(verification_code, ' current code from serializer')
+
+            try:
+                user = User.objects.get(number=number)
+                print(user.id, 'id текущего пользователя')
+                print(user.verification_code, 'verif_code from current user')
+            except User.DoesNotExist:
+                return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+            if verification_code == user.verification_code:
+                # print(verification_code, 'текущий verif_code')
+                user.is_required = True
+                user.save()
+                return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
