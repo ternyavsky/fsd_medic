@@ -28,7 +28,7 @@ urlpatterns = [
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
     path('api/update/admin/', UpdateUserView.as_view(), name='update_admin_url'),
     path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
-    path('resend-sms/', ResendSmsView.as_view(), name='resend-sms'),
+    path('api/resend-sms/', ResendSmsView.as_view(), name='resend-sms'),
     path('registration/<str:parameter>/', registration, name='registration_url'),
 
 
