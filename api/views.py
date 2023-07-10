@@ -2,9 +2,9 @@ import re
 from twilio.rest import Client
 from rest_framework import generics
 from django.shortcuts import render, redirect
-from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
+from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
-    VerifyCodeSerializer, ResendCodeSerializer
+    VerifyCodeSerializer, ResendCodeSerializer, DiseaseSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -133,10 +133,17 @@ class NewsView(generics.ListCreateAPIView):
 
 class SearchView(APIView):
     def get(self, request, *args, **kwargs):
+
         search = {'clinics': Clinics.objects.all(), 'centers': Centers.objects.all(),
                   'users': User.objects.filter(is_staff=True)}
         serializer = SearchSerializer(search)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class GetDiseasesView(APIView):
+    def get(self, request):
+        diseases = Disease.objects.all()
+        serializer = DiseaseSerializer(diseases, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 ### USER BLOCK ###
 
@@ -174,6 +181,15 @@ class CreateUserView(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+    
+class CenterRegistrationView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        centers = Centers.objects.all().filter(city=request.data["city"])
+        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
+        
 
 class ResendSmsView(APIView):
     def post(self, request):
