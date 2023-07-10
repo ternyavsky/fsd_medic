@@ -38,14 +38,3 @@ class ChatView(APIView):
         obj = get_chat(Chat, user_id)
         serializer = ChatSerializer(obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-def room(request, uuid):
-    chat = Chat.objects.get(uuid=uuid)
-    return render(request, 'social/room.html', context=
-    {
-        'chat': chat.uuid,
-        'user': request.user,
-        'messages': Message.objects.all()
-    })

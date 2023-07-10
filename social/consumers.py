@@ -22,13 +22,13 @@ class MyConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
-
+        await self.accept()
 
         user_id = self.scope["url_route"]["kwargs"]["user_id"]
         user = User.objects.get(id=user_id)
 
         self.active_users.append(UserSerializer(user).data)
-        await self.accept()
+        
 
         await self.channel_layer.group_send(
             self.group_name,
