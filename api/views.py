@@ -1,6 +1,7 @@
 import re
 from twilio.rest import Client
 from rest_framework import generics
+from rest_framework import serializers
 from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
@@ -14,8 +15,10 @@ from .service import Send_email, generate_email_code, create_or_delete
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
+from django.shortcuts import get_object_or_404
 import json
 import requests
+from django.db.models import Q
 import random
 # REST IMPORTS
 from rest_framework.views import APIView
@@ -71,79 +74,81 @@ class LikeView(APIView):  # Append and delete like
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
 
+
+
 class NewsDetailView(APIView):  # Single news view
     permission_classes = [IsAdminOrReadOnly]
+    error_response = {'error': 'Новость не найдена!'}
 
     def get(self, request, id):  # get single news
-        try:
-            serializer = NewsSerializer(News.objects.get(id=id))
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+        news = get_object_or_404(News, id=id)
+        serializer = NewsSerializer(news)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id):  # delete single news
-        try:
-            news = News.objects.get(id=id)
-            news.delete()
-            return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
-        except:
-            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+        news = get_object_or_404(News, id=id)
+        news.delete()
+        return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
 
     def put(self, request, id):  # update single news
-        try:
-            news = News.objects.get(id=id)
-            serializer = NewsSerializer(news, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+        news = get_object_or_404(News, id=id)
+        serializer = NewsSerializer(news, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def handle_exception(self, exc):
+        if isinstance(exc, Http404):
+            return Response(self.error_response, status=status.HTTP_404_NOT_FOUND)
+        return super().handle_exception(exc)
 
 
 class NewsView(generics.ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
+    serializer_class = NewsSerializer
 
-    # Get all news from user_id
-    def get(self, request):
-        if request.user.is_staff:
-            news = News.objects.all()
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return News.objects.all()
+        elif user.disease is not None:
+            return News.objects.filter(disease=user.disease)
+        elif user.center is not None:
+            return News.objects.filter(center=user.center)
         else:
-            user = User.objects.get(id=request.user.id)
-            if user.disease is not None:
-                news = News.objects.filter(disease=user.disease)
-            elif user.center is not None:
-                news = News.objects.filter(center=user.center)
-            else:
-                return Response({'result': 'Для доступа к новостям, вам следует указать центр или заболевание'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        serializer = NewsSerializer(news, many=True)
+            raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):  # Create news
-        serializer = NewsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 
 ### SEARCH ###
 
+
+
 class SearchView(APIView):
     def get(self, request, *args, **kwargs):
+        clinics = Clinics.objects.all()
+        centers = Centers.objects.all()
+        users = User.objects.filter(is_staff=True)
 
-        search = {'clinics': Clinics.objects.all(), 'centers': Centers.objects.all(),
-                  'users': User.objects.filter(is_staff=True)}
-        serializer = SearchSerializer(search)
+        search_results = {
+            'clinics': clinics,
+            'centers': centers,
+            'users': users,
+        }
+
+        serializer = SearchSerializer(search_results)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-class GetDiseasesView(APIView):
-    def get(self, request):
-        diseases = Disease.objects.all()
-        serializer = DiseaseSerializer(diseases, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ### USER BLOCK ###
 
@@ -189,7 +194,12 @@ class CenterRegistrationView(APIView):
     def get(self, request):
         centers = Centers.objects.all().filter(city=request.data["city"])
         return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
-        
+    
+class GetDiseasesView(APIView):
+    def get(self, request):
+        diseases = Disease.objects.all()
+        serializer = DiseaseSerializer(diseases, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ResendSmsView(APIView):
     def post(self, request):
@@ -208,7 +218,7 @@ class ResendSmsView(APIView):
             send_sms(user.number, code)
             user.verification_code = code
             user.save()
-
+    
             return Response({'detail': 'SMS resend successfully'}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

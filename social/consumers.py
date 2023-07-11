@@ -97,44 +97,33 @@ class MyConsumer(AsyncWebsocketConsumer):
         action = data["action"]
         match action:  # CHOICE ACTION
             case 'send_message':
-                #### CREATE MSG BLOCK ####
                 obj = await database_sync_to_async(Message.objects.create)(
                     text=data["text"],
                     chat=Chat.objects.get(uuid=data["chat_uuid"]),
                     user=User.objects.get(id=data["user_id"])
                 )
                 message = dict(data=self.serializer(instance=obj).data)
-                await self.channel_layer.group_send(
-                    self.group_name,
-                    {
-                        "type": "send_message",
-                        "action": action,
-                        "message": message
-                    }
-                )
-                #### CREATE MSG BLOCK ####
+                action_type = "send_message"
 
             case 'delete_message':
                 obj = await self.get_message_db(data["pk"])
                 await self.delete_message_db(data["pk"])
-                await self.channel_layer.group_send(
-                    self.group_name,
-                    {
-                        "type": "delete_message",
-                        "action": action,
-                        "message": dict(data=self.serializer(instance=obj).data)
-                    }
-                )
+                message = dict(data=self.serializer(instance=obj).data)
+                action_type = "delete_message"
+
             case 'update_message':
                 upd = await self.update_message_db(data["pk"], data["text"])
-                await self.channel_layer.group_send(
-                    self.group_name,
-                    {
-                        "type": "update_message",
-                        "action": action,
-                        "message": dict(data=self.serializer(instance=upd). data)
-                    }
-                )
+                message = dict(data=self.serializer(instance=upd). data)
+                action_type = "update_message"
+            
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": action_type,
+                "action": action,
+                "message": message
+            }
+        )
             ### ACTION WITH CALLED WHEN SEND MESSAGE ###
 
     async def update_message(self, event):

@@ -250,7 +250,7 @@ class Interviews(models.Model):
 class News(models.Model):
     title = models.CharField(verbose_name=_('Заголовок новости'), max_length=40, null=True, blank=True)
     text = models.TextField(verbose_name=_('Текст новости'), max_length=500, null=True, blank=True)
-    image = models.ImageField(verbose_name=_('Фото к новости'), upload_to='news_photos/')
+    image = models.ImageField(verbose_name=_('Фото к новости'), default='news_photos/news_photo.jpg', upload_to='news_photos/')
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.SET_NULL, null=True, blank=True)
     disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
                                 blank=True)
