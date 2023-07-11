@@ -4,7 +4,7 @@ import os
 from rest_framework.response import Response
 from rest_framework import status
 import random
-
+import requests
 from fsd_medic.settings import BASE_DIR
 import random
 from .models import Countries
@@ -20,6 +20,17 @@ def Send_email(user_email, message):
         [user_email],
         fail_silently=False,
     )
+
+def send_sms(number, code):
+    key = os.getenv('API_KEY')
+    email = os.getenv('EMAIL')
+    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Регистрация+была+успешно+пройдена,+ваш+код+подтверждения+{code}&sign=SMSAero'
+    res = requests.get(url)
+    if res.status_code == 200:
+        print('отправилось')
+        return True
+    else:
+        return False
 
 
 
@@ -37,3 +48,8 @@ def create_or_delete(classmodel, **kwargs):
 def generate_email_code():
     code = random.randrange(start=10000000, stop=99999999)
     return code
+
+
+def generate_verification_code():
+    code = random.randint(1000, 9999)
+    return str(code)

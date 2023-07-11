@@ -11,7 +11,7 @@ from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
 from django.contrib.auth import login, logout
-from .service import Send_email, generate_email_code, create_or_delete
+from .service import Send_email, generate_email_code, create_or_delete, generate_verification_code, send_sms
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
@@ -31,10 +31,7 @@ from rest_framework.decorators import permission_classes, action, api_view
 def index(request):
     return render(request, template_name='api/index.html')
 
-def generate_verification_code():
 
-    code = random.randint(1000, 9999)
-    return str(code)
 
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
@@ -153,18 +150,7 @@ class SearchView(APIView):
 ### USER BLOCK ###
 
 
-def send_sms(number, code):
-    # account_sid = ''
-    # auth_token = ''
-    # client = Client(account_sid, auth_token)
-    # message = client.messages \
-    #     .create(
-    #     body=f'test тестовое сообщение - {code}',
-    #     from_='+18335872557',
-    #     to=str(number)
-    # )
 
-    print(f'на {number} был отправлен код {code}')
 
 
 
@@ -211,8 +197,6 @@ class ResendSmsView(APIView):
                 user = User.objects.get(number=number)
             except User.DoesNotExist:
                 return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
             code = generate_verification_code()
             # print(code, 'code from res')
             send_sms(user.number, code)
