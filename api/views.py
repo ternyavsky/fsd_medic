@@ -193,7 +193,7 @@ class ResendSmsView(APIView):
             user.verification_code = code
             user.save()
 
-            return Response({'detail': 'SMS resended successfully'}, status=status.HTTP_200_OK)
+            return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
