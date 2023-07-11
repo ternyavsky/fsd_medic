@@ -14,6 +14,7 @@ from .service import Send_email, generate_email_code, create_or_delete
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
+import os
 import json
 import requests
 import random
@@ -142,17 +143,16 @@ class SearchView(APIView):
 
 
 def send_sms(number, code):
-    # account_sid = ''
-    # auth_token = ''
-    # client = Client(account_sid, auth_token)
-    # message = client.messages \
-    #     .create(
-    #     body=f'test тестовое сообщение - {code}',
-    #     from_='+18335872557',
-    #     to=str(number)
-    # )
+    key = os.getenv('API_KEY')
+    email = os.getenv('EMAIL')
+    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Регистрация+была+успешно+пройдена,+ваш+код+подтверждения+{code}&sign=SMSAero'
+    res = requests.get(url)
+    if res.status_code == 200:
+        print('отправилось')
+        return True
+    else:
+        return False
 
-    print(f'на {number} был отправлен код {code}')
 
 
 
