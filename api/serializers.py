@@ -2,9 +2,8 @@ import json
 import re
 import random
 
-
 from rest_framework import serializers
-from .models import News, User, NumberCodes, Centers, Clinics, Disease
+from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes
 
 
 
@@ -242,11 +241,33 @@ class NewsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class NoteSerializer(serializers.ModelSerializer):
+    users = serializers.SerializerMethodField()
+    doctor = serializers.SerializerMethodField()
+    center = serializers.SerializerMethodField()
+    class Meta:
+        model = Notes
+        fields = ['users', 'doctor', 'center', 'translate', 'translate_from', 'translate_to','title',
+        'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
+    def get_users(self, obj):
+        ls = [User.objects.get(id=i["id"]) for i in obj.users_to_note.values() ]
+        return UserSerializer(ls, many=True).data
+    
+    def get_doctor(self, obj):
+        return UserSerializer(User.objects.get(id=obj.doctor.id)).data
+    
+    def get_center(self, obj):
+        return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
+    
 class DiseaseSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Disease
         fields = '__all__'
+        
+
+
 
 
 class ClinicSerializer(serializers.ModelSerializer):

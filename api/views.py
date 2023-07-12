@@ -3,9 +3,10 @@ from twilio.rest import Client
 from rest_framework import generics
 from rest_framework import serializers
 from django.shortcuts import render, redirect
-from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease
+from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease, \
+    Notes
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
-    VerifyCodeSerializer, ResendCodeSerializer, DiseaseSerializer
+    VerifyCodeSerializer, ResendCodeSerializer, DiseaseSerializer, NoteSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -16,8 +17,6 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
 from django.shortcuts import get_object_or_404
-import json
-import requests
 from django.db.models import Q
 import random
 # REST IMPORTS
@@ -87,7 +86,7 @@ class NewsDetailView(APIView):  # Single news view
         news.delete()
         return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
 
-    def put(self, request, id):  # update single news
+    def post(self, request, id):  # update single news
         news = get_object_or_404(News, id=id)
         serializer = NewsSerializer(news, data=request.data)
         if serializer.is_valid():
@@ -135,16 +134,29 @@ class SearchView(APIView):
         clinics = Clinics.objects.all()
         centers = Centers.objects.all()
         users = User.objects.filter(is_staff=True)
-
         search_results = {
             'clinics': clinics,
             'centers': centers,
             'users': users,
         }
-
         serializer = SearchSerializer(search_results)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+
+class NoteView(APIView):
+    queryset = Notes.objects.all()
+    #permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        notes = self.queryset.filter(users_to_note__number=request.data["number"])
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        serializer = NoteSerializer(self.queryset, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 ### USER BLOCK ###
@@ -154,24 +166,23 @@ class SearchView(APIView):
 
 
 
-class CreateUserView(generics.ListCreateAPIView):
+class CreateUserView(APIView):
     permission_classes = [AllowAny]
-    model = User
     serializer_class = UserSerializer
+
     def post(self, request):
+        data = request.data
         code = generate_verification_code()
-        serializer = UserSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            user = serializer.save()
-            # print(code, '-code')
-            if int(request.data['stage']) == 3:
-                send_sms(user.number, code)
-                user.verification_code = code
-                user.save()
+        serializer = UserSerializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if int(data['stage']) == 3:
+            send_sms(user.number, code)
+            user.verification_code = code
+            user.save()
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     
     

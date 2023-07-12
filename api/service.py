@@ -21,6 +21,7 @@ def Send_email(user_email, message):
         fail_silently=False,
     )
 
+
 def send_sms(number, code):
     key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
