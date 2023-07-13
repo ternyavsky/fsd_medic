@@ -16,8 +16,9 @@ class UserAdmin(admin.ModelAdmin):
     fields = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'center', 'disease', 'country',
               'city', 'is_staff',
               'is_required', 'created_at', 'updated_at','verification_code','reset_code' ]
-    readonly_fields = ['id', 'number',  'first_name', 'last_name', 'birthday', 'group', 'center', 'is_staff',
-                       'created_at', 'updated_at', 'country', 'city']
+
+    readonly_fields = ['id', 'number',  'first_name', 'last_name', 'birthday', 'group', 'center', 'is_staff',]
+
 
 
 class GroupsAdmin(admin.ModelAdmin):

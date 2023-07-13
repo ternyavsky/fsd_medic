@@ -148,6 +148,7 @@ class SearchView(APIView):
 
 #RESET PASSWORD BLOCK
 def send_reset_sms(number, code):
+
     key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
     url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+на+www.pre_recover.com+,+ваш+код+доступа+-+{code}&sign=SMSAero'
@@ -166,6 +167,7 @@ def send_reset_email(email, code):
         [email],
         fail_silently=False,
     )
+
 
 class PasswordResetView(APIView):
     def post(self,request):
