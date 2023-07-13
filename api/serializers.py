@@ -1,10 +1,17 @@
 import json
 import re
 import random
+<<<<<<< HEAD
 
 
 from rest_framework import serializers
 from .models import News, User, NumberCodes, Centers, Clinics, Disease
+=======
+
+from rest_framework import serializers
+from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes
+
+>>>>>>> main
 
 
 # class DiseaseSerializer(serializers.ModelSerializer):
@@ -43,8 +50,10 @@ class UserSerializer(serializers.Serializer):
                 password=validated_data['password1'],
                 group=validated_data['group']
             )
+            print(validated_data)
             user.stage = stage
             validated_data['stage'] = stage
+            validated_data['id'] =  user.id
 
         if stage == 2:
             center_id = validated_data.get('center_id')
@@ -59,6 +68,11 @@ class UserSerializer(serializers.Serializer):
 
             for i in validated_data['disease_id']:
                 user.disease.add(i)
+<<<<<<< HEAD
+=======
+                if user.disease.count() >= 5:
+                    raise serializers.ValidationError('You cannot specify more than 5 diseases')
+>>>>>>> main
                 print(validated_data['disease_id'], ' test_data')
 
             user.stage = stage
@@ -74,6 +88,10 @@ class UserSerializer(serializers.Serializer):
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
+<<<<<<< HEAD
+=======
+        
+>>>>>>> main
 
         return user
 
@@ -147,13 +165,20 @@ class UserSerializer(serializers.Serializer):
 
 class VerifyCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
     verification_code = serializers.IntegerField()
 
 class ResendCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
 
+<<<<<<< HEAD
 # RESET PASSWORD BLOCK
+=======
+    # RESET PASSWORD BLOCK
+>>>>>>> main
 class PasswordResetSerializer(serializers.Serializer):
     number = serializers.CharField(allow_null=True, required=False)
     email = serializers.CharField(allow_null=True, required=False)
@@ -260,7 +285,6 @@ class AdminSerializer(serializers.Serializer):
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
 
-
 class UserGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -284,11 +308,45 @@ class NewsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class NoteSerializer(serializers.ModelSerializer):
+    users = serializers.SerializerMethodField()
+    doctor = serializers.SerializerMethodField()
+    center = serializers.SerializerMethodField()
+    class Meta:
+        model = Notes
+        fields = ['users', 'doctor', 'center', 'translate', 'translate_from', 'translate_to','title',
+        'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
-class ClinicSerializer(serializers.Serializer):
+
+    def get_users(self, obj):
+        ls = [User.objects.get(id=i["id"]) for i in obj.users_to_note.values() ]
+        return UserGetSerializer(ls, many=True).data
+    
+    def get_doctor(self, obj):
+        return UserGetSerializer(User.objects.get(id=obj.doctor.id)).data
+    
+    def get_center(self, obj):
+        return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
+    
+class DiseaseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Disease
+        fields = '__all__'
+        
+
+
+
+
+class ClinicSerializer(serializers.ModelSerializer):
+    supported_diseases = serializers.SerializerMethodField()
     class Meta:
         model = Clinics
         fields = '__all__'
+
+    def get_supported_diseases(self, obj):
+        return DiseaseSerializer(obj.supported_diseases.all(), many=True).data
+
 
 
 class CenterSerializer(serializers.ModelSerializer):
@@ -298,9 +356,12 @@ class CenterSerializer(serializers.ModelSerializer):
 
 
 class SearchSerializer(serializers.Serializer):
+
     clinics = ClinicSerializer(read_only=True, many=True)
     centers = CenterSerializer(read_only=True, many=True)
     users = UserGetSerializer(read_only=True, many=True)
 
     class Meta:
         fields = '__all__'
+
+

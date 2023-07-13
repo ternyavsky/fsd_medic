@@ -1,9 +1,12 @@
 import random
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.db import models
+from rest_framework import serializers
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from abc import ABC, abstractmethod
+from django.core.validators import MaxValueValidator, MinValueValidator
+from .choices import NOTE_CHOICES, PROCESS
 
 
 class UserManager(BaseUserManager):
@@ -85,7 +88,11 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True, blank=True)
+<<<<<<< HEAD
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевание'),  blank=True)
+=======
+    disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
+>>>>>>> main
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
@@ -99,7 +106,11 @@ class User(AbstractBaseUser):
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
+<<<<<<< HEAD
     verification_code = models.PositiveIntegerField(verbose_name=_('СМС код подтверждения'), default=1)
+=======
+    verification_code = models.PositiveIntegerField(verbose_name='СМС код подтверждения', default=1)
+>>>>>>> main
     reset_code = models.PositiveIntegerField(_('Код для сброса пароля'), default=1)
     USERNAME_FIELD = 'number'
 
@@ -139,9 +150,47 @@ class Groups(models.Model):
         verbose_name_plural = 'Группы'
         verbose_name = 'Группу'
 
+class Notes(models.Model):
+    users_to_note = models.ManyToManyField("User", verbose_name=_('Пользователи на запись'), related_name=_('users_to_note'), blank=True)
+    translate = models.BooleanField(verbose_name=_('Переводчик'), default=False)
+    translate_from = models.CharField(verbose_name=_('С какого языка'), max_length=255, null=True, blank=True)
+    translate_to = models.CharField(verbose_name=_('На какой язык'), max_length=255, null=True, blank=True)
+    title = models.CharField(verbose_name=_('Название записи'), max_length=255)
+    online = models.BooleanField(verbose_name=_('Онлайн'), default=False)
+    time_start = models.DateTimeField(verbose_name=_('Начало '), null=True, blank=True)
+    time_end = models.DateTimeField(verbose_name=_('Конец'), null=True, blank=True)
+    notify = models.DateTimeField(verbose_name=_('Время уведомления о записи'), null=True, blank=True)
+    doctor = models.ForeignKey('User', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True, related_name="to_doctor")
+    problem = models.CharField(verbose_name=_('Причина'), max_length=255)
+    duration_note = models.IntegerField(verbose_name=_('Длительность'), null=True, blank=True)
+    center = models.ForeignKey('Centers', on_delete=models.CASCADE, null=True)
+    file = models.FileField(verbose_name=_('Файлы к записи'), upload_to='files_to_notes/', null=True, blank=True)
+    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, null=True)
+    status = models.CharField(verbose_name=_('Статус записи'), choices=NOTE_CHOICES, max_length=255, default=PROCESS)
+
+
+    def __str__(self):
+        return f'{self.title} - {[i["number"] for i in self.users_to_note.values()]}' 
+
+    def set_translate(self, translate_from, translate_to):
+        if not self.translate:
+            return
+        self.translate_from = translate_from
+        self.translate_to = translate_to
+
+    class Meta:
+        verbose_name_plural = 'Записи'
+        verbose_name = 'Запись'
+
 
 class Centers(models.Model):
-    name = models.CharField(verbose_name=_('Название Центра'), max_length=100, null=True)
+    name = models.CharField(verbose_name=_('Название центра'), max_length=255, null=True)
+    image = models.ImageField(verbose_name=_('Фото центра'), upload_to='centers_photos/', blank=True,
+                              default='centers_photos/center_photo.jpg')
+    rating = models.FloatField(verbose_name=_('Рейтинг центра'), max_length=5, default=5,
+                               validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
+    description = models.TextField(verbose_name=_('Описание центра'), blank=True, null=True, max_length=550)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
@@ -163,9 +212,15 @@ class Centers(models.Model):
 class Clinics(models.Model):
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100, null=True)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
+    rating = models.FloatField(verbose_name=_('Рейтинг клиники'), default=5,
+                               validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
+    description = models.TextField(verbose_name=_('Описание клиники'), blank=True, null=True, max_length=550)
+    image = models.ImageField(verbose_name=_('Фото клиники'), upload_to='clinics_photos/',
+                              default='centers_photos/clinic_photo.jpg', blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
     employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'), null=True)
+    supported_diseases = models.ManyToManyField('Disease')
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
@@ -177,7 +232,7 @@ class Clinics(models.Model):
 
     class Meta:
         verbose_name_plural = 'Клиники'
-        verbose_name = 'Клинику'
+        verbose_name = 'Клиника'
 
 
 class Url_Params(models.Model):
@@ -240,7 +295,7 @@ class Interviews(models.Model):
 class News(models.Model):
     title = models.CharField(verbose_name=_('Заголовок новости'), max_length=40, null=True, blank=True)
     text = models.TextField(verbose_name=_('Текст новости'), max_length=500, null=True, blank=True)
-    image = models.ImageField(verbose_name=_('Фото к новости'), upload_to='news_photos/')
+    image = models.ImageField(verbose_name=_('Фото к новости'), default='news_photos/news_photo.jpg', upload_to='news_photos/')
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.SET_NULL, null=True, blank=True)
     disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
                                 blank=True)

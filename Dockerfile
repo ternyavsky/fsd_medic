@@ -1,12 +1,11 @@
 FROM python
-EXPOSE 8000
+ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 COPY requirements.txt /app
-RUN pip3 install -r requirements.txt
+RUN python3 -m pip install --no-cache-dir --no-warn-script-location --upgrade pip \
+    && python3 -m pip install --no-cache-dir --no-warn-script-location --user -r requirements.txt
 
 COPY . /app
-ENTRYPOINT [ "python" ]
-
-
-CMD [ "manage.py", "runserver" , "0.0.0.0:8000"]
+EXPOSE 8000
+CMD ["python", "manage.py", "migrate"]

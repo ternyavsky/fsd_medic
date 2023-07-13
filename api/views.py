@@ -1,27 +1,46 @@
 import re
+<<<<<<< HEAD
 
 from rest_framework.generics import UpdateAPIView
 from twilio.rest import Client
 from django.core.mail import send_mail
+=======
+from twilio.rest import Client
+>>>>>>> main
 from rest_framework import generics
+from rest_framework import serializers
 from django.shortcuts import render, redirect
+<<<<<<< HEAD
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
     VerifyCodeSerializer, ResendCodeSerializer, PasswordResetSerializer, VerifyResetCodeSerializer, \
  NewPasswordSerializer
+=======
+from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease, \
+    Notes
+from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
+    VerifyCodeSerializer, ResendCodeSerializer, DiseaseSerializer, NoteSerializer, NewPasswordSerializer, \
+        PasswordResetSerializer, VerifyResetCodeSerializer
+>>>>>>> main
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
 from django.contrib.auth import login, logout
-from .service import Send_email, generate_email_code, create_or_delete
+from .service import Send_email, generate_email_code, create_or_delete, generate_verification_code, send_sms
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
+<<<<<<< HEAD
 import os
 from django.contrib.auth import get_user_model
 import json
 import requests
+=======
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
+>>>>>>> main
 import random
 # REST IMPORTS
 from rest_framework.views import APIView
@@ -38,6 +57,7 @@ def generate_verification_code():
 
     code = random.randint(1000, 9999)
     return str(code)
+
 
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
@@ -77,75 +97,96 @@ class LikeView(APIView):  # Append and delete like
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
 
+
+
 class NewsDetailView(APIView):  # Single news view
     permission_classes = [IsAdminOrReadOnly]
+    error_response = {'error': 'Новость не найдена!'}
 
     def get(self, request, id):  # get single news
-        try:
-            serializer = NewsSerializer(News.objects.get(id=id))
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+        news = get_object_or_404(News, id=id)
+        serializer = NewsSerializer(news)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id):  # delete single news
-        try:
-            news = News.objects.get(id=id)
-            news.delete()
-            return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
-        except:
-            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+        news = get_object_or_404(News, id=id)
+        news.delete()
+        return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
 
-    def put(self, request, id):  # update single news
-        try:
-            news = News.objects.get(id=id)
-            serializer = NewsSerializer(news, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({'error': 'Новость не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, id):  # update single news
+        news = get_object_or_404(News, id=id)
+        serializer = NewsSerializer(news, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def handle_exception(self, exc):
+        if isinstance(exc, Http404):
+            return Response(self.error_response, status=status.HTTP_404_NOT_FOUND)
+        return super().handle_exception(exc)
 
 
 class NewsView(generics.ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
+    serializer_class = NewsSerializer
 
-    # Get all news from user_id
-    def get(self, request):
-        if request.user.is_staff:
-            news = News.objects.all()
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return News.objects.all()
+        elif user.disease is not None:
+            return News.objects.filter(disease=user.disease)
+        elif user.center is not None:
+            return News.objects.filter(center=user.center)
         else:
-            user = User.objects.get(id=request.user.id)
-            if user.disease is not None:
-                news = News.objects.filter(disease=user.disease)
-            elif user.center is not None:
-                news = News.objects.filter(center=user.center)
-            else:
-                return Response({'result': 'Для доступа к новостям, вам следует указать центр или заболевание'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        serializer = NewsSerializer(news, many=True)
+            raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):  # Create news
-        serializer = NewsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 
 ### SEARCH ###
 
+
+
 class SearchView(APIView):
     def get(self, request, *args, **kwargs):
-        search = {'clinics': Clinics.objects.all(), 'centers': Centers.objects.all(),
-                  'users': User.objects.filter(is_staff=True)}
-        serializer = SearchSerializer(search)
-        return Response(serializer.data)
+        clinics = Clinics.objects.all()
+        centers = Centers.objects.all()
+        users = User.objects.filter(is_staff=True)
+        search_results = {
+            'clinics': clinics,
+            'centers': centers,
+            'users': users,
+        }
+        serializer = SearchSerializer(search_results)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+class NoteView(APIView):
+    #permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        notes = Notes.objects.all().filter(users_to_note__id=request.data["users"])
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        serializer = NoteSerializer(Notes, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ### USER BLOCK ###
 
+<<<<<<< HEAD
 #RESET PASSWORD BLOCK
 def send_reset_sms(number, code):
 
@@ -168,10 +209,24 @@ def send_reset_email(email, code):
         fail_silently=False,
     )
 
+=======
+
+#RESET PASSWORD BLOCK
+def reset(data, code, user):
+    if '@' in data:
+        print('Код восстановления - {} отправлен на почту {}'.format(data, code))
+        user.reset_code = code 
+        user.save()
+    else:
+        print('Код восстановления - {} отправлен на номер {}'.format(data, code))
+        user.reset_code = code 
+        user.save()
+>>>>>>> main
 
 class PasswordResetView(APIView):
     def post(self,request):
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
+<<<<<<< HEAD
         if serializer.is_valid():
             user = serializer.save()
 
@@ -282,11 +337,118 @@ class CreateUserView(generics.ListCreateAPIView):
                 send_sms(user.number, code)
                 user.verification_code = code
                 user.save()
+=======
+        if serializer.is_valid():
+            user = serializer.save()
+            if request.data['number']:
+                code = generate_verification_code()
+                print(code, 'code from sms')
+                num = request.data['number']
+                reset(num, code, user)
+            else:
+                code = generate_verification_code()
+                print(code, 'code from email')
+                email = request.data['email']
+                reset(email, code)
+>>>>>>> main
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+<<<<<<< HEAD
+=======
+class VerifyResetCodeView(APIView):
+    def post(self, request):
+        serializer = VerifyResetCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            number = serializer.validated_data.get('number')
+            reset_code = serializer.validated_data.get('reset_code')
+
+            try:
+                if email:
+                    user = User.objects.get(email=email)
+
+
+                else:
+                    user = User.objects.get(number=number)
+
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if reset_code == user.reset_code:
+                user.save()
+                return Response({"message":"User got the access to his account"},status=status.HTTP_200_OK)
+            else:
+                return Response({"message":"User didnt get the access to his account"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SetNewPasswordView(APIView):
+    def post(self, request):
+        serializer = NewPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            number = serializer.validated_data.get('number')
+            password1 = serializer.validated_data.get('password1')
+            password2 = serializer.validated_data.get('password2')
+
+            try:
+                if email:
+                    user = User.objects.get(email=email)
+
+
+                else:
+                    user = User.objects.get(number=number)
+
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if password1 == password2:
+                user.set_passowrd(password1)
+                user.save()
+                return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# END RESET PASSWORD BLOCK
+
+
+
+class CreateUserView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
+    
+    def post(self, request):
+        data = request.data
+        code = generate_verification_code()
+        serializer = UserSerializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        if int(data['stage']) == 3:
+            send_sms(user.number, code)
+            user.verification_code = code
+            user.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
+    
+class CenterRegistrationView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        centers = Centers.objects.all().filter(city=request.data["city"])
+        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
+    
+class GetDiseasesView(APIView):
+    def get(self, request):
+        diseases = Disease.objects.all()
+        serializer = DiseaseSerializer(diseases, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+>>>>>>> main
 class ResendSmsView(APIView):
     def post(self, request):
         serializer = ResendCodeSerializer(data=request.data)
@@ -302,8 +464,13 @@ class ResendSmsView(APIView):
             send_sms(user.number, code)
             user.verification_code = code
             user.save()
+<<<<<<< HEAD
 
             return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
+=======
+    
+            return Response({'detail': 'SMS resend successfully'}, status=status.HTTP_200_OK)
+>>>>>>> main
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -314,14 +481,26 @@ class VerifyCodeView(APIView):
             number = serializer.validated_data.get('number')
             verification_code = serializer.validated_data.get('verification_code')
             # print(verification_code, ' current code from serializer')
+<<<<<<< HEAD
             try:
                 user = User.objects.get(number=number)
 
+=======
+
+            try:
+                user = User.objects.get(number=number)
+                print(user.id, 'id текущего пользователя')
+                print(user.verification_code, 'verif_code from current user')
+>>>>>>> main
             except User.DoesNotExist:
                 return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
             if verification_code == user.verification_code:
+<<<<<<< HEAD
 
+=======
+                # print(verification_code, 'текущий verif_code')
+>>>>>>> main
                 user.is_required = True
                 user.save()
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
