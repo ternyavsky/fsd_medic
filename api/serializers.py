@@ -8,6 +8,11 @@ from .models import News, User, NumberCodes, Centers, Clinics, Disease
 
 
 
+# class DiseaseSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Disease
+#         fields = '__all__'
+
 class UserSerializer(serializers.Serializer):
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
@@ -57,9 +62,10 @@ class UserSerializer(serializers.Serializer):
 
             for i in validated_data['disease_id']:
                 user.disease.add(i)
+
                 if user.disease.count() >= 5:
                     raise serializers.ValidationError('You cannot specify more than 5 diseases')
-                print(validated_data['disease_id'], ' test_data')
+
 
             user.stage = stage
             validated_data['stage'] = stage
@@ -74,7 +80,7 @@ class UserSerializer(serializers.Serializer):
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
-        
+
 
         return user
 
@@ -148,10 +154,55 @@ class UserSerializer(serializers.Serializer):
 
 class VerifyCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
+
     verification_code = serializers.IntegerField()
+
+
 
 class ResendCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
+
+# RESET PASSWORD BLOCK
+class PasswordResetSerializer(serializers.Serializer):
+    number = serializers.CharField(allow_null=True, required=False)
+    email = serializers.CharField(allow_null=True, required=False)
+
+
+    def create(self, validated_data):
+        number = self.context['request'].data.get('number')
+        email = self.context['request'].data.get('email')
+        user = None
+        if number:
+            try:
+                user = User.objects.get(number=validated_data['number'])
+                user.save()
+            except User.DoesNotExist:
+                raise serializers.ValidationError('User does not have a number')
+        if email:
+            try:
+                user = User.objects.get(email=validated_data['email'])
+            except User.DoesNotExist:
+                raise serializers.ValidationError('User does not have an email')
+        return user
+
+class VerifyResetCodeSerializer(serializers.Serializer):
+    email = serializers.CharField(allow_null=True, required=False)
+    number = serializers.CharField(allow_null=True, required=False)
+    reset_code = serializers.IntegerField()
+
+class NewPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(allow_null=True, required=False)
+    number = serializers.CharField(allow_null=True, required=False)
+    new_password = serializers.CharField(min_length=8, max_length=128)
+    confirm_password = serializers.CharField(min_length=8, max_length=128)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+
+#END RESET PASSWORD BLOCK
+
 class AdminSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(validated_data)
