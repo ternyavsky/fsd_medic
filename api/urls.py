@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from .views import index, LOGOUT, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, \
     CreateAdminView, \
-    UpdateUserView, SearchView, registration, VerifyCodeView, ResendSmsView
+    UpdateUserView, SearchView, registration, VerifyCodeView, ResendSmsView, PasswordResetView, VerifyResetCodeView,\
+SetNewPasswordView
 from social.views import ChatView
 
 from rest_framework_simplejwt.views import (
@@ -27,11 +28,12 @@ urlpatterns = [
     path('api/update/user', UpdateUserView.as_view(), name='update_user_url'),
     path('api/create/admin', CreateAdminView.as_view(), name='create_admin_url'),
     path('api/update/admin', UpdateUserView.as_view(), name='update_admin_url'),
-    path('api/verify-code/<int:user_id>/', VerifyCodeView.as_view(), name='verify_code'),
-    path('resend-sms/<int:user_id>/', ResendSmsView.as_view(), name='resend-sms'),
+    path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
+    path('api/resend-sms/', ResendSmsView.as_view(), name='resend-sms'),
     path('registration/<str:parameter>', registration, name='registration_url'),
-
-
+    path('api/reset-password/', PasswordResetView.as_view(), name='reset-password'),
+    path('api/verify-reset-password/', VerifyResetCodeView.as_view(), name='verify-reset-password'),
+    path('api/change-password/', SetNewPasswordView.as_view(), name='change-password'),
     path('', index, name='home_url'),
 
     path('logout', LOGOUT, name='logout_url'),

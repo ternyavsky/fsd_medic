@@ -1,10 +1,13 @@
 import re
+
+from rest_framework.generics import UpdateAPIView
 from twilio.rest import Client
 from rest_framework import generics
 from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
-    VerifyCodeSerializer, ResendCodeSerializer
+    VerifyCodeSerializer, ResendCodeSerializer, PasswordResetSerializer, VerifyResetCodeSerializer, \
+ NewPasswordSerializer
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -15,6 +18,7 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
 import os
+from django.contrib.auth import get_user_model
 import json
 import requests
 import random
@@ -141,6 +145,97 @@ class SearchView(APIView):
 
 ### USER BLOCK ###
 
+#RESET PASSWORD BLOCK
+def send_reset_sms(number, code):
+    print(f'Код восстановления - {code} отправлен на номер {number}')
+
+def send_reset_email(email, code):
+    print(f'Код восстановления - {code} отправлен на почту {email}')
+
+class PasswordResetView(APIView):
+    def post(self,request):
+        serializer = PasswordResetSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            user = serializer.save()
+
+            if request.POST.get('number', False):
+                code = generate_verification_code()
+                print(code, 'code from sms')
+                num = request.data['number']
+                send_reset_sms(num, code)
+                user.reset_code = code
+                user.save()
+
+            if request.POST.get('email', False):
+                code = generate_verification_code()
+                print(code, 'code from email')
+                email = request.data['email']
+                send_reset_email(email, code)
+                user.reset_code = code
+                user.save()
+
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VerifyResetCodeView(APIView):
+    def post(self, request):
+        serializer = VerifyResetCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            number = serializer.validated_data.get('number')
+            reset_code = serializer.validated_data.get('reset_code')
+
+            try:
+                if email:
+                    user = User.objects.get(email=email)
+
+
+                else:
+                    user = User.objects.get(number=number)
+
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if reset_code == user.reset_code:
+                user.save()
+                return Response({"message":"User got the access to his account"},status=status.HTTP_200_OK)
+            else:
+                return Response({"message":"User didnt get the access to his account"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SetNewPasswordView(APIView):
+    def post(self, request):
+        serializer = NewPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            number = serializer.validated_data.get('number')
+            new_password = serializer.validated_data.get('new_password')
+            confirm_password = serializer.validated_data.get('confirm_password')
+
+            try:
+                if email:
+                    user = User.objects.get(email=email)
+
+
+                else:
+                    user = User.objects.get(number=number)
+
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if new_password == confirm_password:
+                set_new_password(user, new_password)
+                return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def set_new_password(user, new_password):
+    user.set_password(new_password)
+    user.save()
+# END RESET PASSWORD BLOCK
 
 def send_sms(number, code):
     key = os.getenv('API_KEY')
@@ -176,17 +271,15 @@ class CreateUserView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ResendSmsView(APIView):
-    def post(self, request, user_id):
+    def post(self, request):
         serializer = ResendCodeSerializer(data=request.data)
         if serializer.is_valid():
             number = serializer.validated_data['number']
 
             try:
-                user = User.objects.get(id=user_id, number=number)
+                user = User.objects.get(number=number)
             except User.DoesNotExist:
                 return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
             code = generate_verification_code()
             # print(code, 'code from res')
             send_sms(user.number, code)
@@ -198,27 +291,27 @@ class ResendSmsView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyCodeView(APIView):
-    def patch(self, request, user_id):
+    def post(self, request):
         serializer = VerifyCodeSerializer(data=request.data)
         if serializer.is_valid():
             number = serializer.validated_data.get('number')
             verification_code = serializer.validated_data.get('verification_code')
             # print(verification_code, ' current code from serializer')
-
             try:
-                user = User.objects.get(id=user_id)
-                print(user.id, 'id текущего пользователя')
-                print(user.verification_code, 'verif_code from current user')
+                user = User.objects.get(number=number)
+
             except User.DoesNotExist:
                 return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
             if verification_code == user.verification_code:
-                # print(verification_code, 'текущий verif_code')
+
                 user.is_required = True
                 user.save()
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class UpdateUserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
@@ -246,6 +339,8 @@ class CreateAdminView(generics.ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 def LOGOUT(request):
