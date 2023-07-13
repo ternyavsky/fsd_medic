@@ -151,6 +151,47 @@ class VerifyCodeSerializer(serializers.Serializer):
 
 class ResendCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
+
+    # RESET PASSWORD BLOCK
+class PasswordResetSerializer(serializers.Serializer):
+    number = serializers.CharField(allow_null=True, required=False)
+    email = serializers.CharField(allow_null=True, required=False)
+
+
+    def create(self, validated_data):
+        number = self.context['request'].data.get('number')
+        email = self.context['request'].data.get('email')
+        user = None
+        if number:
+            try:
+                user = User.objects.get(number=validated_data['number'])
+                user.save()
+            except User.DoesNotExist:
+                raise serializers.ValidationError('User does not have a number')
+        if email:
+            try:
+                user = User.objects.get(email=validated_data['email'])
+            except User.DoesNotExist:
+                raise serializers.ValidationError('User does not have an email')
+        return user
+
+class VerifyResetCodeSerializer(serializers.Serializer):
+    email = serializers.CharField(allow_null=True, required=False)
+    number = serializers.CharField(allow_null=True, required=False)
+    reset_code = serializers.IntegerField()
+
+class NewPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(allow_null=True, required=False)
+    number = serializers.CharField(allow_null=True, required=False)
+    new_password = serializers.CharField(min_length=8, max_length=128)
+    confirm_password = serializers.CharField(min_length=8, max_length=128)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+
+#END RESET PASSWORD BLOCK
 class AdminSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(validated_data)
@@ -250,12 +291,13 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = ['users', 'doctor', 'center', 'translate', 'translate_from', 'translate_to','title',
         'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
+
     def get_users(self, obj):
         ls = [User.objects.get(id=i["id"]) for i in obj.users_to_note.values() ]
-        return UserSerializer(ls, many=True).data
+        return UserGetSerializer(ls, many=True).data
     
     def get_doctor(self, obj):
-        return UserSerializer(User.objects.get(id=obj.doctor.id)).data
+        return UserGetSerializer(User.objects.get(id=obj.doctor.id)).data
     
     def get_center(self, obj):
         return CenterSerializer(Centers.objects.get(id=obj.center.id)).data

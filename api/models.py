@@ -103,6 +103,7 @@ class User(AbstractBaseUser):
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
     verification_code = models.PositiveIntegerField(verbose_name='СМС код подтверждения', default=1)
+    reset_code = models.PositiveIntegerField(_('Код для сброса пароля'), default=1)
     USERNAME_FIELD = 'number'
 
 
@@ -142,14 +143,16 @@ class Groups(models.Model):
         verbose_name = 'Группу'
 
 class Notes(models.Model):
-    users_to_note = models.ManyToManyField("User", verbose_name=_('Пользователи на запись'), related_name=_('users_to_note'))
+    users_to_note = models.ManyToManyField("User", verbose_name=_('Пользователи на запись'), related_name=_('users_to_note'), blank=True)
     translate = models.BooleanField(verbose_name=_('Переводчик'), default=False)
     translate_from = models.CharField(verbose_name=_('С какого языка'), max_length=255, null=True, blank=True)
     translate_to = models.CharField(verbose_name=_('На какой язык'), max_length=255, null=True, blank=True)
     title = models.CharField(verbose_name=_('Название записи'), max_length=255)
     online = models.BooleanField(verbose_name=_('Онлайн'), default=False)
+    time_start = models.DateTimeField(verbose_name=_('Начало '), null=True, blank=True)
+    time_end = models.DateTimeField(verbose_name=_('Конец'), null=True, blank=True)
     notify = models.DateTimeField(verbose_name=_('Время уведомления о записи'), null=True, blank=True)
-    doctor = models.ForeignKey('User', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True)
+    doctor = models.ForeignKey('User', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True, related_name="to_doctor")
     problem = models.CharField(verbose_name=_('Причина'), max_length=255)
     duration_note = models.IntegerField(verbose_name=_('Длительность'), null=True, blank=True)
     center = models.ForeignKey('Centers', on_delete=models.CASCADE, null=True)
@@ -158,11 +161,6 @@ class Notes(models.Model):
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, null=True)
     status = models.CharField(verbose_name=_('Статус записи'), choices=NOTE_CHOICES, max_length=255, default=PROCESS)
 
-    def save(self, *args, **kwargs):
-        user = self.user
-        if user.group.name != 'Врачи':
-            raise serializers.ValidationError(_('Это не врач'))
-        super(Notes, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.title} - {[i["number"] for i in self.users_to_note.values()]}' 

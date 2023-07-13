@@ -6,8 +6,10 @@ from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease, \
     Notes
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
-    VerifyCodeSerializer, ResendCodeSerializer, DiseaseSerializer, NoteSerializer
+    VerifyCodeSerializer, ResendCodeSerializer, DiseaseSerializer, NoteSerializer, NewPasswordSerializer, \
+        PasswordResetSerializer, VerifyResetCodeSerializer
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
@@ -145,31 +147,113 @@ class SearchView(APIView):
 
 
 class NoteView(APIView):
-    queryset = Notes.objects.all()
     #permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
-        notes = self.queryset.filter(users_to_note__number=request.data["number"])
+        notes = Notes.objects.all().filter(users_to_note__id=request.data["users"])
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):
-        serializer = NoteSerializer(self.queryset, data=request.data)
+        serializer = NoteSerializer(Notes, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 ### USER BLOCK ###
 
 
+#RESET PASSWORD BLOCK
+def reset(data, code, user):
+    if '@' in data:
+        print('Код восстановления - {} отправлен на почту {}'.format(data, code))
+        user.reset_code = code 
+        user.save()
+    else:
+        print('Код восстановления - {} отправлен на номер {}'.format(data, code))
+        user.reset_code = code 
+        user.save()
 
+class PasswordResetView(APIView):
+    def post(self,request):
+        serializer = PasswordResetSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            user = serializer.save()
+            if request.data['number']:
+                code = generate_verification_code()
+                print(code, 'code from sms')
+                num = request.data['number']
+                reset(num, code, user)
+            else:
+                code = generate_verification_code()
+                print(code, 'code from email')
+                email = request.data['email']
+                reset(email, code)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VerifyResetCodeView(APIView):
+    def post(self, request):
+        serializer = VerifyResetCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            number = serializer.validated_data.get('number')
+            reset_code = serializer.validated_data.get('reset_code')
+
+            try:
+                if email:
+                    user = User.objects.get(email=email)
+
+
+                else:
+                    user = User.objects.get(number=number)
+
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if reset_code == user.reset_code:
+                user.save()
+                return Response({"message":"User got the access to his account"},status=status.HTTP_200_OK)
+            else:
+                return Response({"message":"User didnt get the access to his account"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SetNewPasswordView(APIView):
+    def post(self, request):
+        serializer = NewPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            number = serializer.validated_data.get('number')
+            password1 = serializer.validated_data.get('password1')
+            password2 = serializer.validated_data.get('password2')
+
+            try:
+                if email:
+                    user = User.objects.get(email=email)
+
+
+                else:
+                    user = User.objects.get(number=number)
+
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if password1 == password2:
+                user.set_passowrd(password1)
+                user.save()
+                return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# END RESET PASSWORD BLOCK
 
 
 
 class CreateUserView(APIView):
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
-
+    
     def post(self, request):
         data = request.data
         code = generate_verification_code()
