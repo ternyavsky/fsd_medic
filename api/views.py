@@ -2,6 +2,7 @@ import re
 
 from rest_framework.generics import UpdateAPIView
 from twilio.rest import Client
+from django.core.mail import send_mail
 from rest_framework import generics
 from django.shortcuts import render, redirect
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
@@ -147,10 +148,24 @@ class SearchView(APIView):
 
 #RESET PASSWORD BLOCK
 def send_reset_sms(number, code):
-    print(f'Код восстановления - {code} отправлен на номер {number}')
+    key = os.getenv('API_KEY')
+    email = os.getenv('EMAIL')
+    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+на+www.pre_recover.com+,+ваш+код+доступа+-+{code}&sign=SMSAero'
+    res = requests.get(url)
+    if res.status_code == 200:
+        print('отправилось')
+        return True
+    else:
+        return False
 
 def send_reset_email(email, code):
-    print(f'Код восстановления - {code} отправлен на почту {email}')
+    send_mail(
+        "Восстановление пароля",
+        f"Вы пытаетесь восстановить доступ к аккаунту на www.pre_recover.com , ваш код доступа - {code}",
+        str(os.getenv("EM_HOST_USER")),
+        [email],
+        fail_silently=False,
+    )
 
 class PasswordResetView(APIView):
     def post(self,request):
