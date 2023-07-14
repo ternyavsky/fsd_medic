@@ -264,6 +264,12 @@ class AdminSerializer(serializers.Serializer):
     password2 = serializers.CharField(write_only=True)
 
 
+class CenterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Centers
+        fields = '__all__'
+
+
 class DiseaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disease
@@ -272,15 +278,10 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 class UserGetSerializer(serializers.ModelSerializer):
     disease = DiseaseSerializer(many=True)
-    center = serializers.SerializerMethodField()
+    center = CenterSerializer()
     class Meta:
         model = User
         fields = '__all__'
-
-    def get_center(self, obj):
-        if obj.center:
-            return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
-        return None
 #END USER BLOCK
 
 class NewsSerializer(serializers.ModelSerializer):
@@ -334,10 +335,6 @@ class ClinicSerializer(serializers.ModelSerializer):
 
 
 
-class CenterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Centers
-        fields = '__all__'
 
 
 class SearchSerializer(serializers.Serializer):

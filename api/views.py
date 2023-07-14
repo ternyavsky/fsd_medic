@@ -1,7 +1,6 @@
 import re
 
 from rest_framework.generics import UpdateAPIView, RetrieveAPIView
-from twilio.rest import Client
 from django.core.mail import send_mail
 from rest_framework import generics
 from rest_framework import serializers
@@ -145,7 +144,7 @@ class SearchView(APIView):
     def get(self, request, *args, **kwargs):
         clinics = Clinics.objects.all()
         centers = Centers.objects.all()
-        users = User.objects.filter(is_staff=True)
+        users = User.objects.filter()
         search_results = {
             'clinics': clinics,
             'centers': centers,
