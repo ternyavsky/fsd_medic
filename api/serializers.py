@@ -1,17 +1,10 @@
 import json
 import re
 import random
-<<<<<<< HEAD
-
-
-from rest_framework import serializers
-from .models import News, User, NumberCodes, Centers, Clinics, Disease
-=======
 
 from rest_framework import serializers
 from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes
 
->>>>>>> main
 
 
 # class DiseaseSerializer(serializers.ModelSerializer):
@@ -68,11 +61,8 @@ class UserSerializer(serializers.Serializer):
 
             for i in validated_data['disease_id']:
                 user.disease.add(i)
-<<<<<<< HEAD
-=======
                 if user.disease.count() >= 5:
                     raise serializers.ValidationError('You cannot specify more than 5 diseases')
->>>>>>> main
                 print(validated_data['disease_id'], ' test_data')
 
             user.stage = stage
@@ -88,10 +78,7 @@ class UserSerializer(serializers.Serializer):
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
-<<<<<<< HEAD
-=======
         
->>>>>>> main
 
         return user
 
@@ -165,20 +152,12 @@ class UserSerializer(serializers.Serializer):
 
 class VerifyCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
-<<<<<<< HEAD
-
-=======
->>>>>>> main
     verification_code = serializers.IntegerField()
 
 class ResendCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
 
-<<<<<<< HEAD
-# RESET PASSWORD BLOCK
-=======
     # RESET PASSWORD BLOCK
->>>>>>> main
 class PasswordResetSerializer(serializers.Serializer):
     number = serializers.CharField(allow_null=True, required=False)
     email = serializers.CharField(allow_null=True, required=False)
@@ -209,11 +188,11 @@ class VerifyResetCodeSerializer(serializers.Serializer):
 class NewPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
-    new_password = serializers.CharField(min_length=8, max_length=128)
-    confirm_password = serializers.CharField(min_length=8, max_length=128)
+    password1 = serializers.CharField(min_length=8, max_length=128)
+    password2 = serializers.CharField(min_length=8, max_length=128)
 
     def validate(self, data):
-        if data['new_password'] != data['confirm_password']:
+        if data['password1'] != data['password2']:
             raise serializers.ValidationError("Passwords do not match.")
         return data
 
@@ -320,10 +299,10 @@ class NoteSerializer(serializers.ModelSerializer):
 
     def get_users(self, obj):
         ls = [User.objects.get(id=i["id"]) for i in obj.users_to_note.values() ]
-        return UserGetSerializer(ls, many=True).data
+        return UserSerializer(ls, many=True).data
     
     def get_doctor(self, obj):
-        return UserGetSerializer(User.objects.get(id=obj.doctor.id)).data
+        return UserSerializer(User.objects.get(id=obj.doctor.id)).data
     
     def get_center(self, obj):
         return CenterSerializer(Centers.objects.get(id=obj.center.id)).data

@@ -42,10 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
-<<<<<<< HEAD
-
-=======
->>>>>>> main
     'templates',
     'rest_framework',
 ]

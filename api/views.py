@@ -1,47 +1,34 @@
 import re
-<<<<<<< HEAD
 
 from rest_framework.generics import UpdateAPIView
 from twilio.rest import Client
 from django.core.mail import send_mail
-=======
-from twilio.rest import Client
->>>>>>> main
 from rest_framework import generics
 from rest_framework import serializers
 from django.shortcuts import render, redirect
-<<<<<<< HEAD
-from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics
+
+from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Notes, Disease
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
     VerifyCodeSerializer, ResendCodeSerializer, PasswordResetSerializer, VerifyResetCodeSerializer, \
- NewPasswordSerializer
-=======
-from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease, \
-    Notes
-from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
-    VerifyCodeSerializer, ResendCodeSerializer, DiseaseSerializer, NoteSerializer, NewPasswordSerializer, \
-        PasswordResetSerializer, VerifyResetCodeSerializer
->>>>>>> main
+ NewPasswordSerializer, NoteSerializer, DiseaseSerializer
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
 from django.contrib.auth import login, logout
-from .service import Send_email, generate_email_code, create_or_delete, generate_verification_code, send_sms
+from .service import Send_email, generate_email_code, create_or_delete, generate_verification_code, send_sms, send_reset_email, send_reset_sms
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
-<<<<<<< HEAD
 import os
 from django.contrib.auth import get_user_model
 import json
 import requests
-=======
+import random
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
->>>>>>> main
-import random
 # REST IMPORTS
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
@@ -186,47 +173,12 @@ class NoteView(APIView):
 
 ### USER BLOCK ###
 
-<<<<<<< HEAD
 #RESET PASSWORD BLOCK
-def send_reset_sms(number, code):
 
-    key = os.getenv('API_KEY')
-    email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+на+www.pre_recover.com+,+ваш+код+доступа+-+{code}&sign=SMSAero'
-    res = requests.get(url)
-    if res.status_code == 200:
-        print('отправилось')
-        return True
-    else:
-        return False
-
-def send_reset_email(email, code):
-    send_mail(
-        "Восстановление пароля",
-        f"Вы пытаетесь восстановить доступ к аккаунту на www.pre_recover.com , ваш код доступа - {code}",
-        str(os.getenv("EM_HOST_USER")),
-        [email],
-        fail_silently=False,
-    )
-
-=======
-
-#RESET PASSWORD BLOCK
-def reset(data, code, user):
-    if '@' in data:
-        print('Код восстановления - {} отправлен на почту {}'.format(data, code))
-        user.reset_code = code 
-        user.save()
-    else:
-        print('Код восстановления - {} отправлен на номер {}'.format(data, code))
-        user.reset_code = code 
-        user.save()
->>>>>>> main
 
 class PasswordResetView(APIView):
     def post(self,request):
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
-<<<<<<< HEAD
         if serializer.is_valid():
             user = serializer.save()
 
@@ -282,8 +234,8 @@ class SetNewPasswordView(APIView):
         if serializer.is_valid():
             email = serializer.validated_data.get('email')
             number = serializer.validated_data.get('number')
-            new_password = serializer.validated_data.get('new_password')
-            confirm_password = serializer.validated_data.get('confirm_password')
+            password1 = serializer.validated_data.get('password1')
+            password2 = serializer.validated_data.get('password2')
 
             try:
                 if email:
@@ -296,8 +248,8 @@ class SetNewPasswordView(APIView):
             except User.DoesNotExist:
                 return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-            if new_password == confirm_password:
-                set_new_password(user, new_password)
+            if password1 == password2:
+                set_new_password(user, password2)
                 return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
@@ -308,17 +260,6 @@ def set_new_password(user, new_password):
     user.set_password(new_password)
     user.save()
 # END RESET PASSWORD BLOCK
-
-def send_sms(number, code):
-    key = os.getenv('API_KEY')
-    email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Регистрация+была+успешно+пройдена,+ваш+код+подтверждения+{code}&sign=SMSAero'
-    res = requests.get(url)
-    if res.status_code == 200:
-        print('отправилось')
-        return True
-    else:
-        return False
 
 
 
@@ -337,118 +278,11 @@ class CreateUserView(generics.ListCreateAPIView):
                 send_sms(user.number, code)
                 user.verification_code = code
                 user.save()
-=======
-        if serializer.is_valid():
-            user = serializer.save()
-            if request.data['number']:
-                code = generate_verification_code()
-                print(code, 'code from sms')
-                num = request.data['number']
-                reset(num, code, user)
-            else:
-                code = generate_verification_code()
-                print(code, 'code from email')
-                email = request.data['email']
-                reset(email, code)
->>>>>>> main
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-<<<<<<< HEAD
-=======
-class VerifyResetCodeView(APIView):
-    def post(self, request):
-        serializer = VerifyResetCodeSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data.get('email')
-            number = serializer.validated_data.get('number')
-            reset_code = serializer.validated_data.get('reset_code')
-
-            try:
-                if email:
-                    user = User.objects.get(email=email)
-
-
-                else:
-                    user = User.objects.get(number=number)
-
-            except User.DoesNotExist:
-                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-            if reset_code == user.reset_code:
-                user.save()
-                return Response({"message":"User got the access to his account"},status=status.HTTP_200_OK)
-            else:
-                return Response({"message":"User didnt get the access to his account"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class SetNewPasswordView(APIView):
-    def post(self, request):
-        serializer = NewPasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data.get('email')
-            number = serializer.validated_data.get('number')
-            password1 = serializer.validated_data.get('password1')
-            password2 = serializer.validated_data.get('password2')
-
-            try:
-                if email:
-                    user = User.objects.get(email=email)
-
-
-                else:
-                    user = User.objects.get(number=number)
-
-            except User.DoesNotExist:
-                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-            if password1 == password2:
-                user.set_passowrd(password1)
-                user.save()
-                return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# END RESET PASSWORD BLOCK
-
-
-
-class CreateUserView(APIView):
-    permission_classes = [AllowAny]
-    serializer_class = UserSerializer
-    
-    def post(self, request):
-        data = request.data
-        code = generate_verification_code()
-        serializer = UserSerializer(data=data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-
-        if int(data['stage']) == 3:
-            send_sms(user.number, code)
-            user.verification_code = code
-            user.save()
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    
-    
-class CenterRegistrationView(APIView):
-    permission_classes = [AllowAny]
-    def get(self, request):
-        centers = Centers.objects.all().filter(city=request.data["city"])
-        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
-    
-class GetDiseasesView(APIView):
-    def get(self, request):
-        diseases = Disease.objects.all()
-        serializer = DiseaseSerializer(diseases, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
->>>>>>> main
 class ResendSmsView(APIView):
     def post(self, request):
         serializer = ResendCodeSerializer(data=request.data)
@@ -464,13 +298,8 @@ class ResendSmsView(APIView):
             send_sms(user.number, code)
             user.verification_code = code
             user.save()
-<<<<<<< HEAD
 
             return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
-=======
-    
-            return Response({'detail': 'SMS resend successfully'}, status=status.HTTP_200_OK)
->>>>>>> main
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -481,32 +310,30 @@ class VerifyCodeView(APIView):
             number = serializer.validated_data.get('number')
             verification_code = serializer.validated_data.get('verification_code')
             # print(verification_code, ' current code from serializer')
-<<<<<<< HEAD
             try:
                 user = User.objects.get(number=number)
 
-=======
-
-            try:
-                user = User.objects.get(number=number)
-                print(user.id, 'id текущего пользователя')
-                print(user.verification_code, 'verif_code from current user')
->>>>>>> main
             except User.DoesNotExist:
                 return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
             if verification_code == user.verification_code:
-<<<<<<< HEAD
-
-=======
-                # print(verification_code, 'текущий verif_code')
->>>>>>> main
                 user.is_required = True
                 user.save()
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
 
+class CenterRegistrationView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        centers = Centers.objects.all().filter(city=request.data["city"])
+        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
+    
+class GetDiseasesView(APIView):
+    def get(self, request):
+        diseases = Disease.objects.all()
+        serializer = DiseaseSerializer(diseases, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UpdateUserView(generics.ListCreateAPIView):

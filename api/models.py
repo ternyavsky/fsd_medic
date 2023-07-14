@@ -88,11 +88,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True, blank=True)
-<<<<<<< HEAD
-    disease = models.ManyToManyField('Disease', verbose_name=_('Заболевание'),  blank=True)
-=======
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
->>>>>>> main
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
@@ -106,11 +102,7 @@ class User(AbstractBaseUser):
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
-<<<<<<< HEAD
     verification_code = models.PositiveIntegerField(verbose_name=_('СМС код подтверждения'), default=1)
-=======
-    verification_code = models.PositiveIntegerField(verbose_name='СМС код подтверждения', default=1)
->>>>>>> main
     reset_code = models.PositiveIntegerField(_('Код для сброса пароля'), default=1)
     USERNAME_FIELD = 'number'
 
