@@ -1,0 +1,15 @@
+Index: .idea/shelf/Uncommitted_changes_before_Checkout_at_14_07_2023_21_16__Changes_.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Checkout_at_14_07_2023_21_16__Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Checkout_at_14_07_2023_21_16__Changes_.xml
+new file mode 100644
+--- /dev/null	(date 1689358640586)
++++ b/.idea/shelf/Uncommitted_changes_before_Checkout_at_14_07_2023_21_16__Changes_.xml	(date 1689358640586)
+@@ -0,0 +1,4 @@
++<changelist name="Uncommitted_changes_before_Checkout_at_14_07_2023_21_16_[Changes]" date="1689358582607" recycled="true" deleted="true">
++  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_14_07_2023_21_16_[Changes]/shelved.patch" />
++  <option name="DESCRIPTION" value="Uncommitted changes before Checkout at 14.07.2023 21:16 [Changes]" />
++</changelist>
+\ No newline at end of file
