@@ -1,10 +1,12 @@
 import random
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.db import models
+from rest_framework import serializers
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from abc import ABC, abstractmethod
 from django.core.validators import MaxValueValidator, MinValueValidator
+from .choices import NOTE_CHOICES, PROCESS
 
 
 class UserManager(BaseUserManager):
@@ -86,7 +88,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True, blank=True)
-    disease = models.ManyToManyField('Disease', verbose_name=_('Заболевание'),  blank=True)
+    disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
@@ -141,6 +143,40 @@ class Groups(models.Model):
     class Meta:
         verbose_name_plural = 'Группы'
         verbose_name = 'Группу'
+
+class Notes(models.Model):
+    users_to_note = models.ManyToManyField("User", verbose_name=_('Пользователи на запись'), related_name=_('users_to_note'), blank=True)
+    translate = models.BooleanField(verbose_name=_('Переводчик'), default=False)
+    translate_from = models.CharField(verbose_name=_('С какого языка'), max_length=255, null=True, blank=True)
+    translate_to = models.CharField(verbose_name=_('На какой язык'), max_length=255, null=True, blank=True)
+    title = models.CharField(verbose_name=_('Название записи'), max_length=255)
+    online = models.BooleanField(verbose_name=_('Онлайн'), default=False)
+    time_start = models.DateTimeField(verbose_name=_('Начало '), null=True, blank=True)
+    time_end = models.DateTimeField(verbose_name=_('Конец'), null=True, blank=True)
+    notify = models.DateTimeField(verbose_name=_('Время уведомления о записи'), null=True, blank=True)
+    doctor = models.ForeignKey('User', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True, related_name="to_doctor")
+    problem = models.CharField(verbose_name=_('Причина'), max_length=255)
+    duration_note = models.IntegerField(verbose_name=_('Длительность'), null=True, blank=True)
+    center = models.ForeignKey('Centers', on_delete=models.CASCADE, null=True)
+    file = models.FileField(verbose_name=_('Файлы к записи'), upload_to='files_to_notes/', null=True, blank=True)
+    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, null=True)
+    status = models.CharField(verbose_name=_('Статус записи'), choices=NOTE_CHOICES, max_length=255, default=PROCESS)
+
+
+    def __str__(self):
+        return f'{self.title} - {[i["number"] for i in self.users_to_note.values()]}' 
+
+    def set_translate(self, translate_from, translate_to):
+        if not self.translate:
+            return
+        self.translate_from = translate_from
+        self.translate_to = translate_to
+
+    class Meta:
+        verbose_name_plural = 'Записи'
+        verbose_name = 'Запись'
+
 
 class Centers(models.Model):
     name = models.CharField(verbose_name=_('Название центра'), max_length=255, null=True)

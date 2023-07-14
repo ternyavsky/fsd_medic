@@ -6,27 +6,29 @@ from rest_framework import generics
 from rest_framework import serializers
 from django.shortcuts import render, redirect
 
-
-
-from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Disease
+from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Notes, Disease
 from .serializers import NewsSerializer, UserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
     VerifyCodeSerializer, ResendCodeSerializer, PasswordResetSerializer, VerifyResetCodeSerializer, \
-    NewPasswordSerializer, DiseaseSerializer
+ NewPasswordSerializer, NoteSerializer, DiseaseSerializer
+
 
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
 from django.contrib.auth import login, logout
-from .service import Send_email, generate_email_code, create_or_delete, generate_verification_code, send_sms
+from .service import Send_email, generate_email_code, create_or_delete, generate_verification_code, send_sms, send_reset_email, send_reset_sms
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
+
 
 from django.shortcuts import get_object_or_404
 import json
 import requests
 from django.db.models import Q
+
 
 import os
 from django.contrib.auth import get_user_model
@@ -34,6 +36,8 @@ import json
 import requests
 
 import random
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
 # REST IMPORTS
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
@@ -105,7 +109,7 @@ class NewsDetailView(APIView):  # Single news view
         news.delete()
         return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
 
-    def put(self, request, id):  # update single news
+    def post(self, request, id):  # update single news
         news = get_object_or_404(News, id=id)
         serializer = NewsSerializer(news, data=request.data)
         if serializer.is_valid():
@@ -153,42 +157,33 @@ class SearchView(APIView):
         clinics = Clinics.objects.all()
         centers = Centers.objects.all()
         users = User.objects.filter(is_staff=True)
-
         search_results = {
             'clinics': clinics,
             'centers': centers,
             'users': users,
         }
-
         serializer = SearchSerializer(search_results)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+
+class NoteView(APIView):
+    #permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        notes = Notes.objects.all().filter(users_to_note__id=request.data["users"])
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        serializer = NoteSerializer(Notes, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 ### USER BLOCK ###
 
 
 #RESET PASSWORD BLOCK
-def send_reset_sms(number, code):
-
-    key = os.getenv('API_KEY')
-    email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+на+www.pre_recover.com+,+ваш+код+доступа+-+{code}&sign=SMSAero'
-    res = requests.get(url)
-    if res.status_code == 200:
-        print('отправилось')
-        return True
-    else:
-        return False
-
-def send_reset_email(email, code):
-    send_mail(
-        "Восстановление пароля",
-        f"Вы пытаетесь восстановить доступ к аккаунту на www.pre_recover.com , ваш код доступа - {code}",
-        str(os.getenv("EM_HOST_USER")),
-        [email],
-        fail_silently=False,
-    )
 
 
 class PasswordResetView(APIView):
@@ -249,8 +244,8 @@ class SetNewPasswordView(APIView):
         if serializer.is_valid():
             email = serializer.validated_data.get('email')
             number = serializer.validated_data.get('number')
-            new_password = serializer.validated_data.get('new_password')
-            confirm_password = serializer.validated_data.get('confirm_password')
+            password1 = serializer.validated_data.get('password1')
+            password2 = serializer.validated_data.get('password2')
 
             try:
                 if email:
@@ -263,8 +258,8 @@ class SetNewPasswordView(APIView):
             except User.DoesNotExist:
                 return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-            if new_password == confirm_password:
-                set_new_password(user, new_password)
+            if password1 == password2:
+                set_new_password(user, password2)
                 return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
@@ -276,16 +271,6 @@ def set_new_password(user, new_password):
     user.save()
 # END RESET PASSWORD BLOCK
 
-def send_sms(number, code):
-    key = os.getenv('API_KEY')
-    email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Регистрация+была+успешно+пройдена,+ваш+код+подтверждения+{code}&sign=SMSAero'
-    res = requests.get(url)
-    if res.status_code == 200:
-        print('отправилось')
-        return True
-    else:
-        return False
 
 
 
@@ -309,19 +294,21 @@ class CreateUserView(generics.ListCreateAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
-    
+
+
+
 class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
     def get(self, request):
         centers = Centers.objects.all().filter(city=request.data["city"])
         return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
-    
+
 class GetDiseasesView(APIView):
     def get(self, request):
         diseases = Disease.objects.all()
         serializer = DiseaseSerializer(diseases, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class ResendSmsView(APIView):
@@ -340,7 +327,9 @@ class ResendSmsView(APIView):
             user.verification_code = code
             user.save()
 
-            return Response({'detail': 'SMS resend successfully'}, status=status.HTTP_200_OK)
+
+            return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
+
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -352,12 +341,8 @@ class VerifyCodeView(APIView):
             verification_code = serializer.validated_data.get('verification_code')
             # print(verification_code, ' current code from serializer')
 
-
             try:
                 user = User.objects.get(number=number)
-                print(user.id, 'id текущего пользователя')
-                print(user.verification_code, 'verif_code from current user')
-
 
 
             except User.DoesNotExist:
@@ -371,6 +356,17 @@ class VerifyCodeView(APIView):
             else:
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
 
+class CenterRegistrationView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        centers = Centers.objects.all().filter(city=request.data["city"])
+        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
+    
+class GetDiseasesView(APIView):
+    def get(self, request):
+        diseases = Disease.objects.all()
+        serializer = DiseaseSerializer(diseases, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UpdateUserView(generics.ListCreateAPIView):
