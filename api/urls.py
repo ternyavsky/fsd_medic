@@ -3,9 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from .views import index, LOGOUT, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, \
     CreateAdminView, UpdateUserView, SearchView, registration, VerifyCodeView, ResendSmsView, \
-CenterRegistrationView, GetDiseasesView, NoteView, PasswordResetView, VerifyResetCodeView,\
-SetNewPasswordView
-
+    CenterRegistrationView, GetDiseasesView, NoteView, PasswordResetView, VerifyResetCodeView, \
+    SetNewPasswordView, UserDetailView, UserListView
 from social.views import ChatView
 
 from rest_framework_simplejwt.views import (
@@ -27,9 +26,7 @@ urlpatterns = [
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/create/user/get_diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
 
-
-
-    path('api/create/user/', CreateUserView.as_view(), name='create_user_url'), 
+    path('api/create/user/', CreateUserView.as_view(), name='create_user_url'),
     path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
     path('api/resend-sms/', ResendSmsView.as_view(), name='resend-sms'),
     path('api/reset-password/', PasswordResetView.as_view(), name='reset-password'),
@@ -37,11 +34,12 @@ urlpatterns = [
     path('api/change-password/', SetNewPasswordView.as_view(), name='change-password'),
     path('api/notes/', NoteView.as_view(), name='note_view_url'),
 
+    path('api/users/', UserListView.as_view(), name='user_list'),
+    path('api/user/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     path('api/update/user/', UpdateUserView.as_view(), name='update_user_url'),
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
     path('api/update/admin/', UpdateUserView.as_view(), name='update_admin_url'),
     path('registration/<str:parameter>/', registration, name='registration_url'),
-
 
 
     path('', index, name='home_url'),

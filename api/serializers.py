@@ -9,12 +9,7 @@ from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes
 
 
 
-# class DiseaseSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Disease
-#         fields = '__all__'
-
-class UserSerializer(serializers.Serializer):
+class CreateUserSerializer(serializers.Serializer):
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
@@ -45,10 +40,8 @@ class UserSerializer(serializers.Serializer):
                 password=validated_data['password1'],
                 group=validated_data['group']
             )
-            print(validated_data)
             user.stage = stage
             validated_data['stage'] = stage
-            validated_data['id'] =  user.id
 
         if stage == 2:
             center_id = validated_data.get('center_id')
@@ -60,7 +53,6 @@ class UserSerializer(serializers.Serializer):
                 user.country = center.country
             except Centers.DoesNotExist:
                 user.center_id = None
-
             for i in validated_data['disease_id']:
                 user.disease.add(i)
 
@@ -271,11 +263,25 @@ class AdminSerializer(serializers.Serializer):
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
 
+
+class DiseaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Disease
+        fields = '__all__'
+
+
 class UserGetSerializer(serializers.ModelSerializer):
+    disease = DiseaseSerializer(many=True)
+    center = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = '__all__'
 
+    def get_center(self, obj):
+        if obj.center:
+            return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
+        return None
+#END USER BLOCK
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -306,21 +312,14 @@ class NoteSerializer(serializers.ModelSerializer):
 
     def get_users(self, obj):
         ls = [User.objects.get(id=i["id"]) for i in obj.users_to_note.values() ]
-        return UserSerializer(ls, many=True).data
+        return CreateUserSerializer(ls, many=True).data
     
     def get_doctor(self, obj):
-        return UserSerializer(User.objects.get(id=obj.doctor.id)).data
+        return CreateUserSerializer(User.objects.get(id=obj.doctor.id)).data
     
     def get_center(self, obj):
         return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
     
-class DiseaseSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Disease
-        fields = '__all__'
-        
-
 
 
 
