@@ -12,19 +12,22 @@ from .models import News, User, NumberCodes, Centers, Clinics, Disease
 #         model = Disease
 #         fields = '__all__'
 
-class UserSerializer(serializers.Serializer):
-    number = serializers.CharField()
+class UserSerializer(serializers.ModelSerializer):
+    # number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    center_id = serializers.IntegerField(allow_null=True, required=False)
-    disease_id = serializers.PrimaryKeyRelatedField(
-        queryset=Disease.objects.all(),
-        allow_null=True,
-        required=False,
-        many=True
-    )
-    stage = serializers.IntegerField(read_only=True)
+    # center_id = serializers.IntegerField(allow_null=True, required=False)
+    # disease_id = serializers.PrimaryKeyRelatedField(
+    #     queryset=Disease.objects.all(),
+    #     allow_null=True,
+    #     required=False,
+    #     many=True
+    # )
+    # stage = serializers.IntegerField(read_only=True)
     group = serializers.CharField()
+    class Meta:
+        model = User
+        fields = '__all__'
 
 
 
