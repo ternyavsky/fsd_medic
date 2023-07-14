@@ -2,17 +2,14 @@ import json
 import re
 import random
 
-
 from rest_framework import serializers
-from .models import News, User, NumberCodes, Centers, Clinics, Disease
+from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes
 
 
-# class DiseaseSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Disease
-#         fields = '__all__'
 
-class UserSerializer(serializers.Serializer):
+#USER BLOCK
+
+class CreateUserSerializer(serializers.Serializer):
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
@@ -56,9 +53,10 @@ class UserSerializer(serializers.Serializer):
                 user.country = center.country
             except Centers.DoesNotExist:
                 user.center_id = None
-
             for i in validated_data['disease_id']:
                 user.disease.add(i)
+                if user.disease.count() >= 5:
+                    raise serializers.ValidationError('You cannot specify more than 5 diseases')
                 print(validated_data['disease_id'], ' test_data')
 
             user.stage = stage
@@ -74,6 +72,7 @@ class UserSerializer(serializers.Serializer):
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
+        
 
         return user
 
@@ -147,13 +146,12 @@ class UserSerializer(serializers.Serializer):
 
 class VerifyCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
-
     verification_code = serializers.IntegerField()
 
 class ResendCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
 
-# RESET PASSWORD BLOCK
+    # RESET PASSWORD BLOCK
 class PasswordResetSerializer(serializers.Serializer):
     number = serializers.CharField(allow_null=True, required=False)
     email = serializers.CharField(allow_null=True, required=False)
@@ -184,11 +182,11 @@ class VerifyResetCodeSerializer(serializers.Serializer):
 class NewPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
-    new_password = serializers.CharField(min_length=8, max_length=128)
-    confirm_password = serializers.CharField(min_length=8, max_length=128)
+    password1 = serializers.CharField(min_length=8, max_length=128)
+    password2 = serializers.CharField(min_length=8, max_length=128)
 
     def validate(self, data):
-        if data['new_password'] != data['confirm_password']:
+        if data['password1'] != data['password2']:
             raise serializers.ValidationError("Passwords do not match.")
         return data
 
@@ -261,11 +259,24 @@ class AdminSerializer(serializers.Serializer):
     password2 = serializers.CharField(write_only=True)
 
 
+class DiseaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Disease
+        fields = '__all__'
+
+
 class UserGetSerializer(serializers.ModelSerializer):
+    disease = DiseaseSerializer(many=True)
+    center = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = '__all__'
 
+    def get_center(self, obj):
+        if obj.center:
+            return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
+        return None
+#END USER BLOCK
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -284,11 +295,38 @@ class NewsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class NoteSerializer(serializers.ModelSerializer):
+    users = serializers.SerializerMethodField()
+    doctor = serializers.SerializerMethodField()
+    center = serializers.SerializerMethodField()
+    class Meta:
+        model = Notes
+        fields = ['users', 'doctor', 'center', 'translate', 'translate_from', 'translate_to','title',
+        'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
-class ClinicSerializer(serializers.Serializer):
+
+    def get_users(self, obj):
+        ls = [User.objects.get(id=i["id"]) for i in obj.users_to_note.values() ]
+        return CreateUserSerializer(ls, many=True).data
+    
+    def get_doctor(self, obj):
+        return CreateUserSerializer(User.objects.get(id=obj.doctor.id)).data
+    
+    def get_center(self, obj):
+        return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
+    
+
+
+
+class ClinicSerializer(serializers.ModelSerializer):
+    supported_diseases = serializers.SerializerMethodField()
     class Meta:
         model = Clinics
         fields = '__all__'
+
+    def get_supported_diseases(self, obj):
+        return DiseaseSerializer(obj.supported_diseases.all(), many=True).data
+
 
 
 class CenterSerializer(serializers.ModelSerializer):
@@ -298,9 +336,12 @@ class CenterSerializer(serializers.ModelSerializer):
 
 
 class SearchSerializer(serializers.Serializer):
+
     clinics = ClinicSerializer(read_only=True, many=True)
     centers = CenterSerializer(read_only=True, many=True)
     users = UserGetSerializer(read_only=True, many=True)
 
     class Meta:
         fields = '__all__'
+
+

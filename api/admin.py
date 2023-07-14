@@ -34,7 +34,7 @@ class CountriesAdmin(admin.ModelAdmin):
 
 class CentersAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'is_required', 'employees_number', 'country', 'address',
-                   'created_at', 'updated_at', ]
+                   'created_at', 'updated_at']
     search_fields = ['name', 'address']
     list_editable = ['is_required']
     list_filter = ['is_required', 'country', 'created_at', 'updated_at']
@@ -63,4 +63,6 @@ admin.site.register(News)
 admin.site.register(Like)
 admin.site.register(Disease)
 admin.site.register(Saved)
+admin.site.register(Clinics)
+admin.site.register(Notes)
 admin.site.register(Url_Params, UrlParamsAdmin)
