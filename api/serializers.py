@@ -4,7 +4,7 @@ import random
 
 from rest_framework import serializers
 
-from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes
+from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like
 
 
 
@@ -263,6 +263,13 @@ class AdminSerializer(serializers.Serializer):
     password2 = serializers.CharField(write_only=True)
 
 
+class CenterSerializer(serializers.ModelSerializer):
+    """Клиники"""
+    class Meta:
+        model = Centers
+        fields = '__all__'
+
+
 class DiseaseSerializer(serializers.ModelSerializer):
     """Болезни"""
     class Meta:
@@ -271,6 +278,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 
 class UserGetSerializer(serializers.ModelSerializer):
+
     """Получаем пользователя(аккаунт и т.п)"""
     disease = DiseaseSerializer(many=True, allow_null=True, required=False)
     center = serializers.SerializerMethodField()
@@ -284,6 +292,9 @@ class UserGetSerializer(serializers.ModelSerializer):
         if obj.center:
             return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
         return None
+
+
+#END USER BLOCK
 
 
 class NewsSerializer(serializers.ModelSerializer):
@@ -304,25 +315,17 @@ class NewsSerializer(serializers.ModelSerializer):
         return instance
 
 class NoteSerializer(serializers.ModelSerializer):
-    users = serializers.SerializerMethodField()
-    doctor = serializers.SerializerMethodField()
-    center = serializers.SerializerMethodField()
+    users_to_note = UserGetSerializer(many=True)
+    doctor = UserGetSerializer()
+    center = CenterSerializer
     class Meta:
         model = Notes
-        fields = ['users', 'doctor', 'center', 'translate', 'translate_from', 'translate_to','title',
+        fields = ['users_to_note', 'doctor', 'center', 'translate', 'translate_from', 'translate_to','title',
         'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
 
-    def get_users(self, obj):
-        ls = [User.objects.get(id=i["id"]) for i in obj.users_to_note.values() ]
-        return CreateUserSerializer(ls, many=True).data
-    
-    def get_doctor(self, obj):
-        return CreateUserSerializer(User.objects.get(id=obj.doctor.id)).data
-    
-    def get_center(self, obj):
-        return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
-    
+class CreateNoteSerializer(serializers.Serializer):
+    pass
 
 
 
@@ -337,10 +340,14 @@ class ClinicSerializer(serializers.ModelSerializer):
 
 
 
-class CenterSerializer(serializers.ModelSerializer):
-    """Клиники"""
+class SavedSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Centers
+        model = Saved 
+        fields = '__all__'
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like 
         fields = '__all__'
 
 

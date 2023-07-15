@@ -8,4 +8,3 @@ RUN python3 -m pip install --no-cache-dir --no-warn-script-location --upgrade pi
 
 COPY . /app
 EXPOSE 8000
-CMD ["python", "manage.py", "migrate"]

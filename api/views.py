@@ -11,7 +11,7 @@ from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews
     Disease
 from .serializers import NewsSerializer, CreateUserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
     VerifyCodeSerializer, ResendCodeSerializer, PasswordResetSerializer, VerifyResetCodeSerializer, \
-    NewPasswordSerializer, NoteSerializer, DiseaseSerializer, UserGetSerializer
+    NewPasswordSerializer, NoteSerializer, DiseaseSerializer, UserGetSerializer, CreateNoteSerializer, LikeSerializer, SavedSerializer
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -70,7 +70,7 @@ class SaveView(APIView):  # Append and delete saved news
     def post(self, request, id):
         try:
             news = News.objects.get(id=id)
-            return create_or_delete(Saved, user=request.user, news=news)
+            return create_or_delete(Saved, SavedSerializer, user=request.user, news=news)
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -81,7 +81,7 @@ class LikeView(APIView):  # Append and delete like
     def post(self, request, id):
         try:
             news = News.objects.get(id=id)
-            return create_or_delete(Like, user=request.user, news=news)
+            return create_or_delete(Like, LikeSerializer, user=request.user, news=news)
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -145,7 +145,7 @@ class SearchView(APIView):
     def get(self, request, *args, **kwargs):
         clinics = Clinics.objects.all()
         centers = Centers.objects.all()
-        users = User.objects.filter(is_staff=True)
+        users = User.objects.filter()
         search_results = {
             'clinics': clinics,
             'centers': centers,
@@ -155,18 +155,28 @@ class SearchView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class NoteView(APIView):
+class NoteView(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
-    def get(self, request, *args, **kwargs):
-        notes = Notes.objects.all().filter(users_to_note__id=request.data["users"])
+    def get(self, request, user_id):
+        notes = Notes.objects.all().filter(users_to_note__id=user_id)
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
-        serializer = NoteSerializer(Notes, data=request.data)
+    def post(self, request):
+        serializer = CreateNoteSerializer(Notes, data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class NoteDetailView(APIView):
+    def get(self, request, note_id):
+        pass 
+
+    def put(self, request, note_id):
+        pass 
+
+    def delete(self, request, note_id):
+        pass
 
 ### USER BLOCK ###
 
