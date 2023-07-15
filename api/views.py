@@ -9,10 +9,7 @@ from django.shortcuts import render, redirect
 
 from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews, News, Saved, Groups, Clinics, Notes, \
     Disease
-from .serializers import NewsSerializer, CreateUserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
-    VerifyCodeSerializer, ResendCodeSerializer, PasswordResetSerializer, VerifyResetCodeSerializer, \
-    NewPasswordSerializer, NoteSerializer, DiseaseSerializer, UserGetSerializer, CreateNoteSerializer, LikeSerializer, SavedSerializer
-
+from .serializers import *
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import Http404, HttpResponse
@@ -63,11 +60,32 @@ def registration(request, parameter):
     raise Http404
 
 
+
 ### NEWS BLOCK ###
-class SaveView(APIView):  # Append and delete saved news
+
+class SaveView(generics.ListCreateAPIView):
+    queryset = Saved.objects.all()
+
+    def get(self, request, user_id):
+        saved = self.queryset.filter(user=user_id)
+        serializer = SavedSerializer(saved, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = SavedCreateSerializer(Saved.objects.all(), data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SaveDetailView(APIView):  # Append and delete saved news
+    queryset = Saved.objects.all()
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, id):
+    def get(self, request, saved_id):
+        saved = self.queryset.filter(id=saved_id)
+        return Response(SavedSerializer(saved).data, status=status.HTTP_200_OK)
+
+    def post(self, request, news_id):
         try:
             news = News.objects.get(id=id)
             return create_or_delete(Saved, SavedSerializer, user=request.user, news=news)

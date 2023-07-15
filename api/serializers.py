@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like
 
-
+from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 
 
 class CreateUserSerializer(serializers.Serializer):
@@ -341,10 +341,25 @@ class ClinicSerializer(serializers.ModelSerializer):
 
 
 class SavedSerializer(serializers.ModelSerializer):
+    ''' get serialier for saved model'''
+    user = PresentablePrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        presentation_serializer=UserGetSerializer
+        
+    )
+    news = PresentablePrimaryKeyRelatedField(
+        queryset=News.objects.all(),
+        presentation_serializer=NewsSerializer
+    )
     class Meta:
         model = Saved 
         fields = '__all__'
 
+class CreateSavedSerializer(serializers.Serializer):
+    ''' get serialier for saved model'''
+    pass
+
+#like too up
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like 
