@@ -42,10 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
-<<<<<<< HEAD
-
-=======
->>>>>>> 24012fb4b7cae9371e2c500ca5b6b4f7aee82fdc
     'templates',
     'rest_framework',
 ]
@@ -97,18 +93,10 @@ ASGI_APPLICATION = 'fsd_medic.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'PORT': os.getenv('DB_PORT'),
-        'HOST': os.getenv('DB_HOST'),
-        'OPTIONS': {
-            'sql_mode': os.getenv('DB_SQL_MODE')
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 CHANNEL_LAYERS = {
     "default": {

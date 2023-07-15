@@ -2,9 +2,9 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import index, LOGOUT, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, \
-    CreateAdminView, UpdateUserView, SearchView, registration, VerifyCodeView, ResendSmsView, \
+    CreateAdminView, UserUpdateView, SearchView, registration, VerifyCodeView, ResendSmsView, \
     CenterRegistrationView, GetDiseasesView, NoteView, PasswordResetView, VerifyResetCodeView, \
-    SetNewPasswordView, UserDetailView, UserListView
+    SetNewPasswordView, UserDetailView, UserListView, UserUpdateView
 from social.views import ChatView
 
 from rest_framework_simplejwt.views import (
@@ -36,9 +36,8 @@ urlpatterns = [
 
     path('api/users/', UserListView.as_view(), name='user_list'),
     path('api/user/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
-    path('api/update/user/', UpdateUserView.as_view(), name='update_user_url'),
+    path('api/update-user/<int:pk>/', UserUpdateView.as_view(), name='user_update'),
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
-    path('api/update/admin/', UpdateUserView.as_view(), name='update_admin_url'),
     path('registration/<str:parameter>/', registration, name='registration_url'),
 
 
@@ -46,4 +45,6 @@ urlpatterns = [
 
     path('logout', LOGOUT, name='logout_url'),
     path('account', Account, name='account_url'),
+    # path('api/update/user/', UpdateUserView.as_view(), name='update_user_url'),
+    # path('api/update/admin/', UpdateUserView.as_view(), name='update_admin_url'),
 ]

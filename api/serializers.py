@@ -10,6 +10,7 @@ from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes
 
 
 class CreateUserSerializer(serializers.Serializer):
+    """Создание пользователей. Регистрация"""
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
@@ -28,10 +29,9 @@ class CreateUserSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(validated_data)
         code = self.context['request'].data.get('code')
-        # print(code, 'code from serializer')
         stage = self.context['request'].data.get('stage')
         stage = int(stage)
-        # print(type(stage))
+
         user = None
 
         if stage == 1:
@@ -64,8 +64,6 @@ class CreateUserSerializer(serializers.Serializer):
             user.stage = stage
             validated_data['stage'] = stage
             user.save()
-
-
 
         if stage == 3:
             try:
@@ -104,11 +102,6 @@ class CreateUserSerializer(serializers.Serializer):
             if User.objects.filter(number=data['number']).exists():
                 raise serializers.ValidationError('Номер уже используется')
 
-            # if not number_pattern.match(data['number']):
-            #     raise serializers.ValidationError('Введен некорректный номер телефона')
-
-
-            # Проверка паролей
             password1 = data.get('password1')
             password2 = data.get('password2')
             if password1 != password2:
@@ -146,17 +139,20 @@ class CreateUserSerializer(serializers.Serializer):
 
 
 class VerifyCodeSerializer(serializers.Serializer):
+    """Отправка кода для проверки. Регистрация"""
     number = serializers.CharField()
-
     verification_code = serializers.IntegerField()
 
 
 
 class ResendCodeSerializer(serializers.Serializer):
+    """Переотправка смс кода в разделе 'отправить код снова'. Регистрация."""
     number = serializers.CharField()
 
-    # RESET PASSWORD BLOCK
+
+# RESET PASSWORD BLOCK
 class PasswordResetSerializer(serializers.Serializer):
+    """Сброс пароля. Этап отправки сообщения """
     number = serializers.CharField(allow_null=True, required=False)
     email = serializers.CharField(allow_null=True, required=False)
 
@@ -179,11 +175,13 @@ class PasswordResetSerializer(serializers.Serializer):
         return user
 
 class VerifyResetCodeSerializer(serializers.Serializer):
+    """Проверка кода для сброса пароля"""
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     reset_code = serializers.IntegerField()
 
 class NewPasswordSerializer(serializers.Serializer):
+    """Устанавливаем новый пароль в разделе 'забыли пароль' """
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     password1 = serializers.CharField(min_length=8, max_length=128)
@@ -197,6 +195,7 @@ class NewPasswordSerializer(serializers.Serializer):
 #END RESET PASSWORD BLOCK
 
 class AdminSerializer(serializers.Serializer):
+    """создаем админа"""
     def create(self, validated_data):
         self.create_validate(validated_data)
         return User.objects.create_superuser(number=validated_data['number'],
@@ -265,14 +264,18 @@ class AdminSerializer(serializers.Serializer):
 
 
 class DiseaseSerializer(serializers.ModelSerializer):
+    """Болезни"""
     class Meta:
         model = Disease
         fields = '__all__'
 
 
 class UserGetSerializer(serializers.ModelSerializer):
-    disease = DiseaseSerializer(many=True)
+    """Получаем пользователя(аккаунт и т.п)"""
+    disease = DiseaseSerializer(many=True, allow_null=True, required=False)
     center = serializers.SerializerMethodField()
+    password = serializers.CharField(allow_null=True, required=False) #убираем обяз. поле password
+    group = serializers.CharField(allow_null=True, required=False) #убираем обяз. поле group
     class Meta:
         model = User
         fields = '__all__'
@@ -281,7 +284,7 @@ class UserGetSerializer(serializers.ModelSerializer):
         if obj.center:
             return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
         return None
-#END USER BLOCK
+
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -335,6 +338,7 @@ class ClinicSerializer(serializers.ModelSerializer):
 
 
 class CenterSerializer(serializers.ModelSerializer):
+    """Клиники"""
     class Meta:
         model = Centers
         fields = '__all__'

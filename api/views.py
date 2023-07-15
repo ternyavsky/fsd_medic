@@ -1,7 +1,7 @@
 import re
 
 from rest_framework.generics import UpdateAPIView, RetrieveAPIView
-from twilio.rest import Client
+
 from django.core.mail import send_mail
 from rest_framework import generics
 from rest_framework import serializers
@@ -43,9 +43,9 @@ def index(request):
     return render(request, template_name='api/index.html')
 
 
-def generate_verification_code():
-    code = random.randint(1000, 9999)
-    return str(code)
+# def generate_verification_code():
+#     code = random.randint(1000, 9999)
+#     return str(code)
 
 
 def registration(request, parameter):
@@ -170,10 +170,9 @@ class NoteView(APIView):
 
 ### USER BLOCK ###
 
-# RESET PASSWORD BLOCK
-
-
+### RESET PASSWORD BLOCK ###
 class PasswordResetView(APIView):
+    """Сброс пароля. Этап отправки"""
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -181,7 +180,6 @@ class PasswordResetView(APIView):
 
             if request.POST.get('number', False):
                 code = generate_verification_code()
-                print(code, 'code from sms')
                 num = request.data['number']
                 send_reset_sms(num, code)
                 user.reset_code = code
@@ -189,7 +187,6 @@ class PasswordResetView(APIView):
 
             if request.POST.get('email', False):
                 code = generate_verification_code()
-                print(code, 'code from email')
                 email = request.data['email']
                 send_reset_email(email, code)
                 user.reset_code = code
@@ -200,6 +197,7 @@ class PasswordResetView(APIView):
 
 
 class VerifyResetCodeView(APIView):
+    """Проверка кода для сброса пароля"""
     def post(self, request):
         serializer = VerifyResetCodeSerializer(data=request.data)
         if serializer.is_valid():
@@ -227,6 +225,7 @@ class VerifyResetCodeView(APIView):
 
 
 class SetNewPasswordView(APIView):
+    """Установка нового пароля"""
     def post(self, request):
         serializer = NewPasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -256,23 +255,31 @@ class SetNewPasswordView(APIView):
 
 
 def set_new_password(user, new_password):
+
     user.set_password(new_password)
     user.save()
+### END RESET PASSWORD BLOCK###
 
 
-# END RESET PASSWORD BLOCK
-
+### USERS' CLASSES ###
 class UserListView(generics.ListAPIView):
+    """Список пользоватлей"""
     serializer_class = UserGetSerializer
     queryset = User.objects.all()
 
 
 class UserDetailView(generics.RetrieveAPIView):
+    """Получаем отдельного пользователя по id"""
     serializer_class = UserGetSerializer
     queryset = User.objects.all()
 
+class UserUpdateView(generics.UpdateAPIView):
+    """Редактирование пользователя"""
+    serializer_class = UserGetSerializer
+    queryset = User.objects.all()
 
 class CreateUserView(generics.ListCreateAPIView):
+    """Создание пользователя(всего 3 этапа регистрации)"""
     permission_classes = [AllowAny]
     model = User
     serializer_class = CreateUserSerializer
@@ -289,11 +296,11 @@ class CreateUserView(generics.ListCreateAPIView):
                 user.save()
 
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ResendSmsView(APIView):
+    """Переотправка смс, в разделе 'получить смс снова'. Регистрация """
     def post(self, request):
         serializer = ResendCodeSerializer(data=request.data)
         if serializer.is_valid():
@@ -315,6 +322,7 @@ class ResendSmsView(APIView):
 
 
 class VerifyCodeView(APIView):
+    """Проверка кода во время регистрации"""
     def post(self, request):
         serializer = VerifyCodeSerializer(data=request.data)
         if serializer.is_valid():
@@ -350,22 +358,24 @@ class GetDiseasesView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UpdateUserView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
-    model = User
-    serializer_class = CreateUserSerializer
-
-    def post(self, request):
-        serializer = CreateUserSerializer()
-        # serializer.update(instance=request.user, validated_data=request.data)
-        serializer.update(validated_data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class UpdateUserView(generics.ListCreateAPIView):
+#
+#     permission_classes = [AllowAny]
+#     model = User
+#     serializer_class = CreateUserSerializer
+#
+#     def post(self, request):
+#         serializer = CreateUserSerializer()
+#         # serializer.update(instance=request.user, validated_data=request.data)
+#         serializer.update(validated_data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateAdminView(generics.ListCreateAPIView):
+    """Создание админа"""
     permission_classes = [AllowAny]
     model = User
     serializer_class = AdminSerializer
