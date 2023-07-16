@@ -1,12 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import index, LOGOUT, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, \
-    CreateAdminView, UserUpdateView, SearchView, registration, VerifyCodeView, ResendSmsView, \
-    CenterRegistrationView, GetDiseasesView, NoteView, PasswordResetView, VerifyResetCodeView, \
-    SetNewPasswordView, UserDetailView, UserListView, UserUpdateView, NoteDetailView, EmailBindingView, \
-    VerifyEmailCodeView
-
+from .views import *
 from social.views import ChatView
 
 from rest_framework_simplejwt.views import (
@@ -21,9 +16,16 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair_url'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
     path('api/news/', NewsView.as_view(), name='news_view_url'),
-    path('api/like/<int:id>/', LikeView.as_view(), name='like_view_url'),
     path('api/news/<int:id>/', NewsDetailView.as_view(), name='news_detail_url'),
-    path('api/save/<int:id>/', SaveView.as_view(), name='save_view_url'),
+    path('api/like/<int:id>/', LikeView.as_view(), name='like_view_url'),
+
+    
+    # path('api/saved_user/<int:user_id>/', SaveView.as_view(), name='save_view_url'),
+    # path('api/saved/', SaveView.as_view(), name='save_post_view_url'),
+    path('api/saved/<int:saved_id>/', SaveDetailView.as_view(), name='save_detail_get_view_url'),
+    path('api/saved/<int:news_id>', SaveDetailView.as_view(), name='save_create_view_url'),
+
+    
     path('api/create/user/centers/', CenterRegistrationView.as_view(), name='center_reg_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/create/user/get_diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
