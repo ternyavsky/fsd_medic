@@ -11,7 +11,8 @@ from .models import User, Countries, Centers, Url_Params, EmailCodes, Interviews
     Disease
 from .serializers import NewsSerializer, CreateUserSerializer, AdminSerializer, SearchSerializer, CenterSerializer, \
     VerifyCodeSerializer, ResendCodeSerializer, PasswordResetSerializer, VerifyResetCodeSerializer, \
-    NewPasswordSerializer, NoteSerializer, DiseaseSerializer, UserGetSerializer, CreateNoteSerializer, LikeSerializer, SavedSerializer
+    NewPasswordSerializer, NoteSerializer, DiseaseSerializer, UserGetSerializer, CreateNoteSerializer, LikeSerializer, \
+    SavedSerializer, EmailBindingSerializer, VerifyEmailCodeSerializer
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -20,7 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
 from django.contrib.auth import login, logout
 from .service import Send_email, generate_email_code, create_or_delete, generate_verification_code, send_sms, \
-    send_reset_email, send_reset_sms
+    send_reset_email, send_reset_sms, send_verification_email
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import check_password
 from .permissions import IsAdminOrReadOnly
@@ -353,6 +354,50 @@ class VerifyCodeView(APIView):
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class EmailBindingView(APIView):
+    """Привязка почты к аккаунту. Шаг 1 - отправка письма"""
+    def post(self,request, user_id):
+        serializer = EmailBindingSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+            email_code = generate_verification_code()
+            send_verification_email(email_code=email_code, user_email=email)
+            user.email_verification_code = email_code
+            user.email = email
+            user.save()
+            print(f'На почту {email}, был отправлен код {email_code}')
+            return Response({'detail': 'email has sent successfully'}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyEmailCodeView(APIView):
+    """Проверка кода из email , для привязки почты"""
+    def post(self, request, user_id):
+        serializer = VerifyEmailCodeSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email_code = serializer.validated_data.get('email_verification_code')
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({'error':'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            if email_code == user.email_verification_code:
+                print('код прошел проверку')
+                user.save()
+                return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+## END USERS' CLASSES ###
 class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
 

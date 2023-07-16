@@ -90,7 +90,7 @@ class User(AbstractBaseUser):
     center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True, blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
-    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True)
+    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
@@ -105,6 +105,7 @@ class User(AbstractBaseUser):
 
     verification_code = models.PositiveIntegerField(verbose_name=_('СМС код подтверждения'), default=1)
     reset_code = models.PositiveIntegerField(_('Код для сброса пароля'), default=1)
+    email_verification_code = models.PositiveIntegerField(_('Код для привязки почты к аккаунту'), default=1)
 
     USERNAME_FIELD = 'number'
 

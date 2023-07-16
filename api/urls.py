@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from .views import index, LOGOUT, Account, LikeView, NewsView, NewsDetailView, CreateUserView, SaveView, \
     CreateAdminView, UserUpdateView, SearchView, registration, VerifyCodeView, ResendSmsView, \
     CenterRegistrationView, GetDiseasesView, NoteView, PasswordResetView, VerifyResetCodeView, \
-    SetNewPasswordView, UserDetailView, UserListView, UserUpdateView, NoteDetailView
+    SetNewPasswordView, UserDetailView, UserListView, UserUpdateView, NoteDetailView, EmailBindingView, \
+    VerifyEmailCodeView
 
 from social.views import ChatView
 
@@ -28,11 +29,7 @@ urlpatterns = [
     path('api/create/user/get_diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
 
     path('api/create/user/', CreateUserView.as_view(), name='create_user_url'),
-    path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
-    path('api/resend-sms/', ResendSmsView.as_view(), name='resend-sms'),
-    path('api/reset-password/', PasswordResetView.as_view(), name='reset-password'),
-    path('api/verify-reset-password/', VerifyResetCodeView.as_view(), name='verify-reset-password'),
-    path('api/change-password/', SetNewPasswordView.as_view(), name='change-password'),
+
     path('api/notes_user/<int:user_id>/', NoteView.as_view(), name='note_view_url'),
     path('api/notes/', NoteView.as_view(), name='note_create_view_url'),
     path('api/notes/<int:note_id>', NoteDetailView.as_view(), name='note_detail_view_url'),
@@ -44,6 +41,15 @@ urlpatterns = [
     path('registration/<str:parameter>/', registration, name='registration_url'),
 
 
+    ## sms, email block ##
+    path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
+    path('api/resend-sms/', ResendSmsView.as_view(), name='resend-sms'),
+    path('api/reset-password/', PasswordResetView.as_view(), name='reset-password'),
+    path('api/verify-reset-password/', VerifyResetCodeView.as_view(), name='verify-reset-password'),
+    path('api/change-password/', SetNewPasswordView.as_view(), name='change-password'),
+    path('api/verify-email/<int:user_id>/', EmailBindingView.as_view(), name='verify_email'),
+    path('api/verify-email-code/<int:user_id>/', VerifyEmailCodeView.as_view(), name='verify_email_code'),
+    ## endblock ##
     path('', index, name='home_url'),
 
     path('logout', LOGOUT, name='logout_url'),

@@ -79,3 +79,13 @@ def generate_email_code():
 def generate_verification_code():
     code = random.randint(1000, 9999)
     return str(code)
+
+
+def send_verification_email(email_code, user_email):
+    send_mail(
+        'Привязка почты к вашему аккаунту',
+        f'Для подтверждения почты используйте этот код - {email_code}',
+        os.getenv('EM_HOST_USER'),
+        [user_email],
+        fail_silently=False,
+    )

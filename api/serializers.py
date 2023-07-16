@@ -293,6 +293,17 @@ class UserGetSerializer(serializers.ModelSerializer):
             return CenterSerializer(Centers.objects.get(id=obj.center.id)).data
         return None
 
+## Email Block
+class EmailBindingSerializer(serializers.Serializer):
+    """Привязка email к аккаунту. Шаг 1 - отправка письма"""
+    email = serializers.CharField()
+    def validate(self,data):
+        if User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError({"email":'Почта уже используется'})
+
+class VerifyEmailCodeSerializer(serializers.Serializer):
+    email_verification_code = serializers.IntegerField()
+## end email block ##
 
 #END USER BLOCK
 
