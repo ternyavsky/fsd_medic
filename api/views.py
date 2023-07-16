@@ -67,10 +67,11 @@ def registration(request, parameter):
 
 
 class SaveView(generics.ListCreateAPIView):
+    permission_classes  = [IsAuthenticated]
     queryset = Saved.objects.all()
 
-    def get(self, request, user_id):
-        saved = self.queryset.filter(user=user_id)
+    def get(self, request):
+        saved = self.queryset.filter(user=request.user)
         serializer = SavedSerializer(saved, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -86,8 +87,8 @@ class LikeView(APIView):  # Append and delete like
     queryset = Like.objects.all()
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, user_id):
-        like = self.queryset.filter(user=user_id)
+    def get(self, request):
+        like = self.queryset.filter(user=request.user)
         serializer = LikeSerializer(like, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
