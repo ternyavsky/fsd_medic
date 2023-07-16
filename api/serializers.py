@@ -335,9 +335,6 @@ class NoteSerializer(serializers.ModelSerializer):
         'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
 
-class CreateNoteSerializer(serializers.Serializer):
-    pass
-
 
 
 class ClinicSerializer(serializers.ModelSerializer):
@@ -353,25 +350,18 @@ class ClinicSerializer(serializers.ModelSerializer):
 
 class SavedSerializer(serializers.ModelSerializer):
     ''' get serialier for saved model'''
-    user = PresentablePrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        presentation_serializer=UserGetSerializer
-        
-    )
-    news = PresentablePrimaryKeyRelatedField(
-        queryset=News.objects.all(),
-        presentation_serializer=NewsSerializer
-    )
+    user = UserGetSerializer()
+    news = NewsSerializer()
     class Meta:
         model = Saved 
         fields = '__all__'
 
-class CreateSavedSerializer(serializers.Serializer):
-    ''' get serialier for saved model'''
-    pass
+
 
 #like too up
 class LikeSerializer(serializers.ModelSerializer):
+    user = UserGetSerializer()
+    news = NewsSerializer()
     class Meta:
         model = Like 
         fields = '__all__'
