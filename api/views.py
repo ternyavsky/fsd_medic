@@ -65,45 +65,36 @@ def registration(request, parameter):
 
 ### NEWS BLOCK ###
 
-"""Для этого класса нет сериалайзера"""
 
-# class SaveView(generics.ListCreateAPIView):
-#     queryset = Saved.objects.all()
-#
-#     def get(self, request, user_id):
-#         saved = self.queryset.filter(user=user_id)
-#         serializer = SavedSerializer(saved, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#
-#     def post(self, request):
-#         serializer = SavedCreateSerializer(Saved.objects.all(), data=request.data, many=True)
-#         serializer.is_valid(raise_exception=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class SaveDetailView(APIView):  # Append and delete saved news
+class SaveView(generics.ListCreateAPIView):
+    permission_classes  = [IsAuthenticated]
     queryset = Saved.objects.all()
-    permission_classes = [IsAuthenticated]
 
-    def get(self, request, saved_id):
-        saved = self.queryset.filter(id=saved_id)
-        return Response(SavedSerializer(saved).data, status=status.HTTP_200_OK)
+    def get(self, request):
+        saved = self.queryset.filter(user=request.user)
+        serializer = SavedSerializer(saved, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, news_id):
+    def post(self, request):
         try:
-            news = News.objects.get(id=id)
-            return create_or_delete(Saved, SavedSerializer, user=request.user, news=news)
+            return create_or_delete(Saved, SavedSerializer, user=request.user, news=News.objects.get(id=request.data["news"]))
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
 
+
 class LikeView(APIView):  # Append and delete like
+    queryset = Like.objects.all()
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, id):
+    def get(self, request):
+        like = self.queryset.filter(user=request.user)
+        serializer = LikeSerializer(like, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
         try:
-            news = News.objects.get(id=id)
-            return create_or_delete(Like, LikeSerializer, user=request.user, news=news)
+            return create_or_delete(Like, LikeSerializer, user=request.user, news=News.objects.get(id=request.data["news"]))
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -187,7 +178,7 @@ class NoteView(generics.ListCreateAPIView):
     def post(self, request):
         serializer = CreateNoteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        note = serializer.save()  # Сохраняем экземпляр модели, полученный из сериализатора
+        note = serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

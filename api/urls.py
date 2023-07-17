@@ -17,13 +17,9 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
     path('api/news/', NewsView.as_view(), name='news_view_url'),
     path('api/news/<int:id>/', NewsDetailView.as_view(), name='news_detail_url'),
-    path('api/like/<int:id>/', LikeView.as_view(), name='like_view_url'),
+    path('api/like/', LikeView.as_view(), name='like_view_url'),
+    path('api/saved/', SaveView.as_view(), name='save_view_url'),
 
-    
-    # path('api/saved_user/<int:user_id>/', SaveView.as_view(), name='save_view_url'),
-    # path('api/saved/', SaveView.as_view(), name='save_post_view_url'),
-    path('api/saved/<int:saved_id>/', SaveDetailView.as_view(), name='save_detail_get_view_url'),
-    path('api/saved/<int:news_id>', SaveDetailView.as_view(), name='save_create_view_url'),
 
     
     path('api/create/user/centers/', CenterRegistrationView.as_view(), name='center_reg_url'),
