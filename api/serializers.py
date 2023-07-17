@@ -278,7 +278,6 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 
 class UserGetSerializer(serializers.ModelSerializer):
-
     """Получаем пользователя(аккаунт и т.п)"""
     disease = DiseaseSerializer(many=True, allow_null=True, required=False)
     center = serializers.SerializerMethodField()
@@ -335,8 +334,24 @@ class NoteSerializer(serializers.ModelSerializer):
         'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
 
-class CreateNoteSerializer(serializers.Serializer):
-    pass
+class CreateNoteSerializer(serializers.ModelSerializer):
+    users_to_note = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),
+                                              many=True)
+    class Meta:
+        model = Notes
+        fields = '__all__'
+
+    def create(self, validated_data):
+
+        users_to_note = validated_data.pop('users_to_note')  # Извлекаем связанные объекты из validated_data
+        note = Notes.objects.create(**validated_data)
+        note.users_to_note.set(users_to_note)  # Используем метод set() для установки связей ManyToMany
+        return note
+
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     representation['users_to_note'] = list(instance.users_to_note.values_list('id', flat=True))
+    #     return representation
 
 
 

@@ -185,8 +185,9 @@ class NoteView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = CreateNoteSerializer(Notes, data=request.data)
+        serializer = CreateNoteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        note = serializer.save()  # Сохраняем экземпляр модели, полученный из сериализатора
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
