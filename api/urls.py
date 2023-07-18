@@ -30,8 +30,7 @@ urlpatterns = [
 
     path('api/notes_user/<int:user_id>/', NoteView.as_view(), name='note_view_url'),
     path('api/notes/', NoteView.as_view(), name='note_create_view_url'),
-    path('api/notes/<int:note_id>', NoteDetailView.as_view(), name='note_detail_view_url'),
-    path('api/update/notes/<int:pk>/',NoteUpdateView.as_view(), name='update-notes'),
+    path('api/notes/<int:note_id>/', NoteDetailView.as_view(), name='note_detail_view_url'),
 
     path('api/users/', UserListView.as_view(), name='user_list'),
     path('api/user/<int:pk>/', UserDetailView.as_view(), name='user_detail'),

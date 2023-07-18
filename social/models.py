@@ -11,8 +11,8 @@ User = AUTH_USER_MODEL
 # Create your models here.
 class Chat(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    user2 = models.ForeignKey(User, on_delete=models.CASCADE)
-    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='started')
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='started')
 
     def __str__(self):
         return f"{self.id} Chat ({self.user1} -  {self.user2})"

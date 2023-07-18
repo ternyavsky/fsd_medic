@@ -147,10 +147,7 @@ class Groups(models.Model):
         verbose_name = 'Группу'
 
 class Notes(models.Model):
-    users_to_note = models.ManyToManyField("User", verbose_name=_('Пользователи на запись'), related_name=_('users_to_note'), blank=True)
-    translate = models.BooleanField(verbose_name=_('Переводчик'), default=False)
-    translate_from = models.CharField(verbose_name=_('С какого языка'), max_length=255, null=True, blank=True)
-    translate_to = models.CharField(verbose_name=_('На какой язык'), max_length=255, null=True, blank=True)
+    user = models.ForeignKey('User', verbose_name=_('Пользователь'), on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(verbose_name=_('Название записи'), max_length=255)
     online = models.BooleanField(verbose_name=_('Онлайн'), default=False)
     time_start = models.DateTimeField(verbose_name=_('Начало '), null=True, blank=True)
@@ -167,13 +164,8 @@ class Notes(models.Model):
 
 
     def __str__(self):
-        return f'{self.title} - {[i["number"] for i in self.users_to_note.values()]}' 
+        return f'{self.title} - {self.user}'
 
-    def set_translate(self, translate_from, translate_to):
-        if not self.translate:
-            return
-        self.translate_from = translate_from
-        self.translate_to = translate_to
 
     class Meta:
         verbose_name_plural = 'Записи'

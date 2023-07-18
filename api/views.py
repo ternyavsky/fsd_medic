@@ -170,31 +170,37 @@ class SearchView(APIView):
 
 class NoteView(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
-    def get(self, request, user_id):
-        notes = Notes.objects.all().filter(users_to_note__id=user_id)
+    def get(self, request):
+        notes = Notes.objects.all().filter(user=request.user)
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = CreateNoteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        note = serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class NoteDetailView(APIView):
     def get(self, request, note_id):
-        pass 
+        obj = Notes.objects.get(id=note_id)
+        serializer = NoteSerializer(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, note_id):
-        pass 
+        obj = Notes.objects.get(id=note_id)
+        serializer = NoteUpdateSerializer(instance=obj, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(NoteSerializer(obj).data, status=status.HTTP_200_OK)
 
     def delete(self, request, note_id):
-        pass
+        obj = Notes.objects.get(id=note_id)
+        obj.delete()
+        return Response({'result': 'deleted'}, status=status.HTTP_204_NO_CONTENT )
 
-class NoteUpdateView(generics.UpdateAPIView):
-    serializer_class = NoteUpdateSerializer
-    queryset = Notes.objects.all()
+
 ### USER BLOCK ###
 
 ### RESET PASSWORD BLOCK ###
