@@ -192,6 +192,9 @@ class NoteDetailView(APIView):
     def delete(self, request, note_id):
         pass
 
+class NoteUpdateView(generics.UpdateAPIView):
+    serializer_class = NoteUpdateSerializer
+    queryset = Notes.objects.all()
 ### USER BLOCK ###
 
 ### RESET PASSWORD BLOCK ###

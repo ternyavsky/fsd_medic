@@ -333,9 +333,18 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = ['users_to_note', 'doctor', 'center', 'translate', 'translate_from', 'translate_to','title',
         'online','notify', 'problem', 'duration_note', 'file','created_at','updated_at', 'status']
 
-
+class NoteUpdateSerializer(serializers.ModelSerializer):
+    users_to_note = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),
+                                                       many=True, required=False, allow_null=True)
+    doctor = serializers.CharField(allow_null=True, required=False)
+    title = serializers.CharField(allow_null=True, required=False)
+    problem = serializers.CharField(allow_null=True, required=False)
+    class Meta:
+        model = Notes
+        fields = '__all__'
 
 class CreateNoteSerializer(serializers.ModelSerializer):
+    """Создание записи"""
     users_to_note = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),
                                               many=True)
     class Meta:
@@ -344,15 +353,11 @@ class CreateNoteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        users_to_note = validated_data.pop('users_to_note')  # Извлекаем связанные объекты из validated_data
+        users_to_note = validated_data.pop('users_to_note')
         note = Notes.objects.create(**validated_data)
-        note.users_to_note.set(users_to_note)  # Используем метод set() для установки связей ManyToMany
+        note.users_to_note.set(users_to_note)
         return note
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation['users_to_note'] = list(instance.users_to_note.values_list('id', flat=True))
-    #     return representation
 
 
 
