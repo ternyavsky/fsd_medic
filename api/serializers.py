@@ -14,7 +14,12 @@ class CreateUserSerializer(serializers.Serializer):
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    center_id = serializers.IntegerField(allow_null=True, required=False)
+    center_id = serializers.PrimaryKeyRelatedField(
+        queryset=Centers.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True
+    )
     disease_id = serializers.PrimaryKeyRelatedField(
         queryset=Disease.objects.all(),
         allow_null=True,
@@ -42,15 +47,14 @@ class CreateUserSerializer(serializers.Serializer):
             validated_data['stage'] = stage
 
         if stage == 2:
-            center_id = validated_data.get('center_id')
+
 
             user = User.objects.get(number=validated_data['number'])
-            try:
-                center = Centers.objects.get(id=center_id)
-                user.center_id = center.id
-                user.country = center.country
-            except Centers.DoesNotExist:
-                user.center_id = None
+
+            for c in validated_data['center_id']:
+                user.country = c.country
+                user.center.add(c)
+
             for i in validated_data['disease_id']:
                 user.disease.add(i)
 

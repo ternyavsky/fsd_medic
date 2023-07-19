@@ -7,7 +7,7 @@ from .models import *
 # Register your models here.
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'center',
+    list_display = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group',
                     'country', 'city', 'is_staff',
                     'is_required', 'created_at', 'updated_at', 'verification_code','email_verification_code']
     search_fields = ['login', 'number', 'email', 'first_name', 'last_name', ]
@@ -16,7 +16,7 @@ class UserAdmin(admin.ModelAdmin):
     fields = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'center', 'disease', 'country',
               'city', 'is_staff',
               'is_required', 'created_at', 'updated_at','verification_code', 'reset_code','email_verification_code' ]
-    readonly_fields = ['id', 'number',  'first_name', 'last_name', 'birthday', 'group', 'center', 'is_staff',
+    readonly_fields = ['id', 'number',  'first_name', 'last_name', 'birthday', 'group', 'is_staff',
                        'created_at', 'updated_at', 'country', 'city',]
 
 

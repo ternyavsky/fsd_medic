@@ -88,7 +88,7 @@ class User(AbstractBaseUser):
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False, blank=True)
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
-    center = models.ForeignKey('Centers', verbose_name=_('Центр'), on_delete=models.PROTECT, null=True, blank=True)
+    center = models.ManyToManyField('Centers', verbose_name=_('Центр'), null=True, blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
