@@ -105,7 +105,7 @@ class NewsDetailView(APIView):  # Single news view
 
     def get(self, request, id):  # get single news
         news = get_object_or_404(News, id=id)
-        serializer = NewsSerializer(news)
+        serializer = CreateNewsSerializer(news)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id):  # delete single news
@@ -113,9 +113,9 @@ class NewsDetailView(APIView):  # Single news view
         news.delete()
         return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
 
-    def post(self, request, id):  # update single news
+    def put(self, request, id):  # update single news
         news = get_object_or_404(News, id=id)
-        serializer = NewsSerializer(news, data=request.data)
+        serializer = CreateNewsSerializer(news, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
@@ -127,16 +127,16 @@ class NewsDetailView(APIView):  # Single news view
         return super().handle_exception(exc)
 
 
-class NewsView(generics.ListCreateAPIView):
+class NewsView(generics.ListCreateAPIView): #get and create News
     permission_classes = [AllowAny]
     serializer_class = NewsSerializer
 
     def get_queryset(self):
         user = self.request.user
-        if  user.is_authenticated:
+        if user.is_authenticated:
             if user.is_staff:
                 return News.objects.all()
-
+            #как-то можно без этой строчки?
             if user.is_authenticated:
                 return News.objects.all()
 
@@ -153,8 +153,7 @@ class NewsView(generics.ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = GetNewsSerializer(queryset, many=True)
-
+        serializer = NewsSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -251,8 +250,6 @@ class VerifyResetCodeView(APIView):
             try:
                 if email:
                     user = User.objects.get(email=email)
-
-
                 else:
                     user = User.objects.get(number=number)
 

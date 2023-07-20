@@ -282,7 +282,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
 class UserGetSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""
     disease = DiseaseSerializer(many=True, allow_null=True, required=False)
-    center = CenterSerializer()
+    center = CenterSerializer(many=True, allow_null=True, required=False)
     password = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле password
     group = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле group
 
@@ -310,12 +310,15 @@ class VerifyEmailCodeSerializer(serializers.Serializer):
 
 # END USER BLOCK
 
-class GetNewsSerializer(serializers.ModelSerializer):
+class NewsSerializer(serializers.ModelSerializer):
+    disease = DiseaseSerializer(allow_null=True, required=False)
+    center = CenterSerializer(allow_null=True, required=False)
+
     class Meta:
         model = News
         fields = '__all__'
 
-class NewsSerializer(serializers.ModelSerializer):
+class CreateNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
