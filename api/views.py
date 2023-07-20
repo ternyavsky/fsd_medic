@@ -133,23 +133,26 @@ class NewsView(generics.ListCreateAPIView): #get and create News
 
     def get_queryset(self):
         user = self.request.user
+
+        if user.is_staff:
+            return News.objects.all()
+        #как-то можно без этой строчки?
         if user.is_authenticated:
-            if user.is_staff:
-                return News.objects.all()
-            #как-то можно без этой строчки?
-            if user.is_authenticated:
-                return News.objects.all()
+            return News.objects.all()
 
-            elif user.disease is not None:
-                return News.objects.filter(disease=user.disease)
-
-            elif user.center is not None:
-                return News.objects.filter(center=user.center)
-
-            else:
-                raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
-        else:
+        elif not user.is_authenticated:
             return News.objects.all()[:3]
+
+        elif user.disease is not None:
+            return News.objects.filter(disease=user.disease)
+
+        elif user.center is not None:
+            return News.objects.filter(center=user.center)
+
+        else:
+            raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
+
+
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
