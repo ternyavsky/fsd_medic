@@ -128,23 +128,33 @@ class NewsDetailView(APIView):  # Single news view
 
 
 class NewsView(generics.ListCreateAPIView):
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [AllowAny]
     serializer_class = NewsSerializer
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:
-            return News.objects.all()
-        elif user.disease is not None:
-            return News.objects.filter(disease=user.disease)
-        elif user.center is not None:
-            return News.objects.filter(center=user.center)
+        if  user.is_authenticated:
+            if user.is_staff:
+                return News.objects.all()
+
+            if user.is_authenticated:
+                return News.objects.all()
+
+            elif user.disease is not None:
+                return News.objects.filter(disease=user.disease)
+
+            elif user.center is not None:
+                return News.objects.filter(center=user.center)
+
+            else:
+                raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
         else:
-            raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
+            return News.objects.all()[:3]
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = GetNewsSerializer(queryset, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):

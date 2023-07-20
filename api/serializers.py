@@ -310,6 +310,10 @@ class VerifyEmailCodeSerializer(serializers.Serializer):
 
 # END USER BLOCK
 
+class GetNewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = News
+        fields = '__all__'
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:

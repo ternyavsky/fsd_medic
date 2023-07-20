@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/saved/', SaveView.as_view(), name='save_view_url'),
 
 
+
     
     path('api/create/user/centers/', CenterRegistrationView.as_view(), name='center_reg_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
