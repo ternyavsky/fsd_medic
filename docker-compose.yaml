@@ -4,7 +4,7 @@ services:
     container_name: app
     command: >
       sh -c   "python manage.py makemigrations && 
-              python manage.py migrate  && 
+              python manage.py migrate --fake  && 
               python manage.py runserver 0.0.0.0:8000"
     build: .
     ports:
@@ -16,11 +16,11 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
-  db:
-    image: mysql
-    restart: always
-    ports:
-      - '3307:3306'
-    environment:
+#db:
+#   image: mysql
+#   restart: always
+#   ports:
+#     - '3307:3306'
+#   environment:
 
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+        #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
