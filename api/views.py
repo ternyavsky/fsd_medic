@@ -301,28 +301,12 @@ def set_new_password(user, new_password):
 
 
 ### USERS' CLASSES ###
-class UserListView(generics.ListAPIView):
+class UserView(generics.ListCreateAPIView):
+    permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
     queryset = User.objects.all()
-
-
-class UserDetailView(generics.RetrieveAPIView):
-    """Получаем отдельного пользователя по id"""
-    serializer_class = UserGetSerializer
-    queryset = User.objects.all()
-
-class UserUpdateView(generics.UpdateAPIView):
-    """Редактирование пользователя"""
-    serializer_class = UserGetSerializer
-    queryset = User.objects.all()
-
-class CreateUserView(generics.ListCreateAPIView):
-    """Создание пользователя(всего 3 этапа регистрации)"""
-    permission_classes = [AllowAny]
-    model = User
-    serializer_class = CreateUserSerializer
-
+    
     def post(self, request):
         code = generate_verification_code()
         serializer = CreateUserSerializer(data=request.data, context={'request': request})
@@ -335,7 +319,14 @@ class CreateUserView(generics.ListCreateAPIView):
                 user.save()
 
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
+
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    """Получение, редактирование отдельного пользователя по id"""
+    serializer_class = UserGetSerializer
+    queryset = User.objects.all()
+
+
 
 
 class ResendSmsView(APIView):
