@@ -127,31 +127,27 @@ class NewsDetailView(APIView):  # Single news view
         return super().handle_exception(exc)
 
 
-class NewsView(generics.ListCreateAPIView): #get and create News
-    permission_classes = [AllowAny]
+class NewsView(generics.ListCreateAPIView):
+    permission_classes = [AllowAny]  # Only authenticated users can access all news
     serializer_class = NewsSerializer
 
     def get_queryset(self):
         user = self.request.user
-
         if user.is_staff:
             return News.objects.all()
-        #как-то можно без этой строчки?
+
         if user.is_authenticated:
-            return News.objects.all()
 
-        elif not user.is_authenticated:
-            return News.objects.all()[:3]
-
-        elif user.disease is not None:
-            return News.objects.filter(disease=user.disease)
-
-        elif user.center is not None:
-            return News.objects.filter(center=user.center)
+            try:
+                if user.disease:
+                    return News.objects.filter(disease__in=user.disease.all())
+                if user.center:
+                    return News.objects.filter(center__in=user.center.all())
+            except:
+                raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
 
         else:
-            raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
-
+            return News.objects.all()[:3]
 
 
     def get(self, request, *args, **kwargs):
