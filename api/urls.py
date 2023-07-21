@@ -33,7 +33,7 @@ urlpatterns = [
     path('api/notes/<int:note_id>/', NoteDetailView.as_view(), name='note_detail_view_url'),
 
     path('api/users/', UserView.as_view(), name='user_list'),
-    path('api/user/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
+    path('api/users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
     path('registration/<str:parameter>/', registration, name='registration_url'),
 

@@ -175,7 +175,8 @@ class SearchView(APIView):
 
 
 class NoteView(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         notes = Notes.objects.all().filter(user=request.user)
         serializer = NoteSerializer(notes, many=True)
@@ -189,6 +190,7 @@ class NoteView(generics.ListCreateAPIView):
 
 
 class NoteDetailView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, note_id):
         obj = Notes.objects.get(id=note_id)
         serializer = NoteSerializer(obj)
