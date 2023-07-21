@@ -23,19 +23,17 @@ urlpatterns = [
 
 
     
-    path('api/create/user/centers/', CenterRegistrationView.as_view(), name='center_reg_url'),
+    path('api/users/centers/', CenterRegistrationView.as_view(), name='center_reg_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
-    path('api/create/user/get_diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
+    path('api/users/diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
 
-    path('api/create/user/', CreateUserView.as_view(), name='create_user_url'),
 
     path('api/notes_user/<int:user_id>/', NoteView.as_view(), name='note_view_url'),
     path('api/notes/', NoteView.as_view(), name='note_create_view_url'),
     path('api/notes/<int:note_id>/', NoteDetailView.as_view(), name='note_detail_view_url'),
 
-    path('api/users/', UserListView.as_view(), name='user_list'),
+    path('api/users/', UserView.as_view(), name='user_list'),
     path('api/user/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
-    path('api/update-user/<int:pk>/', UserUpdateView.as_view(), name='user_update'),
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
     path('registration/<str:parameter>/', registration, name='registration_url'),
 
