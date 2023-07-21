@@ -137,12 +137,10 @@ class NewsView(generics.ListCreateAPIView):
             return News.objects.all()
 
         if user.is_authenticated:
-
             try:
-                if user.disease:
-                    return News.objects.filter(disease__in=user.disease.all())
-                if user.center:
-                    return News.objects.filter(center__in=user.center.all())
+                center_news = News.objects.filter(center__in=user.center.all())
+                disease_news = News.objects.filter(disease__in=user.disease.all())
+                return center_news.union(disease_news)
             except:
                 raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
 
