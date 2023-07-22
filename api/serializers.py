@@ -47,8 +47,6 @@ class CreateUserSerializer(serializers.Serializer):
             validated_data['stage'] = stage
 
         if stage == 2:
-
-
             user = User.objects.get(number=validated_data['number'])
 
             for c in validated_data['center_id']:
@@ -60,7 +58,7 @@ class CreateUserSerializer(serializers.Serializer):
 
                 if user.disease.count() >= 5:
                     raise serializers.ValidationError('You cannot specify more than 5 diseases')
-                print(validated_data['disease_id'], ' test_data')
+
 
             user.stage = stage
             validated_data['stage'] = stage
@@ -78,6 +76,7 @@ class CreateUserSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation['center_id'] = instance.center.values_list('id', flat=True)
         representation['disease_id'] = instance.disease.values_list('id', flat=True)
         return representation
 
@@ -300,6 +299,7 @@ class EmailBindingSerializer(serializers.Serializer):
     def validate(self, data):
         if User.objects.filter(email=data['email']).exists():
             raise serializers.ValidationError({"email": 'Почта уже используется'})
+        return data
 
 
 class VerifyEmailCodeSerializer(serializers.Serializer):
@@ -360,17 +360,15 @@ class NoteUpdateSerializer(serializers.ModelSerializer):
 
 class CreateNoteSerializer(serializers.ModelSerializer):
     """Создание записи"""
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),
-                                              many=True)
-
     class Meta:
         model = Notes
         fields = '__all__'
 
     def create(self, validated_data):
-        user = validated_data.pop('user')
+        user = self.context['request'].data.get('user')
+        request_user = User.objects.get(id=user)
         note = Notes.objects.create(**validated_data)
-        note.user = user
+        note.user = request_user
         return note
 
 

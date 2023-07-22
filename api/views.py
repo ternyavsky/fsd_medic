@@ -153,9 +153,12 @@ class NewsView(generics.ListCreateAPIView):
         serializer = NewsSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
+    def post(self, request):
+        serializer = CreateNewsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
 
 ### SEARCH ###
 
@@ -175,14 +178,14 @@ class SearchView(APIView):
 
 
 class NoteView(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         notes = Notes.objects.all().filter(user=request.user)
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = CreateNoteSerializer(data=request.data)
+        serializer = CreateNoteSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -311,6 +314,7 @@ class UserView(generics.ListCreateAPIView):
         if serializer.is_valid():
             user = serializer.save()
             # print(code, '-code')
+
             if int(request.data['stage']) == 3:
                 send_sms(user.number, code)
                 user.verification_code = code
