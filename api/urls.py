@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/users/diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
 
 
-    path('api/notes_user/<int:user_id>/', NoteView.as_view(), name='note_view_url'),
+
     path('api/notes/', NoteView.as_view(), name='note_create_view_url'),
     path('api/notes/<int:note_id>/', NoteDetailView.as_view(), name='note_detail_view_url'),
 
