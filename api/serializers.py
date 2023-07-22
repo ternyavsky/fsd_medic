@@ -343,7 +343,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notes
-        fields = ['pk', 'user', 'doctor', 'center', 'title',
+        fields = ['pk', 'user', 'doctor', 'center', 'title', 'time_start', 'time_end',
                   'online', 'notify', 'problem', 'duration_note', 'file', 'created_at', 'updated_at', 'status']
 
 
