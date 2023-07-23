@@ -153,12 +153,9 @@ class NewsView(generics.ListCreateAPIView):
         serializer = NewsSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        serializer = CreateNewsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
 
 ### SEARCH ###
 
@@ -176,17 +173,22 @@ class SearchView(APIView):
         serializer = SearchSerializer(search_results)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class DoctorsListView(APIView):
+    def get(self,request, *args, **kwargs):
+        doc = User.objects.all().filter(group=Groups.objects.get(name="Врачи"), city=request.user.city)
+        serializer = UserGetSerializer(doc, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class NoteView(generics.ListCreateAPIView):
-
     permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         notes = Notes.objects.all().filter(user=request.user)
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = CreateNoteSerializer(data=request.data, context={'request': request})
+        serializer = CreateNoteSerializer(data=request.data, context={'request':request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

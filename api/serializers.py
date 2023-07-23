@@ -123,7 +123,7 @@ class CreateNoteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        user = self.context['request'].data.get('user')
+        user = self.context["request"].data.get("user")
         request_user = User.objects.get(id=user)
         note = Notes.objects.create(**validated_data)
         note.user = request_user
