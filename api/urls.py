@@ -31,21 +31,12 @@ urlpatterns = [
     path('api/notes/', NoteView.as_view(), name='note_create_view_url'),
     path('api/notes/<int:note_id>/', NoteDetailView.as_view(), name='note_detail_view_url'),
 
-    path('api/users/', UserView.as_view(), name='user_list'),
+
     path('api/users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
-    path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
     path('registration/<str:parameter>/', registration, name='registration_url'),
+    path('api/test', test),
 
 
-    ## sms, email block ##
-    path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
-    path('api/resend-sms/', ResendSmsView.as_view(), name='resend-sms'),
-    path('api/reset-password/', PasswordResetView.as_view(), name='reset-password'),
-    path('api/verify-reset-password/', VerifyResetCodeView.as_view(), name='verify-reset-password'),
-    path('api/change-password/', SetNewPasswordView.as_view(), name='change-password'),
-    path('api/verify-email/<int:user_id>/', EmailBindingView.as_view(), name='verify_email'),
-    path('api/verify-email-code/<int:user_id>/', VerifyEmailCodeView.as_view(), name='verify_email_code'),
-    ## endblock ##
     path('', index, name='home_url'),
 
     path('logout', LOGOUT, name='logout_url'),

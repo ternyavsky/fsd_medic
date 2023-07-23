@@ -89,3 +89,8 @@ def send_verification_email(email_code, user_email):
         [user_email],
         fail_silently=False,
     )
+
+def set_new_password(user, new_password):
+
+    user.set_password(new_password)
+    user.save()

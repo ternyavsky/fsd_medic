@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
+    'auth_logic.apps.AuthLogicConfig',
     'templates',
     'rest_framework',
 ]
