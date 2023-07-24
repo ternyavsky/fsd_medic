@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'auth_logic.apps.AuthLogicConfig',
+    'db.apps.DbConfig',
     'templates',
     'rest_framework',
 ]

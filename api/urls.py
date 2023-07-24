@@ -34,7 +34,7 @@ urlpatterns = [
 
     path('api/users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     path('registration/<str:parameter>/', registration, name='registration_url'),
-    path('api/test', test),
+
 
 
     path('', index, name='home_url'),

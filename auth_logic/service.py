@@ -7,7 +7,7 @@ import random
 import requests
 from fsd_medic.settings import BASE_DIR
 import random
-from .models import Countries
+from api.models import Countries
 
 
 

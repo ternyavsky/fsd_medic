@@ -6,9 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 
-from api.models import User
 from api.serializers import UserGetSerializer
-from api.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
+from auth_logic.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
 from auth_logic.serializers import *
 

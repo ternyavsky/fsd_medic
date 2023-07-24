@@ -10,6 +10,7 @@ urlpatterns = [
     path('', include('social.urls')),
     path('', include('auth_logic.urls')),
 
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
