@@ -1,44 +1,19 @@
 import json
 import re
 import random
-
 from rest_framework import serializers
 
+from db.queries import get_user_by_args
 from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like
-
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
-
-
-
-
-
-
-
-# RESET PASSWORD BLOCK
-
-
-
-
-
-
-
-
-# END RESET PASSWORD BLOCK
-
-
-
-
 class CenterSerializer(serializers.ModelSerializer):
     """Клиники"""
-
     class Meta:
         model = Centers
         fields = '__all__'
 
-
 class DiseaseSerializer(serializers.ModelSerializer):
     """Болезни"""
-
     class Meta:
         model = Disease
         fields = '__all__'
@@ -55,18 +30,6 @@ class UserGetSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-
-
-## Email Block
-
-
-
-
-
-
-## end email block ##
-
-# END USER BLOCK
 
 class NewsSerializer(serializers.ModelSerializer):
     disease = DiseaseSerializer(allow_null=True, required=False)
@@ -123,8 +86,9 @@ class CreateNoteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        user = self.context["request"].data.get("user")
-        request_user = User.objects.get(id=user)
+        user = self.context["request"].user
+
+        request_user = get_user_by_args(number=user)
         note = Notes.objects.create(**validated_data)
         note.user = request_user
         return note

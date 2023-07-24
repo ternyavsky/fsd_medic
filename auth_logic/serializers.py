@@ -26,7 +26,6 @@ class CreateUserSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         self.create_validate(validated_data)
-        # code = self.context['request'].data.get('code')
         stage = self.context['request'].data.get('stage')
         stage = int(stage)
 
@@ -87,11 +86,9 @@ class CreateUserSerializer(serializers.Serializer):
         return validated_data['instance']
 
     def create_validate(self, data):
-        # number_pattern = re.compile(r'^\+[0-9]{10}$')
         password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
-
         stage = self.context['request'].data.get('stage')
-        # print(type(stage), 'тип stage')
+
         if stage == '1':
             # Проверка Номера
             if User.objects.filter(number=data['number']).exists():

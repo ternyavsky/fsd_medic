@@ -168,6 +168,7 @@ class NoteView(generics.ListCreateAPIView):
 
     def post(self, request):
         serializer = CreateNoteSerializer(data=request.data, context={'request':request})
+        print(request.user, 'from views')
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
