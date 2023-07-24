@@ -82,17 +82,17 @@ class NewsDetailView(APIView):  # Single news view
     error_response = {'error': 'Новость не найдена!'}
 
     def get(self, request, id):  # get single news
-        news = get_news_by_args(id=id)
+        news = get_news(id=id)
         serializer = CreateNewsSerializer(news)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id):  # delete single news
-        news = get_news_by_args( id=id)
+        news = get_news( id=id)
         news.delete()
         return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
 
     def put(self, request, id):  # update single news
-        news = get_news_by_args(id=id)
+        news = get_news(id=id)
         serializer = CreateNewsSerializer(news, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -116,8 +116,8 @@ class NewsView(generics.ListCreateAPIView):
 
         if user.is_authenticated:
             try:
-                center_news = news_filter(center__in=user.center.all())
-                disease_news = news_filter(disease__in=user.disease.all())
+                center_news = get_news(center__in=user.center.all())
+                disease_news = get_news(disease__in=user.disease.all())
                 return center_news.union(disease_news)
             except:
                 raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
@@ -177,19 +177,19 @@ class NoteView(generics.ListCreateAPIView):
 class NoteDetailView(APIView):
    # permission_classes = [IsAuthenticated]
     def get(self, request, note_id):
-        obj = get_note(id=note_id)
+        obj = get_notes(id=note_id)
         serializer = NoteSerializer(obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, note_id):
-        obj = get_note(id=note_id)
+        obj = get_notes(id=note_id)
         serializer = NoteUpdateSerializer(instance=obj, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(NoteSerializer(obj).data, status=status.HTTP_200_OK)
 
     def delete(self, request, note_id):
-        obj = get_note(id=note_id)
+        obj = get_notes(id=note_id)
         obj.delete()
         return Response({'result': 'deleted'}, status=status.HTTP_204_NO_CONTENT )
 

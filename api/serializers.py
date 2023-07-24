@@ -3,7 +3,7 @@ import re
 import random
 from rest_framework import serializers
 
-from db.queries import get_user_by_args
+from db.queries import get_users
 from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 class CenterSerializer(serializers.ModelSerializer):
@@ -88,7 +88,7 @@ class CreateNoteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
 
-        request_user = get_user_by_args(number=user)
+        request_user = get_users(number=user)
         note = Notes.objects.create(**validated_data)
         note.user = request_user
         return note
