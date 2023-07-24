@@ -4,38 +4,38 @@ from django.shortcuts import get_object_or_404
 #news
 def get_news(**kwargs):
     """Получение новостей"""
-    if kwargs:
-        return News.objects.filter(**kwargs)
-    else:
-        return News.objects.all()
-##
+    return News.objects.filter(**kwargs)
+
 
 ##notes
 def get_notes(**kwargs):
     """Получение записей"""
-    if kwargs:
-        return Notes.objects.filter(**kwargs)
-    else:
-        return Notes.objects.all()
-##
+    return Notes.objects.filter(**kwargs)
 
-def get_clinics():
+
+
+def get_clinics(**kwargs):
     """Получение списка клиник"""
-    return Clinics.objects.all()
-def get_disease():
+    return Clinics.objects.filter(**kwargs)
+
+
+def get_disease(**kwargs):
     """Получение списка болезней"""
-    return Disease.objects.all()
-def get_centers():
+    return Disease.objects.filter(**kwargs)
+
+
+def get_centers(**kwargs):
     """Получение центров"""
-    return Centers.objects.all()
+    return Centers.objects.filter(**kwargs)
+
 
 #user
 def get_users(**kwargs):
     """Получение пользователей"""
-    if kwargs:
-        return User.objects.filter(**kwargs)
-    else:
+    return User.objects.filter(**kwargs)
 
-        return User.objects.all()
+def get_groups(**kwargs):
+    """Получение групп пользователей"""
+    return Groups.objects.filter(**kwargs)
 
 ##

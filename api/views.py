@@ -55,7 +55,7 @@ class SaveView(generics.ListCreateAPIView):
 
     def post(self, request):
         try:
-            return create_or_delete(Saved, SavedSerializer, user=request.user, news=News.objects.get(id=request.data["news"]))
+            return create_or_delete(Saved, SavedSerializer, user=request.user, news=get_news(id=request.data["news"]))
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -72,7 +72,7 @@ class LikeView(APIView):  # Append and delete like
 
     def post(self, request):
         try:
-            return create_or_delete(Like, LikeSerializer, user=request.user, news=News.objects.get(id=request.data["news"]))
+            return create_or_delete(Like, LikeSerializer, user=request.user, news=get_news(id=request.data["news"]))
         except:
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -87,7 +87,7 @@ class NewsDetailView(APIView):  # Single news view
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id):  # delete single news
-        news = get_news( id=id)
+        news = get_news(id=id)
         news.delete()
         return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
 
@@ -154,7 +154,7 @@ class SearchView(APIView):
 
 class DoctorsListView(APIView):
     def get(self,request, *args, **kwargs):
-        doc = get_users().filter(group=Groups.objects.get(name="Врачи"), city=request.user.city)
+        doc = get_users(group=get_groups(name="Врачи").first(), city=request.user.city)
         serializer = UserGetSerializer(doc, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -162,7 +162,7 @@ class NoteView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        notes = get_notes().filter(user=request.user)
+        notes = get_notes(user=request.user)
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

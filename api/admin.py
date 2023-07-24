@@ -12,8 +12,8 @@ class UserAdmin(admin.ModelAdmin):
                     'is_required', 'created_at', 'updated_at', 'verification_code','email_verification_code']
     search_fields = ['login', 'number', 'email', 'first_name', 'last_name', ]
     list_editable = ['is_required', ]
-    list_filter = ['group', 'country', 'disease', 'center', 'is_staff', 'is_required', ]
-    fields = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'center', 'disease', 'country',
+    list_filter = ['group', 'country', 'disease', 'centers', 'is_staff', 'is_required', ]
+    fields = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'centers', 'disease', 'country',
               'city', 'is_staff',
               'is_required', 'created_at', 'updated_at','verification_code', 'reset_code','email_verification_code' ]
     readonly_fields = ['id', 'number',  'first_name', 'last_name', 'birthday', 'group', 'is_staff',

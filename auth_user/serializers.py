@@ -2,6 +2,7 @@ import re
 from rest_framework import serializers
 
 from api.models import Disease, Centers, User
+from social.models import Chat
 
 
 class CreateUserSerializer(serializers.Serializer):
@@ -9,11 +10,11 @@ class CreateUserSerializer(serializers.Serializer):
     number = serializers.CharField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    center_id = serializers.PrimaryKeyRelatedField(
+    main_center = serializers.PrimaryKeyRelatedField(
         queryset=Centers.objects.all(),
         allow_null=True,
         required=False,
-        many=True
+        many=False
     )
     disease_id = serializers.PrimaryKeyRelatedField(
         queryset=Disease.objects.all(),
@@ -41,19 +42,21 @@ class CreateUserSerializer(serializers.Serializer):
             validated_data['stage'] = stage
 
         if stage == 2:
+            print(type(validated_data["main_center"]), validated_data["main_center"])
             user = User.objects.get(number=validated_data['number'])
-
-            for c in validated_data['center_id']:
-                user.country = c.country
-                user.center.add(c)
-
+            user.main_center = validated_data["main_center"]
+            user.country = user.main_center.country
             for i in validated_data['disease_id']:
                 user.disease.add(i)
 
                 if user.disease.count() >= 5:
                     raise serializers.ValidationError('You cannot specify more than 5 diseases')
 
-
+            chat = Chat.objects.create(
+                to_user=user,
+                from_center=user.main_center
+            )
+            chat.save()
             user.stage = stage
             validated_data['stage'] = stage
             user.save()
@@ -70,7 +73,6 @@ class CreateUserSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['center_id'] = instance.center.values_list('id', flat=True)
         representation['disease_id'] = instance.disease.values_list('id', flat=True)
         return representation
 

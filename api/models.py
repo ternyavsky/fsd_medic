@@ -1,5 +1,6 @@
 
 import random
+from re import VERBOSE
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.db import models
 from rest_framework import serializers
@@ -88,7 +89,8 @@ class User(AbstractBaseUser):
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False, blank=True)
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Groups', verbose_name=_('Группа'), on_delete=models.CASCADE, )
-    center = models.ManyToManyField('Centers', verbose_name=_('Центр'), null=True, blank=True)
+    main_center = models.ForeignKey('Centers', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True, blank=True, related_name="main_center")
+    centers = models.ManyToManyField('Centers', verbose_name=_('Центр'), null=True, blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
@@ -158,6 +160,7 @@ class Notes(models.Model):
     duration_note = models.IntegerField(verbose_name=_('Длительность'), null=True, blank=True)
     center = models.ForeignKey('Centers', on_delete=models.CASCADE, null=True)
     file = models.FileField(verbose_name=_('Файлы к записи'), upload_to='files_to_notes/', null=True, blank=True)
+    special_check = models.BooleanField(verbose_name=_("Доп. проверка специалистов"), default=False)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, null=True)
     status = models.CharField(verbose_name=_('Статус записи'), choices=NOTE_CHOICES, max_length=255, default=PROCESS)

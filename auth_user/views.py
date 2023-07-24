@@ -7,9 +7,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 
 from api.serializers import UserGetSerializer
-from auth_logic.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
+from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
-from auth_logic.serializers import *
+from auth_user.serializers import *
 
 
 class UserView(generics.ListCreateAPIView):

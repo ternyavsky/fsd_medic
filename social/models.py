@@ -21,7 +21,6 @@ class Chat(models.Model):
     def __str__(self):
        return f"Chat - {self.uuid}"
 
-
 class Message(models.Model):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
     news = models.ForeignKey(News, on_delete=models.PROTECT,null=True, blank=True)
