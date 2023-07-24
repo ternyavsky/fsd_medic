@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 from .models import *
-from api.serializers import NewsSerializer
+from api.serializers import NewsSerializer, UserGetSerializer, CenterSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -23,12 +23,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ChatSerializer(serializers.ModelSerializer):
-    user1 = UserSerializer()
-    user2 = UserSerializer()
+    to_user = UserGetSerializer()
+    to_center= CenterSerializer()
+    from_center = CenterSerializer()
+    from_user = UserGetSerializer()
 
     class Meta:
         model = Chat
-        fields = ['id', 'uuid', 'user1', 'user2']
+        fields = ['id', 'uuid', 'to_user', 'to_center' ,'from_center', 'from_user']
 
 
 

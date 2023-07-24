@@ -11,32 +11,6 @@ from .serializers import MessageSerializer, ChatSerializer, UserSerializer
 User = get_user_model()
 
 
-class NotifyConsumber(AsyncWebsocketConsumer):
-    queryset = User.objects.all()
-    serializer = UserGetSerializer
-   
-    online_users = [] 
-
-    async def connect(self):
-        self.user_id = self.scope["url_route"]["kwargs"]["user_id"]
-        self.user = User.objects.get(id=user_id)
-        self.group_name = "socket user_%s" % self.user_id
-        
-        await self.channel_layer.group_add(self.group_name, self.channel_name)
-
-        await self.accept()
-
-        self.online_user.append(UserGetSerializerer(user).data)
-
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "connect_to",
-                "message": 'user connect',
-                "user": self.scope['url_route']["kwargs"]["user_id"]
-            },
-        )
-
 
 class MyConsumer(AsyncWebsocketConsumer):
     queryset = Message.objects.all()
@@ -48,7 +22,7 @@ class MyConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.chat_uuid = self.scope["url_route"]["kwargs"]["chat_uuid"]
-        self.group_name = "socket chat_%s" % self.chat_uuid
+        self.group_name = "chat_%s" % self.chat_uuid
 
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
@@ -100,7 +74,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         user_id = self.scope['url_route']["kwargs"]["user_id"]
         user = User.objects.get(id=user_id)
 
-        self.active_users.remove(UserSerializer(user).data)
+        self.active_users.remove(UserGetSerializer(user).data)
 
         await self.channel_layer.group_send(
             self.group_name,

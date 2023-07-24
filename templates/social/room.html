@@ -42,12 +42,12 @@
             },
 
         })
-        const user_id = '{{ request.user.pk }}'
-        const chat_uuid = '{{ chat }}'
+        const user_id = 1
+        const chat_uuid = 'a1337ce3-0868-471c-ab85-1d2ac7510def'
         const user = '{{ user }}'
         console.log(user_id)
         const request_id = new Date().getTime()
-        const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${chat_uuid}/${user_id}/`);
+        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid}/${user_id}/`);
         ws.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data)
