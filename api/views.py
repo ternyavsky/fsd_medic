@@ -10,7 +10,7 @@ from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Like
 from django.contrib.auth import logout
-from auth_logic.service import create_or_delete
+from api.service import create_or_delete
 from .permissions import IsAdminOrReadOnly
 from django.shortcuts import get_object_or_404
 # REST IMPORTS

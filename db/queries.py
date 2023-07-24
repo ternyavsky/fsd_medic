@@ -14,7 +14,7 @@ def get_news(**kwargs):
 def get_notes(**kwargs):
     """Получение записей"""
     if kwargs:
-        return Notes.objects.get(**kwargs)
+        return Notes.objects.filter(**kwargs)
     else:
         return Notes.objects.all()
 ##
@@ -33,7 +33,7 @@ def get_centers():
 def get_users(**kwargs):
     """Получение пользователей"""
     if kwargs:
-        return User.objects.get(**kwargs)
+        return User.objects.filter(**kwargs)
     else:
 
         return User.objects.all()
