@@ -14,5 +14,26 @@
     <input type="text" name="text">
     <button type="submit">Отправить</button>
 </form>
+<script>
+        const user_id = 1   
+        const request_id = new Date().getTime()
+        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/notify/${user_id}/`);
+        
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+                action: "subscribe_to_news_activity",
+                request_id: request_id,
+                user_id: user_id
+
+            }))
+        }
+
+
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data)   
+            }
+
+</script>
 </body>
 </html>

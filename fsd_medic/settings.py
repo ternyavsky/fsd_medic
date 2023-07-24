@@ -45,8 +45,9 @@ INSTALLED_APPS = [
     'auth_user.apps.AuthUserConfig',
     'db.apps.DbConfig',
     'templates',
+    'djangochannelsrestframework',
     'rest_framework',
-    'django_extensions',
+
 ]
 
 MIDDLEWARE = [

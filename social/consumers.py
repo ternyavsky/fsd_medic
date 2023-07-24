@@ -2,14 +2,39 @@ import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
-
-from api.serializers import UserGetSerializer
+from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+from djangochannelsrestframework.observer import model_observer
+from djangochannelsrestframework.decorators import action
+from api.serializers import UserGetSerializer, CenterSerializer, NewsSerializer
+from api.models import Centers, News
 
 from .models import Chat, Message
+
 from .serializers import MessageSerializer, ChatSerializer, UserSerializer
 
 User = get_user_model()
 
+
+class NotifyConsumer(GenericAsyncAPIConsumer):
+    queryset = User.objects.all()
+    serializer_class = UserGetSerializer
+
+
+    @action()
+    async def subscribe_to_news_activity(self, user_id, **kwargs):
+        #user_id = self.scope["url_route"]["kwargs"]["user_id"]
+        user = await database_sync_to_async(User.objects.get)(id=user_id)
+        center = user.main_center
+        await self.news_activity.subscribe(center=center)
+
+    @model_observer(News)
+    async def news_activity(self, message, observer=None, **kwargs):
+        await self.send_json(message)
+
+    @news_activity.serializer
+    def news_activity(self, instance, action, **kwargs):
+        return dict(data=NewsSerializer(instance).data, action=action.value, pk=instance.pk)
+    
 
 
 class MyConsumer(AsyncWebsocketConsumer):

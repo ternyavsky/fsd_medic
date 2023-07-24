@@ -19,7 +19,6 @@ from .serializers import *
 
 
 
-
 class MessageView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -38,3 +37,5 @@ class ChatView(APIView):
         obj = get_chat(Chat, user_id)
         serializer = ChatSerializer(obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
