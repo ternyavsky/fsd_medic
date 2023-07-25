@@ -205,8 +205,8 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request):
-        centers = get_centers().filter(city=request.data["city"])
+    def get(self, request, city):
+        centers = get_centers().filter(city=city)
         return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
 
 

@@ -105,7 +105,6 @@ class User(AbstractBaseUser):
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, blank=True, null=True, )
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
-
     verification_code = models.PositiveIntegerField(verbose_name=_('СМС код подтверждения'), default=1)
     reset_code = models.PositiveIntegerField(_('Код для сброса пароля'), default=1)
     email_verification_code = models.PositiveIntegerField(_('Код для привязки почты к аккаунту'), default=1)
@@ -189,6 +188,8 @@ class Centers(models.Model):
     country = models.ForeignKey('Countries', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
+    lng = models.DecimalField(max_digits=6, decimal_places=4, default=0)
+    lat = models.DecimalField(max_digits=6, decimal_places=4, default=0)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
 

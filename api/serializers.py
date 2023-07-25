@@ -12,6 +12,7 @@ class CenterSerializer(serializers.ModelSerializer):
         model = Centers
         fields = '__all__'
 
+
 class DiseaseSerializer(serializers.ModelSerializer):
     """Болезни"""
     class Meta:

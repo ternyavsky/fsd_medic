@@ -21,21 +21,54 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
 
 
     @action()
-    async def subscribe_to_news_activity(self, user_id, **kwargs):
-        #user_id = self.scope["url_route"]["kwargs"]["user_id"]
+    async def subscribe_to_main_center_activity(self, request_id, **kwargs):
+        user_id = self.scope["url_route"]["kwargs"]["user_id"]
         user = await database_sync_to_async(User.objects.get)(id=user_id)
         center = user.main_center
-        await self.news_activity.subscribe(center=center)
+        print(center)
+        await self.main_center_activity.subscribe(center=center.id)
+
+
 
     @model_observer(News)
-    async def news_activity(self, message, observer=None, **kwargs):
+    async def main_center_activity(self, message, observer=None, **kwargs):
         await self.send_json(message)
 
-    @news_activity.serializer
-    def news_activity(self, instance, action, **kwargs):
-        return dict(data=NewsSerializer(instance).data, action=action.value, pk=instance.pk)
-    
+    @main_center_activity.groups_for_signal
+    def main_center_activity(self, instance: News, **kwargs):
+        yield f'center__{instance.center_id}'
 
+    @main_center_activity.groups_for_consumer
+    def main_center_activity(self, center, **kwargs):
+        yield f'center__{center}'
+
+
+    @main_center_activity.serializer
+    def main_center_activity(self, instance, action, **kwargs):
+        return dict(text="New post from main center",  data=NewsSerializer(instance).data, action=action.value, pk=instance.pk)
+    
+    @action()
+    async def subscribe_to_centers_activity(self, **kwargs):
+        user_id = self.scope["url_route"]["kwargs"]["user_id"]
+        user = await database_sync_to_async(User.objects.get)(id=user_id)
+        await self.centers_activity.subscribe(center=user.centers.all())
+    
+    @model_observer(News)
+    async def centers_activity(self, message, observer=None, **kwargs):
+        await self.send_json(message)
+
+    @centers_activity.groups_for_signal
+    def centers_activity(self, instance: News, **kwargs):
+        yield f'center__{instance.center_id}'
+
+    @centers_activity.groups_for_consumer
+    def centers_activity(self, center, **kwargs):
+        for i in center:
+            yield f'center__{i.id}'
+
+    @centers_activity.serializer
+    def centers_activity(self, instance, action, **kwargs):
+        return dict(text="New post from user centers", data=NewsSerializer(instance).data, action=action.value, pk=instance.pk)
 
 class MyConsumer(AsyncWebsocketConsumer):
     queryset = Message.objects.all()

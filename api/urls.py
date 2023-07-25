@@ -20,9 +20,9 @@ urlpatterns = [
     path('api/like/', LikeView.as_view(), name='like_view_url'),
     path('api/saved/', SaveView.as_view(), name='save_view_url'),
 
+    
 
-
-    path('api/users/centers/', CenterRegistrationView.as_view(), name='center_reg_url'),
+    path('api/users/centers/<str:city>/', CenterRegistrationView.as_view(), name='center_reg_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/users/diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
 

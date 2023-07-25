@@ -20,15 +20,21 @@
         const ws = new WebSocket(`ws://127.0.0.1:8000/ws/notify/${user_id}/`);
         
         ws.onopen = () => {
+          
+            console.log('connect')
             ws.send(JSON.stringify({
-                action: "subscribe_to_news_activity",
+                action: "subscribe_to_main_center_activity",
                 request_id: request_id,
-                user_id: user_id
 
             }))
-        }
 
+            ws.send(JSON.stringify({
+                action: "subscribe_to_centers_activity",
+                request_id: request_id,
 
+            }))
+
+    }
         ws.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data)   

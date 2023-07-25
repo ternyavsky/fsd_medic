@@ -33,7 +33,7 @@ class CountriesAdmin(admin.ModelAdmin):
 
 
 class CentersAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'is_required', 'employees_number', 'country', 'address',
+    list_display = ['id', 'name', 'is_required', 'employees_number', 'country', 'address', 'lng', 'lat',
                    'created_at', 'updated_at']
     search_fields = ['name', 'address']
     list_editable = ['is_required']
