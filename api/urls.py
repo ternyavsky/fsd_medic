@@ -1,5 +1,4 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 
 from .views import *
 from social.views import ChatView
@@ -22,7 +21,6 @@ urlpatterns = [
 
     
 
-    path('api/users/centers/<str:city>/', CenterRegistrationView.as_view(), name='center_reg_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/users/diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
 

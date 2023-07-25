@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from django.shortcuts import render, redirect
 
 from .models import Url_Params, Groups
@@ -19,6 +19,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from db.queries import *
+
+from api import permissions
 
 def index(request):
     return render(request, template_name='api/index.html')
@@ -42,6 +44,7 @@ def registration(request, parameter):
 
 
 ### NEWS BLOCK ###
+
 
 
 class SaveView(generics.ListCreateAPIView):
@@ -83,7 +86,7 @@ class NewsDetailView(APIView):  # Single news view
 
     def get(self, request, id):  # get single news
         news = get_news(id=id)
-        serializer = CreateNewsSerializer(news)
+        serializer = NewsSerializer(news)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, id):  # delete single news
@@ -202,12 +205,7 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
     queryset = get_users()
 
 ## END USERS' CLASSES ###
-class CenterRegistrationView(APIView):
-    permission_classes = [AllowAny]
 
-    def get(self, request, city):
-        centers = get_centers().filter(city=city)
-        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
 
 
 class GetDiseasesView(APIView):

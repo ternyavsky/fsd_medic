@@ -1,4 +1,3 @@
-
 import random
 from re import VERBOSE
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin

@@ -11,5 +11,7 @@ urlpatterns = [
     path('api/change-password/', SetNewPasswordView.as_view(), name='change-password'),
 
     path('api/verify-email/<int:user_id>/', EmailBindingView.as_view(), name='verify_email'),
-    path('api/verify-email-code/<int:user_id>/', VerifyEmailCodeView.as_view(), name='verify_email_code')
+    path('api/verify-email-code/<int:user_id>/', VerifyEmailCodeView.as_view(), name='verify_email_code'),
+
+    path('api/users/centers/<str:city>/', CenterRegistrationView.as_view(), name='center_reg_url'),
 ]

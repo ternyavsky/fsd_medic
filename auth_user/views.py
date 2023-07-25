@@ -2,11 +2,12 @@
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 
+from db.queries import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 
-from api.serializers import UserGetSerializer
+from api.serializers import UserGetSerializer, CenterSerializer
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
 from auth_user.serializers import *
@@ -212,3 +213,9 @@ class CreateAdminView(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class CenterRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, city):
+        centers = get_centers().filter(city=city)
+        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)

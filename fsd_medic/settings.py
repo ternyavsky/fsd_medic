@@ -106,12 +106,12 @@ DATABASES = {
          'OPTIONS': {
              'sql_mode': os.getenv('DB_SQL_MODE')
          }}
-    # }
-   # 'default': {
-   #     'ENGINE': 'django.db.backends.sqlite3',
-   #     'NAME': BASE_DIR / 'db.sqlite3',
-   # }
-}
+    }
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+
 
 CHANNEL_LAYERS = {
     "default": {

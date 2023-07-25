@@ -46,11 +46,13 @@ class CreateUserSerializer(serializers.Serializer):
             user = User.objects.get(number=validated_data['number'])
             user.main_center = validated_data["main_center"]
             user.country = user.main_center.country
-            for i in validated_data['disease_id']:
-                user.disease.add(i)
+            if "disease_id" in validated_data:
+                print(validated_data["disease_id"])
+                for i in validated_data['disease_id']:
+                    user.disease.add(i)
 
-                if user.disease.count() >= 5:
-                    raise serializers.ValidationError('You cannot specify more than 5 diseases')
+                    if user.disease.count() >= 5:
+                        raise serializers.ValidationError('You cannot specify more than 5 diseases')
 
             chat = Chat.objects.create(
                 to_user=user,
