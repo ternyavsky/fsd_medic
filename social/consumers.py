@@ -25,14 +25,15 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
         user_id = self.scope["url_route"]["kwargs"]["user_id"]
         user = await database_sync_to_async(User.objects.get)(id=user_id)
         center = user.main_center
-        print(center)
+        print('Main center user with id', user_id, center)
         await self.main_center_activity.subscribe(center=center.id)
 
 
 
     @model_observer(News)
     async def main_center_activity(self, message, observer=None, **kwargs):
-        await self.send_json(message)
+        if message["action"] == 'create':
+            await self.send_json(message)
 
     @main_center_activity.groups_for_signal
     def main_center_activity(self, instance: News, **kwargs):
@@ -55,7 +56,9 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
     
     @model_observer(News)
     async def centers_activity(self, message, observer=None, **kwargs):
-        await self.send_json(message)
+        if message["update"] == 'create':
+            await self.send_json(message)
+
 
     @centers_activity.groups_for_signal
     def centers_activity(self, instance: News, **kwargs):
