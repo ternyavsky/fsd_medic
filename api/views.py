@@ -80,63 +80,36 @@ class LikeView(APIView):  # Append and delete like
             return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class NewsDetailView(APIView):  # Single news view
-    permission_classes = [IsAdminOrReadOnly]
-    error_response = {'error': 'Новость не найдена!'}
-
-    def get(self, request, id):  # get single news
-        news = get_news(id=id)
-        serializer = NewsSerializer(news)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def delete(self, request, id):  # delete single news
-        news = get_news(id=id)
-        news.delete()
-        return Response({'result': 'Новость удалена!'}, status=status.HTTP_204_NO_CONTENT)
-
-    def put(self, request, id):  # update single news
-        news = get_news(id=id)
-        serializer = CreateNewsSerializer(news, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-        return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-    def handle_exception(self, exc):
-        if isinstance(exc, Http404):
-            return Response(self.error_response, status=status.HTTP_404_NOT_FOUND)
-        return super().handle_exception(exc)
-
-
-class NewsView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]  # Only authenticated users can access all news
-    serializer_class = NewsSerializer
+class NoteViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = NoteSerializer
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return get_news()
+        return get_notes(user=self.request.user) if self.action == 'list' else get_notes()
+    
 
-        if user.is_authenticated:
-            try:
-                center_news = get_news(center__in=user.center.all())
-                disease_news = get_news(disease__in=user.disease.all())
-                return center_news.union(disease_news)
-            except:
-                raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
+class NewsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = NewsSerializer
+    error_response = {'error': 'Новость не найдена!'}
 
-        else:
-            return get_news()[:3]
+    def get_queryset(self):
+        if self.action == 'list':
+            user = self.request.user
+            if user.is_staff:
+                return get_news()
 
+            if user.is_authenticated:
+                try:
+                    center_news = get_news(center__in=user.center.all())
+                    disease_news = get_news(disease__in=user.disease.all())
+                    return center_news.union(disease_news)
+                except:
+                    raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
 
-
-    def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = NewsSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+            else:
+                return get_news()[:3]
+        return get_news()
 
 
 ### SEARCH ###
@@ -161,58 +134,14 @@ class DoctorsListView(APIView):
         serializer = UserGetSerializer(doc, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class NoteView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        notes = get_notes(user=request.user)
-        serializer = NoteSerializer(notes, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        serializer = CreateNoteSerializer(data=request.data, context={'request':request})
-        print(request.user, 'from views')
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class NoteDetailView(APIView):
-   # permission_classes = [IsAuthenticated]
-    def get(self, request, note_id):
-        obj = get_notes(id=note_id)
-        serializer = NoteSerializer(obj)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, note_id):
-        obj = get_notes(id=note_id)
-        serializer = NoteUpdateSerializer(instance=obj, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(NoteSerializer(obj).data, status=status.HTTP_200_OK)
-
-    def delete(self, request, note_id):
-        obj = get_notes(id=note_id)
-        obj.delete()
-        return Response({'result': 'deleted'}, status=status.HTTP_204_NO_CONTENT )
 
 
 
-
-class UserDetailView(generics.RetrieveUpdateAPIView):
-    """Получение, редактирование отдельного пользователя по id"""
-    serializer_class = UserGetSerializer
-    queryset = get_users()
 
 ## END USERS' CLASSES ###
 
 
 
-class GetDiseasesView(APIView):
-    def get(self, request):
-        diseases = get_disease()
-        serializer = DiseaseSerializer(diseases, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # class UpdateUserView(generics.ListCreateAPIView):
@@ -229,28 +158,3 @@ class GetDiseasesView(APIView):
 #             serializer.save()
 #             return Response(serializer.data, status=status.HTTP_200_OK)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-def LOGOUT(request):
-    logout(request)
-    return redirect('home_url')
-
-
-@csrf_exempt
-def LIKE(request, news_id):
-    if request.user.is_active:
-        if request.method == 'POST':
-            create_or_delete(Like, news=news_id, user=request.user)
-            return redirect('home_url')
-        else:
-            messages.error(request, 'Ошибка!')
-    else:
-        raise Http404
-
-
-def Account(request):
-    if request.user.is_active:
-        return render(request, template_name='api/AccountView.html',
-                      context={'title': 'Аккаунт', 'user': request.user})
-    else:
-        raise Http404

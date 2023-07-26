@@ -1,7 +1,9 @@
 from  django.urls import path
 from  .views import *
 urlpatterns = [
+    
     path('api/users/', UserView.as_view(), name='user_list'),
+    path('api/users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
 
     path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
@@ -12,6 +14,6 @@ urlpatterns = [
 
     path('api/verify-email/<int:user_id>/', EmailBindingView.as_view(), name='verify_email'),
     path('api/verify-email-code/<int:user_id>/', VerifyEmailCodeView.as_view(), name='verify_email_code'),
-
+    path('api/users/diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
     path('api/users/centers/<str:city>/', CenterRegistrationView.as_view(), name='center_reg_url'),
 ]

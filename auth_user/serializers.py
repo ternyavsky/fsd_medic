@@ -5,6 +5,8 @@ from api.models import Disease, Centers, User
 from social.models import Chat
 
 
+
+
 class CreateUserSerializer(serializers.Serializer):
     """Создание пользователей. Регистрация"""
     number = serializers.CharField()

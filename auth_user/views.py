@@ -1,13 +1,12 @@
 
-from rest_framework import generics
 from rest_framework.permissions import AllowAny
-
+from rest_framework import generics
 from db.queries import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 
-from api.serializers import UserGetSerializer, CenterSerializer
+from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializer
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
 from auth_user.serializers import *
@@ -32,14 +31,27 @@ class UserView(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    """Получение, редактирование отдельного пользователя по id"""
+    serializer_class = UserGetSerializer
+    queryset = get_users()
+
+
+class GetDiseasesView(APIView):
+    """Получение всех заболеваний во время этапа регистрации"""
+    def get(self, request):
+        diseases = get_disease()
+        serializer = DiseaseSerializer(diseases, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 # sms-code block ##
 class VerifyCodeView(APIView):
     """Проверка кода во время регистрации"""
     def post(self, request):
         serializer = VerifyCodeSerializer(data=request.data)
         if serializer.is_valid():
-            number = serializer.validated_data.get('number')
-            verification_code = serializer.validated_data.get('verification_code')
+            number = serializer.validated_data['number']
+            verification_code = serializer.validated_data['verification_code']
             # print(verification_code, ' current code from serializer')
             try:
                 user = User.objects.get(number=number)
@@ -106,9 +118,9 @@ class VerifyResetCodeView(APIView):
     def post(self, request):
         serializer = VerifyResetCodeSerializer(data=request.data)
         if serializer.is_valid():
-            email = serializer.validated_data.get('email')
-            number = serializer.validated_data.get('number')
-            reset_code = serializer.validated_data.get('reset_code')
+            email = serializer.validated_data['email']
+            number = serializer.validated_data['number']
+            reset_code = serializer.validated_data['reset_code']
 
             try:
                 if email:
@@ -131,10 +143,10 @@ class SetNewPasswordView(APIView):
     def post(self, request):
         serializer = NewPasswordSerializer(data=request.data)
         if serializer.is_valid():
-            email = serializer.validated_data.get('email')
-            number = serializer.validated_data.get('number')
-            password1 = serializer.validated_data.get('password1')
-            password2 = serializer.validated_data.get('password2')
+            email = serializer.validated_data['email']
+            number = serializer.validated_data['number']
+            password1 = serializer.validated_data['password1']
+            password2 = serializer.validated_data['password2']
 
             try:
                 if email:
@@ -163,7 +175,7 @@ class EmailBindingView(APIView):
         serializer = EmailBindingSerializer(data=request.data)
 
         if serializer.is_valid():
-            email = serializer.validated_data.get('email')
+            email = serializer.validated_data['email']
 
             try:
                 user = User.objects.get(id=user_id)
@@ -186,7 +198,7 @@ class VerifyEmailCodeView(APIView):
         serializer = VerifyEmailCodeSerializer(data=request.data)
 
         if serializer.is_valid():
-            email_code = serializer.validated_data.get('email_verification_code')
+            email_code = serializer.validated_data['email_verification_code']
             try:
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:

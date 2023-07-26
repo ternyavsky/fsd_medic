@@ -6,6 +6,9 @@ from rest_framework import serializers
 from db.queries import get_users
 from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
+
+
+
 class CenterSerializer(serializers.ModelSerializer):
     """Клиники"""
     class Meta:
@@ -20,80 +23,54 @@ class DiseaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class NewsSerializer(serializers.ModelSerializer):
+    disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(), presentation_serializer=DiseaseSerializer, required=False)
+    center = PresentablePrimaryKeyRelatedField(queryset=Centers.objects.all(), presentation_serializer=CenterSerializer, required=False)
+
+    class Meta:
+        model = News
+        fields = '__all__'
+
+    def create(self, validated_data):
+        news = News.objects.create(**validated_data)
+        if "disease" in validated_data and "center" in validated_data:
+            news.disease = validated_data["disease"]
+            news.center = validated_data["center"]
+        elif "disease" in validated_data and "center" not in validated_data: 
+            news.disease = validated_data["disease"]
+        elif "center" in validated_data and "disease" not in validated_data:
+            news.center = validated_data["center"]
+        else:
+            raise serializers.ValidationError("Следует указать центр или заболевание!")
+        return news
+
 class UserGetSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""
     disease = DiseaseSerializer(many=True, allow_null=True, required=False)
-    center = CenterSerializer(many=True, allow_null=True, required=False)
+    main_center = CenterSerializer(many=False, allow_null=True, required=False)
     password = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле password
     group = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле group
+    centers = CenterSerializer(many=True, required=False)
 
     class Meta:
         model = User
         fields = '__all__'
 
-
-class NewsSerializer(serializers.ModelSerializer):
-    disease = DiseaseSerializer(allow_null=True, required=False)
-    center = CenterSerializer(allow_null=True, required=False)
-
-    class Meta:
-        model = News
-        fields = '__all__'
-
-class CreateNewsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = News
-        fields = '__all__'
-
-    def create(self, validated_data):
-        return News.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.text = validated_data.get('text', instance.text)
-        instance.image = validated_data.get('image', instance.image)
-        instance.center = validated_data.get('center', instance.center)
-        instance.disease = validated_data.get('disease', instance.disease)
-        instance.save()
-        return instance
-
-
 class NoteSerializer(serializers.ModelSerializer):
-    user = UserGetSerializer()
-    doctor = UserGetSerializer()
-    center = CenterSerializer()
-
-    class Meta:
-        model = Notes
-        fields = ['pk', 'user', 'doctor', 'center', 'title', 'time_start', 'time_end',
-                  'online', 'notify', 'problem', 'duration_note', 'file', 'created_at', 'updated_at', 'status']
-
-
-class NoteUpdateSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
-    doctor = serializers.CharField(allow_null=True, required=False)
-    title = serializers.CharField(allow_null=True, required=False)
-    problem = serializers.CharField(allow_null=True, required=False)
-
-    class Meta:
-        model = Notes
-        fields = '__all__'
-
-
-class CreateNoteSerializer(serializers.ModelSerializer):
-    """Создание записи"""
+    user = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
+    doctor = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
+    center = PresentablePrimaryKeyRelatedField(queryset=Centers.objects.all(), presentation_serializer=CenterSerializer, required=False)
     class Meta:
         model = Notes
         fields = '__all__'
 
     def create(self, validated_data):
-        user = self.context["request"].user
-
-        request_user = get_users(number=user)
         note = Notes.objects.create(**validated_data)
-        note.user = request_user
+        note.user = validated_data["user"]
+        note.doctor = validated_data["doctor"]
+        note.center = validated_data["center"]
         return note
-
 
 class ClinicSerializer(serializers.ModelSerializer):
     supported_diseases = serializers.SerializerMethodField()
