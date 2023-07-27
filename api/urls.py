@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import (
 router = DefaultRouter()
 router.register(r'api/news', NewsViewSet, basename='news'),
 router.register(r'api/notes', NoteViewSet, basename='notes') 
+router.register(r'api/saved', NoteViewSet, basename='saved') 
 
 
 

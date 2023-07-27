@@ -7,6 +7,14 @@ def get_news(**kwargs):
     return News.objects.filter(**kwargs)
 
 
+def get_likes(**kwargs):
+    return Like.objects.filter(**kwargs)
+
+
+def get_saved(**kwargs):
+    return Saved.objects.filter(**kwargs)
+
+
 ##notes
 def get_notes(**kwargs):
     """Получение записей"""

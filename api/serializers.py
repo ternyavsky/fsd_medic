@@ -23,6 +23,17 @@ class DiseaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserGetSerializer(serializers.ModelSerializer):
+    """Получаем пользователя(аккаунт и т.п)"""
+    disease = DiseaseSerializer(many=True, allow_null=True, required=False)
+    main_center = CenterSerializer(many=False, allow_null=True, required=False)
+    password = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле password
+    group = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле group
+    centers = CenterSerializer(many=True, required=False)
+
+    class Meta:
+        model = User
+        fields = '__all__'
 
 class NewsSerializer(serializers.ModelSerializer):
     disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(), presentation_serializer=DiseaseSerializer, required=False)
@@ -45,18 +56,6 @@ class NewsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Следует указать центр или заболевание!")
         return news
 
-class UserGetSerializer(serializers.ModelSerializer):
-    """Получаем пользователя(аккаунт и т.п)"""
-    disease = DiseaseSerializer(many=True, allow_null=True, required=False)
-    main_center = CenterSerializer(many=False, allow_null=True, required=False)
-    password = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле password
-    group = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле group
-    centers = CenterSerializer(many=True, required=False)
-
-    class Meta:
-        model = User
-        fields = '__all__'
-
 class NoteSerializer(serializers.ModelSerializer):
     user = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
     doctor = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
@@ -66,11 +65,20 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
+        self.create_validate(validated_data)
         note = Notes.objects.create(**validated_data)
         note.user = validated_data["user"]
         note.doctor = validated_data["doctor"]
         note.center = validated_data["center"]
         return note
+
+    def create_validate(self, validated_data):
+        if "user" not in validated_data:
+            return serializers.ValidationError("Пользователь не указан")
+        if "doctor" not in validated_data:
+            return serializers.ValidationError("Врач не указан")
+        if "center" not in validated_data:
+            return serializers.ValidationError("Центр не указан")
 
 class ClinicSerializer(serializers.ModelSerializer):
     supported_diseases = serializers.SerializerMethodField()

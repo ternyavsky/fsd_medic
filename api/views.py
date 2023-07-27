@@ -46,6 +46,14 @@ def registration(request, parameter):
 ### NEWS BLOCK ###
 
 
+class SaveViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SavedSerializer
+
+    def get_queryset(self):
+        return get_saved(user=self.request.user) if self.action == 'list' else get_saved(user=self.request.user, news=get_news(id=self.request.data["news"]))
+
+    
 
 class SaveView(generics.ListCreateAPIView):
     permission_classes  = [IsAuthenticated]
