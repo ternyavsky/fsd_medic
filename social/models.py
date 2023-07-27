@@ -9,6 +9,10 @@ import uuid
 
 User = AUTH_USER_MODEL
 # Create your models here.
+class Notification(models.Model):
+    pass 
+
+
 class Chat(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)

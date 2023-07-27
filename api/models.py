@@ -154,7 +154,7 @@ class Notes(models.Model):
     time_end = models.DateTimeField(verbose_name=_('Конец'), null=True, blank=True)
     notify = models.DateTimeField(verbose_name=_('Время уведомления о записи'), null=True, blank=True)
     doctor = models.ForeignKey('User', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True, related_name="to_doctor")
-    problem = models.CharField(verbose_name=_('Причина'), max_length=255)
+    problem = models.CharField(verbose_name=_('Причина'), max_length=255, null=True, blank=True)
     duration_note = models.IntegerField(verbose_name=_('Длительность'), null=True, blank=True)
     center = models.ForeignKey('Centers', on_delete=models.CASCADE, null=True)
     file = models.FileField(verbose_name=_('Файлы к записи'), upload_to='files_to_notes/', null=True, blank=True)

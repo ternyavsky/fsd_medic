@@ -93,18 +93,19 @@ class ClinicSerializer(serializers.ModelSerializer):
 
 class SavedSerializer(serializers.ModelSerializer):
     ''' get serialier for saved model'''
-    user = UserGetSerializer()
-    news = NewsSerializer()
+    user = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer)
+    news = PresentablePrimaryKeyRelatedField(queryset=News.objects.all(), presentation_serializer=NewsSerializer)
 
     class Meta:
         model = Saved
         fields = '__all__'
 
 
+
 # like too up
 class LikeSerializer(serializers.ModelSerializer):
-    user = UserGetSerializer()
-    news = NewsSerializer()
+    user = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer)
+    news = PresentablePrimaryKeyRelatedField(queryset=News.objects.all(), presentation_serializer=NewsSerializer)
 
     class Meta:
         model = Like

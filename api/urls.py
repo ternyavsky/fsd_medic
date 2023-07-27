@@ -8,18 +8,16 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 router = DefaultRouter()
-router.register(r'api/news', NewsViewSet, basename='news'),
+router.register(r'api/news', NewsViewSet, basename='news')
 router.register(r'api/notes', NoteViewSet, basename='notes') 
-router.register(r'api/saved', NoteViewSet, basename='saved') 
-
+router.register(r'api/saved', SaveViewSet, basename='saved') 
+router.register(r'api/likes', LikeViewSet, basename='likes')
 
 
 urlpatterns = [
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair_url'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
-    path('api/like/', LikeView.as_view(), name='like_view_url'),
-    path('api/saved/', SaveView.as_view(), name='save_view_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path('registration/<str:parameter>/', registration, name='registration_url'),

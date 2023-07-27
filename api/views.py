@@ -1,18 +1,13 @@
 from rest_framework import generics, viewsets
 from django.shortcuts import render, redirect
-
 from .models import Url_Params, Groups
-
 from .serializers import *
-
 from django.contrib import messages
 from django.http import Http404, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+from api.permissions import *
 from .models import User, Like
 from django.contrib.auth import logout
-from api.service import create_or_delete
 from .permissions import IsAdminOrReadOnly
-from django.shortcuts import get_object_or_404
 # REST IMPORTS
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -20,12 +15,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from db.queries import *
 
-from api import permissions
+
 
 def index(request):
     return render(request, template_name='api/index.html')
-
-
 
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
@@ -41,51 +34,19 @@ def registration(request, parameter):
             return HttpResponse('Здесь будет форма регистрации врача')
     raise Http404
 
-
-
-### NEWS BLOCK ###
-
-
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SavedSerializer
 
     def get_queryset(self):
-        return get_saved(user=self.request.user) if self.action == 'list' else get_saved(user=self.request.user, news=get_news(id=self.request.data["news"]))
+        return get_saved(user=self.request.user)
 
-    
-
-class SaveView(generics.ListCreateAPIView):
-    permission_classes  = [IsAuthenticated]
-    queryset = Saved.objects.all()
-
-    def get(self, request):
-        saved = self.queryset.filter(user=request.user)
-        serializer = SavedSerializer(saved, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        try:
-            return create_or_delete(Saved, SavedSerializer, user=request.user, news=get_news(id=request.data["news"]))
-        except:
-            return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-class LikeView(APIView):  # Append and delete like
-    queryset = Like.objects.all()
+class LikeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        like = self.queryset.filter(user=request.user)
-        serializer = LikeSerializer(like, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        try:
-            return create_or_delete(Like, LikeSerializer, user=request.user, news=get_news(id=request.data["news"]))
-        except:
-            return Response({'error': 'Запись не найдена!'}, status=status.HTTP_404_NOT_FOUND)
+    serializer_class = LikeSerializer
+    
+    def get_queryset(self):
+        return get_likes(user=self.request.user)
 
 
 class NoteViewSet(viewsets.ModelViewSet):
@@ -93,13 +54,12 @@ class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        return get_notes(user=self.request.user) if self.action == 'list' else get_notes()
+        return get_notes(user=self.request.user) 
     
 
 class NewsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = NewsSerializer
-    error_response = {'error': 'Новость не найдена!'}
 
     def get_queryset(self):
         if self.action == 'list':
@@ -119,10 +79,7 @@ class NewsViewSet(viewsets.ModelViewSet):
                 return get_news()[:3]
         return get_news()
 
-
 ### SEARCH ###
-
-
 class SearchView(APIView):
     def get(self, request, *args, **kwargs):
         clinics = get_clinics()
@@ -142,17 +99,7 @@ class DoctorsListView(APIView):
         serializer = UserGetSerializer(doc, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-
-
-
-## END USERS' CLASSES ###
-
-
-
-
-
-# class UpdateUserView(generics.ListCreateAPIView):
+## Eclass UpdateUserView(generics.ListCreateAPIView):
 #
 #     permission_classes = [AllowAny]
 #     model = User
