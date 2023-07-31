@@ -96,21 +96,22 @@ class PasswordResetView(APIView):
         if serializer.is_valid():
             user = serializer.save()
 
-            if request.POST.get('number', False):
-                code = generate_verification_code()
-                num = request.data['number']
-                send_reset_sms(num, code)
-                user.reset_code = code
-                print(user.reset_code)
-                user.save()
+            
+            if 'number' in  request.data:
+                    code = generate_verification_code()
+                    num = request.data['number']
+                    send_reset_sms(num, code)
+                    user.reset_code = code
+                    print(user.reset_code)
+                    user.save()
 
-            if request.POST.get('email', False):
-                code = generate_verification_code()
-                email = request.data['email']
-                send_reset_email(email, code)
-                user.reset_code = code
-                print(user.reset_code)
-                user.save()
+            if 'email' in  request.data:
+                    code = generate_verification_code()
+                    email = request.data['email']
+                    send_reset_email(email, code)
+                    user.reset_code = code
+                    print(user.reset_code)
+                    user.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

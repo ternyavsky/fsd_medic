@@ -17,7 +17,7 @@ def send_reset_sms(number, code):
 
     key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+на+www.pre_recover.com+,+ваш+код+доступа+-+{code}&sign=SMSAero'
+    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+,+ваш+код+доступа+-+{code}&sign=SMSAero'
     res = requests.get(url)
     if res.status_code == 200:
         print('отправилось')
@@ -29,7 +29,7 @@ def send_reset_sms(number, code):
 def send_reset_email(email, code):
     send_mail(
         "Восстановление пароля",
-        f"Вы пытаетесь восстановить доступ к аккаунту на www.pre_recover.com , ваш код доступа - {code}",
+        f"Вы пытаетесь восстановить доступ к аккаунту, ваш код доступа - {code}",
         str(os.getenv("EM_HOST_USER")),
         [email],
         fail_silently=False,
