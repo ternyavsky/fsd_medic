@@ -23,6 +23,7 @@ def send_reset_sms(number, code):
         print('отправилось')
         return True
     else:
+        print(res)
         return False
 
 def send_reset_email(email, code):

@@ -45,8 +45,9 @@ class GetDiseasesView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # sms-code block ##
-class VerifyCodeView(APIView): """Проверка кода во время регистрации"""
-    def post(self, request):
+class VerifyCodeView(APIView):
+     """Проверка кода во время регистрации"""
+     def post(self, request):
         serializer = VerifyCodeSerializer(data=request.data)
         if serializer.is_valid():
             number = serializer.validated_data['number']
