@@ -45,8 +45,7 @@ class GetDiseasesView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # sms-code block ##
-class VerifyCodeView(APIView):
-    """Проверка кода во время регистрации"""
+class VerifyCodeView(APIView): """Проверка кода во время регистрации"""
     def post(self, request):
         serializer = VerifyCodeSerializer(data=request.data)
         if serializer.is_valid():
@@ -172,17 +171,13 @@ class SetNewPasswordView(APIView):
 ## email block
 class EmailBindingView(APIView):
     """Привязка почты к аккаунту. Шаг 1 - отправка письма"""
-    def post(self,request, user_id):
+    def post(self,request):
         serializer = EmailBindingSerializer(data=request.data)
 
         if serializer.is_valid():
             email = serializer.validated_data['email']
 
-            try:
-                user = User.objects.get(id=user_id)
-            except User.DoesNotExist:
-                return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
-
+            user = request.user
             email_code = generate_verification_code()
             send_verification_email(email_code=email_code, user_email=email)
             user.email_verification_code = email_code
@@ -195,15 +190,12 @@ class EmailBindingView(APIView):
 
 class VerifyEmailCodeView(APIView):
     """Проверка кода из email , для привязки почты"""
-    def post(self, request, user_id):
+    def post(self, request):
         serializer = VerifyEmailCodeSerializer(data=request.data)
 
         if serializer.is_valid():
             email_code = serializer.validated_data['email_verification_code']
-            try:
-                user = User.objects.get(id=user_id)
-            except User.DoesNotExist:
-                return Response({'error':'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            user = request.user
             if email_code == user.email_verification_code:
                 user.save()
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
