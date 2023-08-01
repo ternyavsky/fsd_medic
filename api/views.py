@@ -94,6 +94,7 @@ class SearchView(APIView):
         serializer = SearchSerializer(search_results)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class DoctorsListView(APIView):
     def get(self,request, *args, **kwargs):
         doc = get_users(group=get_groups(name="Врачи").first(), city=request.user.city)

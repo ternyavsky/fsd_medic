@@ -141,20 +141,17 @@ class SetNewPasswordView(APIView):
     def post(self, request):
         serializer = NewPasswordSerializer(data=request.data)
         if serializer.is_valid():
-            email = serializer.validated_data['email']
-            number = serializer.validated_data['number']
             password1 = serializer.validated_data['password1']
             password2 = serializer.validated_data['password2']
 
-            try:
-                if email:
-                    user = User.objects.get(email=email)
+            if "email" in serializer.validated_data:
+                    user = User.objects.get(email=serializer.validated_data["email"])
 
 
-                else:
-                    user = User.objects.get(number=number)
+            if "number" in serializer.validated_data:
+                user = User.objects.get(number=serializer.validated_data["number"])
 
-            except User.DoesNotExist:
+            else:
                 return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
             if password1 == password2:

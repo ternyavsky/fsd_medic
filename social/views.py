@@ -30,6 +30,7 @@ class MessageView(APIView):
         except:
             return Response({'result': 'Сообщений нет'})
 
+
 class ChatView(APIView):
     #permission_classes = [IsAuthenticated]
 
