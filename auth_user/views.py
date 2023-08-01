@@ -1,23 +1,23 @@
 
+from django.utils.autoreload import raise_last_exception
 from rest_framework.permissions import AllowAny
 from rest_framework import generics
 from db.queries import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-
 from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializer
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
 from auth_user.serializers import *
+from api.models import User
 
 
-class UserView(generics.ListCreateAPIView, generics.UpdateAPIView):
+class UserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
     queryset = User.objects.all()
-
     def post(self, request):
         code = generate_verification_code()
         serializer = CreateUserSerializer(data=request.data, context={'request': request})
@@ -29,17 +29,15 @@ class UserView(generics.ListCreateAPIView, generics.UpdateAPIView):
                 user.save()
     
 
-    def put(self, request):
-        user = User.objects.get(id=request.user.id)
-        serializer = UserGetSerializer(user, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserDetailView(generics.RetrieveAPIView):
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserGetSerializer
     queryset = get_users()
+
+    def get_object(self, *args, **kwargs):
+        ins = get_object_or_404(User, id=self.request.user.id)
+        return ins
 
 
 class GetDiseasesView(APIView):
