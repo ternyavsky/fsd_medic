@@ -13,6 +13,10 @@
         });
     }
 
+
+
+
+
     function showQuestion(options) {
         hide(options.acrossClears);
         show(options.acrossQuestions);

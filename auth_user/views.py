@@ -27,9 +27,13 @@ class UserView(generics.ListCreateAPIView):
                 send_sms(user.number, code)
                 user.verification_code = code
                 user.save()
+    
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request):
+        user = User.objects.get(id=request.user.id)
+        serializer = self.get_serializer_class()(user, request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserDetailView(generics.RetrieveUpdateAPIView):
     """Получение, редактирование отдельного пользователя по id"""
