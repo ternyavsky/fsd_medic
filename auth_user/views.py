@@ -31,8 +31,9 @@ class UserView(generics.ListCreateAPIView):
 
     def put(self, request):
         user = User.objects.get(id=request.user.id)
-        serializer = self.get_serializer_class()(user, request.data)
+        serializer = UserGetSerializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserDetailView(generics.RetrieveUpdateAPIView):
