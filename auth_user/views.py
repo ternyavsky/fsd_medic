@@ -12,7 +12,7 @@ from auth_user.service import generate_verification_code, send_sms, send_reset_s
 from auth_user.serializers import *
 
 
-class UserView(generics.ListCreateAPIView):
+class UserView(generics.ListCreateAPIView, generics.UpdateAPIView):
     permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
@@ -36,7 +36,7 @@ class UserView(generics.ListCreateAPIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserDetailView(generics.RetrieveUpdateAPIView):
+class UserDetailView(generics.RetrieveAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserGetSerializer
     queryset = get_users()
