@@ -36,6 +36,7 @@ def registration(request, parameter):
 
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
+    
     serializer_class = SavedSerializer
 
     def get_queryset(self):
