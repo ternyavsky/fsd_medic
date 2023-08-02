@@ -40,14 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    'templates',
+    'drf_yasg',
+    'djangochannelsrestframework',
+    'rest_framework',
+
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'auth_user.apps.AuthUserConfig',
     'db.apps.DbConfig',
-    'templates',
-    'djangochannelsrestframework',
-    'rest_framework',
-
 ]
 
 MIDDLEWARE = [

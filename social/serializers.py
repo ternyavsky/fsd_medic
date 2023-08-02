@@ -6,22 +6,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['pk', "first_name", "email"]
-
-    def create(self, validated_data):
-        user = User(
-            email=validated_data['email'],
-            username=validated_data['first_name']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-
-
 class ChatSerializer(serializers.ModelSerializer):
     to_user = UserGetSerializer()
     to_center= CenterSerializer()
@@ -48,7 +32,7 @@ class MessageSerializer(serializers.ModelSerializer):
     )
     user = PresentablePrimaryKeyRelatedField(
         queryset=User.objects.all(),
-        presentation_serializer=UserSerializer
+        presentation_serializer=UserGetSerializer
     )
     created_at_formatted = serializers.SerializerMethodField()
 

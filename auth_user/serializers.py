@@ -104,7 +104,6 @@ class CreateUserSerializer(serializers.Serializer):
             password2 = data.get('password2')
             if password1 != password2:
                 raise serializers.ValidationError({'password2': 'Пароли должны совпадать'})
-
             if not password_pattern.match(password1):
                 raise serializers.ValidationError(
                     {'password1': 'Пароль должен состоять из цифр и букв обоих регистров'})

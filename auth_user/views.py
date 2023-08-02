@@ -36,6 +36,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = get_users()
 
     def get_object(self, *args, **kwargs):
+        print(self.request.data)
         ins = get_object_or_404(User, id=self.request.user.id)
         return ins
 

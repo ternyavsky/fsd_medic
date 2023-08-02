@@ -10,7 +10,7 @@ from api.models import Centers, News
 
 from .models import Chat, Message
 
-from .serializers import MessageSerializer, ChatSerializer, UserSerializer
+from .serializers import MessageSerializer, ChatSerializer 
 
 User = get_user_model()
 
