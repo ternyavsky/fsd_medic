@@ -96,6 +96,7 @@ class User(AbstractBaseUser):
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
+    hobby = models.CharField(verbose_name=_('Интерес'), max_length=225, null=True, blank=True)
     birthday = models.DateField(verbose_name=_('День рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='media/site_photos/AccauntPreview.png')
