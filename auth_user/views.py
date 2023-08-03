@@ -194,9 +194,11 @@ class VerifyEmailCodeView(APIView):
 
         if serializer.is_valid():
             email_code = serializer.validated_data['email_verification_code']
+            email = serializer.validated_data["email"]
             print(email_code)
             user = request.user
             if email_code == user.email_verification_code:
+                user.email = email
                 user.save()
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
             else:

@@ -189,7 +189,9 @@ class EmailBindingSerializer(serializers.Serializer):
         return data
 
 class VerifyEmailCodeSerializer(serializers.Serializer):
+    email = serializers.CharField()
     email_verification_code = serializers.IntegerField()
+
 
 # end block#
 
