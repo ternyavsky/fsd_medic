@@ -4,12 +4,24 @@ import random
 from rest_framework import serializers
 
 from db.queries import get_users
-from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like
+from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like, Countries
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 
 
 
+class CountrySerializer(serializers.ModelSerializer):
+    """Страны"""
+
+    class Meta:
+        model = Countries
+        fields = '__all__'
+
+
 class CenterSerializer(serializers.ModelSerializer):
+    country = PresentablePrimaryKeyRelatedField(
+            presentation_serializer=CountrySerializer,
+            queryset=Countries.objects.all()
+            )
     """Клиники"""
     class Meta:
         model = Centers
@@ -29,8 +41,8 @@ class UserGetSerializer(serializers.ModelSerializer):
     main_center = CenterSerializer(many=False, allow_null=True, required=False)
     password = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле password
     group = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле group
+    country = CountrySerializer(required=False) 
     centers = CenterSerializer(many=True, required=False)
-
     class Meta:
         model = User
         fields = '__all__'
