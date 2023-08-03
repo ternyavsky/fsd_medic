@@ -179,8 +179,8 @@ class EmailBindingView(APIView):
             user = request.user
             email_code = generate_verification_code()
             send_verification_email(email_code=email_code, user_email=email)
+            print(email_code)
             user.email_verification_code = email_code
-            user.email = email
             user.save()
             # print(f'На почту {email}, был отправлен код {email_code}')
             return Response({'detail': 'email has sent successfully'}, status=status.HTTP_200_OK)
@@ -194,12 +194,16 @@ class VerifyEmailCodeView(APIView):
 
         if serializer.is_valid():
             email_code = serializer.validated_data['email_verification_code']
+            print(email_code)
             user = request.user
             if email_code == user.email_verification_code:
                 user.save()
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
             else:
+                user.email = None
+                user.save()
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
+                
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
