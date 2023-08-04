@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from .models import Url_Params, Groups
 from .serializers import *
 from django.contrib import messages
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.http import Http404, HttpResponse
 from api.permissions import *
 from .models import User, Like
@@ -82,6 +84,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 ### SEARCH ###
 class SearchView(APIView):
+
     def get(self, request, *args, **kwargs):
         clinics = get_clinics()
         centers = get_centers()
