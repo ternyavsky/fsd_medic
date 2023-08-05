@@ -1,7 +1,7 @@
 import re
 from rest_framework import serializers
 
-from api.models import Disease, Centers, User
+from api.models import Disease, Center, User
 from social.models import Chat
 
 
@@ -14,7 +14,7 @@ class CreateUserSerializer(serializers.Serializer):
     password2 = serializers.CharField(write_only=True)
     birthday = serializers.DateField()
     main_center = serializers.PrimaryKeyRelatedField(
-        queryset=Centers.objects.all(),
+        queryset=Center.objects.all(),
         allow_null=True,
         required=False,
         many=False

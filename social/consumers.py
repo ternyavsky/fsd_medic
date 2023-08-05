@@ -6,7 +6,7 @@ from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.observer import model_observer
 from djangochannelsrestframework.decorators import action
 from api.serializers import UserGetSerializer, CenterSerializer, NewsSerializer
-from api.models import Centers, News
+from api.models import Center, News
 from .models import Chat, Message
 from .serializers import MessageSerializer, ChatSerializer 
 from loguru import logger
@@ -26,7 +26,7 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
         user = await database_sync_to_async(User.objects.get)(id=user_id)
         center = user.main_center
         logger.debug(f"Main center user with id {user_id}, {center}")
-        await self.main_center_activity.subscribe(center=center.id)
+        await self.main_center_activity.subscribe(center=center_id)
 
 
 

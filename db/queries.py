@@ -18,13 +18,13 @@ def get_saved(**kwargs):
 ##notes
 def get_notes(**kwargs):
     """Получение записей"""
-    return Notes.objects.filter(**kwargs)
+    return Note.objects.filter(**kwargs)
 
 
 
 def get_clinics(**kwargs):
     """Получение списка клиник"""
-    return Clinics.objects.filter(**kwargs)
+    return Clinic.objects.filter(**kwargs)
 
 
 def get_disease(**kwargs):
@@ -34,7 +34,7 @@ def get_disease(**kwargs):
 
 def get_centers(**kwargs):
     """Получение центров"""
-    return Centers.objects.filter(**kwargs)
+    return Center.objects.filter(**kwargs)
 
 
 #user
@@ -44,6 +44,6 @@ def get_users(**kwargs):
 
 def get_groups(**kwargs):
     """Получение групп пользователей"""
-    return Groups.objects.filter(**kwargs)
+    return Group.objects.filter(**kwargs)
 
 ##

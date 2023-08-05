@@ -4,7 +4,7 @@ import random
 from rest_framework import serializers
 
 from db.queries import get_users
-from .models import News, User, NumberCodes, Centers, Clinics, Disease, Notes, Saved, Like, Countries
+from .models import News, User, NumberCode, Center, Clinic, Disease, Note, Saved, Like, Country
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 
 
@@ -13,18 +13,18 @@ class CountrySerializer(serializers.ModelSerializer):
     """Страны"""
 
     class Meta:
-        model = Countries
+        model = Country
         fields = '__all__'
 
 
 class CenterSerializer(serializers.ModelSerializer):
     country = PresentablePrimaryKeyRelatedField(
             presentation_serializer=CountrySerializer,
-            queryset=Countries.objects.all()
+            queryset=Country.objects.all()
             )
     """Клиники"""
     class Meta:
-        model = Centers
+        model = Center
         fields = '__all__'
 
 
@@ -49,7 +49,7 @@ class UserGetSerializer(serializers.ModelSerializer):
 
 class NewsSerializer(serializers.ModelSerializer):
     disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(), presentation_serializer=DiseaseSerializer, required=False)
-    center = PresentablePrimaryKeyRelatedField(queryset=Centers.objects.all(), presentation_serializer=CenterSerializer, required=False)
+    center = PresentablePrimaryKeyRelatedField(queryset=Center.objects.all(), presentation_serializer=CenterSerializer, required=False)
 
     class Meta:
         model = News
@@ -71,14 +71,14 @@ class NewsSerializer(serializers.ModelSerializer):
 class NoteSerializer(serializers.ModelSerializer):
     user = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
     doctor = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
-    center = PresentablePrimaryKeyRelatedField(queryset=Centers.objects.all(), presentation_serializer=CenterSerializer, required=False)
+    center = PresentablePrimaryKeyRelatedField(queryset=Center.objects.all(), presentation_serializer=CenterSerializer, required=False)
     class Meta:
-        model = Notes
+        model = Note
         fields = '__all__'
 
     def create(self, validated_data):
         self.create_validate(validated_data)
-        note = Notes.objects.create(**validated_data)
+        note = Note.objects.create(**validated_data)
         note.user = validated_data["user"]
         note.doctor = validated_data["doctor"]
         note.center = validated_data["center"]
@@ -86,17 +86,17 @@ class NoteSerializer(serializers.ModelSerializer):
 
     def create_validate(self, validated_data):
         if "user" not in validated_data:
-            return serializers.ValidationError("Пользователь не указан")
+            return serializers.ValidationError("User not specified")
         if "doctor" not in validated_data:
-            return serializers.ValidationError("Врач не указан")
+            return serializers.ValidationError("Doctor not specified")
         if "center" not in validated_data:
-            return serializers.ValidationError("Центр не указан")
+            return serializers.ValidationError("Center not specified")
 
 class ClinicSerializer(serializers.ModelSerializer):
     supported_diseases = serializers.SerializerMethodField()
 
     class Meta:
-        model = Clinics
+        model = Clinic
         fields = '__all__'
 
     def get_supported_diseases(self, obj):

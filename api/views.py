@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth import logout
 from django.http import Http404, HttpResponse
 from db.queries import *
-from .models import Url_Params, Groups
+from .models import Url_Params, Group
 from .models import User, Like
 from .permissions import IsAdminOrReadOnly
 from .serializers import *
@@ -44,7 +44,7 @@ class SaveViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         data = get_saved(user=self.request.user)
         logger.debug(data)
-        logger.success(request.path)
+        logger.success(self.request.path)
         return data
 
 class LikeViewSet(viewsets.ModelViewSet):
@@ -109,7 +109,7 @@ class SearchView(APIView):
     def get(self, request, *args, **kwargs):
         clinics = get_clinics()
         centers = get_centers()
-        users = get_users()
+        users = get_users(group__name="Врачи")
         search_results = {
             'clinics': clinics,
             'centers': centers,
@@ -123,7 +123,7 @@ class SearchView(APIView):
 
 class DoctorsListView(APIView):
     def get(self,request, *args, **kwargs):
-        doc = get_users(group=get_groups(name="Врачи").first(), city=request.user.city)
+        doc = get_users(group__name="Врачи", city=request.user.city)
         serializer = UserGetSerializer(doc, many=True)
         logger.debug(doc)
         logger.success(request.path)
