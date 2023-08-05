@@ -99,7 +99,7 @@ class User(AbstractBaseUser):
     hobby = models.CharField(verbose_name=_('Интерес'), max_length=225, null=True, blank=True)
     birthday = models.DateField(verbose_name=_('День рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
-                              default='media/site_photos/AccauntPreview.png')
+                              default='users_photos/AccauntPreview.png')
     country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=False, null=True)

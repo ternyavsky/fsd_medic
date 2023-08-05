@@ -1,4 +1,5 @@
 
+from api import permissions
 from django.utils.autoreload import raise_last_exception
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -39,12 +40,12 @@ class UserView(generics.ListCreateAPIView):
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserGetSerializer
-    permission_classes = [IsAuthenticated]
+    permissions_classes = [IsAuthenticated]
     queryset = get_users()
     
 
     def get_object(self, *args, **kwargs):
-        data = get_users(id=self.request.user.id)
+        data = get_users(id=self.request.user.id).first()
         logger.debug(data)
         logger.success(self.request.path)
         return data
