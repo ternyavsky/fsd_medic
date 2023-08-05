@@ -14,6 +14,11 @@ from rest_framework.decorators import permission_classes, action, api_view
 from .models import *
 from .serializers import *
 
+from loguru import logger
+
+logger.add("logs/social.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
+
+
 
 # Create your views here.
 
@@ -26,9 +31,13 @@ class MessageView(APIView):
         try:
             messages = Message.objects.all().filter(chat=chat_id)
             serializer = MessageSerializer(messages, many=True)
+            logger.debug(serializer.data)
+            logger.success(request.path)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except:
-            return Response({'result': 'Сообщений нет'})
+            logger.info("No messages")
+            logger.info(request.path)
+            return Response({'result': 'No messages'})
 
 
 class ChatView(APIView):
@@ -37,6 +46,8 @@ class ChatView(APIView):
     def get(self, request, user_id):
         obj = get_chat(Chat, user_id)
         serializer = ChatSerializer(obj, many=True)
+        logger.debug(serializer.data)
+        logger.success(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -65,7 +65,7 @@ class NewsSerializer(serializers.ModelSerializer):
         elif "center" in validated_data and "disease" not in validated_data:
             news.center = validated_data["center"]
         else:
-            raise serializers.ValidationError("Следует указать центр или заболевание!")
+            raise serializers.ValidationError("Center or disease should be specified!")
         return news
 
 class NoteSerializer(serializers.ModelSerializer):

@@ -2,7 +2,7 @@
 from django.utils.autoreload import raise_last_exception
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
 from db.queries import *
 from rest_framework.response import Response
@@ -13,6 +13,10 @@ from auth_user.service import generate_verification_code, send_sms, send_reset_s
     send_verification_email
 from auth_user.serializers import *
 from api.models import User
+from loguru import logger
+
+
+logger.add("logs/auth_user.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
 
 
 class UserView(generics.ListCreateAPIView):
@@ -35,12 +39,15 @@ class UserView(generics.ListCreateAPIView):
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserGetSerializer
+    permission_classes = [IsAuthenticated]
     queryset = get_users()
+    
 
     def get_object(self, *args, **kwargs):
-        print(self.request.data)
-        ins = get_object_or_404(User, id=self.request.user.id)
-        return ins
+        data = get_users(id=self.request.user.id)
+        logger.debug(data)
+        logger.success(self.request.path)
+        return data
 
 
 class GetDiseasesView(APIView):
@@ -48,6 +55,8 @@ class GetDiseasesView(APIView):
     def get(self, request):
         diseases = get_disease()
         serializer = DiseaseSerializer(diseases, many=True)
+        logger.debug(serializer.data)
+        logger.success(self.request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # sms-code block ##
@@ -59,10 +68,13 @@ class VerifyCodeView(APIView):
             number = serializer.validated_data['number']
             verification_code = serializer.validated_data['verification_code']
             # print(verification_code, ' current code from serializer')
+            logger.debug(serializer.validated_data)
             try:
                 user = User.objects.get(number=number)
 
             except User.DoesNotExist:
+                logger.warning("User does not exist")
+                logger.warning(request.path)
                 return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
             if verification_code == user.verification_code:
@@ -82,15 +94,18 @@ class ResendSmsView(APIView):
             try:
                 user = User.objects.get(number=number)
             except User.DoesNotExist:
+                logger.warning("User not found")
+                logger.warning(request.path)
                 return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
             code = generate_verification_code()
-            # print(code, 'code from res')
+            logger.debug(code)
             send_sms(user.number, code)
             user.verification_code = code
             user.save()
-
+            logger.success(request.path)
             return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
-
+        logger.warning(serializer.errors)
+        logger.warning(request.path)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -108,7 +123,7 @@ class PasswordResetView(APIView):
                     num = request.data['number']
                     send_reset_sms(num, code)
                     user.reset_code = code
-                    print(user.reset_code)
+                    logger.debug(code)
                     user.save()
 
             if 'email' in  request.data:
@@ -116,9 +131,16 @@ class PasswordResetView(APIView):
                     email = request.data['email']
                     send_reset_email(email, code)
                     user.reset_code = code
-                    print(user.reset_code)
+                    logger.debug(code)
                     user.save()
+            
+            logger.info(serializer.data)
+            logger.success(request.path)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        
+
+        logger.warning(serializer.errors)
+        logger.warning(request.path)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyResetCodeView(APIView):
@@ -133,12 +155,18 @@ class VerifyResetCodeView(APIView):
                 user = User.objects.get(number=serializer.validated_data["number"])
             if reset_code == user.reset_code:
                 user.save()
+                logger.success("User got the access to his account")
+                logger.success(request.path)
                 return Response({"message": "User got the access to his account"}, status=status.HTTP_200_OK)
             
             else:
+                logger.warning("User didnt get the access to his account")
+                logger.warning(request.path)
                 return Response({"message": "User didnt get the access to his account"},
                             status=status.HTTP_404_NOT_FOUND)
         else:
+            logger.warning(serializer.errors)
+            logger.warning(request.path)
             return Response(serializer.errors)
         
 
@@ -158,14 +186,22 @@ class SetNewPasswordView(APIView):
                 user = User.objects.get(number=serializer.validated_data["number"])
 
             else:
+                logger.warning("User not found")
+                logger.warning(request.path)
                 return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
             if password1 == password2:
                 set_new_password(user, password2)
+                logger.success("Password changed successfully")
+                logger.success(request.path)
                 return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
             else:
+                logger.warning("Password do not match")
+                logger.warning(request.path)
                 return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
         else:
+            logger.warning(serializer.errors)
+            logger.warning(request.path)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -181,13 +217,18 @@ class EmailBindingView(APIView):
             user = request.user
             email_code = generate_verification_code()
             send_verification_email(email_code=email_code, user_email=email)
-            print(email_code)
+            logger.debug(email_code)
             user.email_verification_code = email_code
             user.save()
-            # print(f'На почту {email}, был отправлен код {email_code}')
+            
+            logger.success("email has sent successfully")
+            logger.success(request.path)
             return Response({'detail': 'email has sent successfully'}, status=status.HTTP_200_OK)
 
+        logger.warning(serializer.errors)
+        logger.warning(request.path)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class VerifyEmailCodeView(APIView):
     """Проверка кода из email , для привязки почты"""
@@ -197,17 +238,24 @@ class VerifyEmailCodeView(APIView):
         if serializer.is_valid():
             email_code = serializer.validated_data['email_verification_code']
             email = serializer.validated_data["email"]
-            print(email_code)
+            logger.debug(email_code)
             user = request.user
             if email_code == user.email_verification_code:
                 user.email = email
                 user.save()
+                logger.success("User verified successfully")
+                logger.success(request.path)
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
             else:
                 user.email = None
                 user.save()
+                
+                logger.warning("Invalid verification code")
+                logger.warning(request.path)
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
                 
+        logger.warning(serializer.errors)
+        logger.warning(request.path)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -222,7 +270,13 @@ class CreateAdminView(generics.ListCreateAPIView):
         serializer = AdminSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+            logger.debug(serializer.data)
+            logger.success(request.path)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        logger.warning(serializer.errors)
+        logger.warning(request.path)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CenterRegistrationView(APIView):
@@ -230,4 +284,8 @@ class CenterRegistrationView(APIView):
 
     def get(self, request, city):
         centers = get_centers().filter(city=city)
-        return Response(CenterSerializer(centers, many=True).data, status=status.HTTP_200_OK)
+        logger.debug(centers)
+        data = CenterSerializer(centers, many=True).data
+        logger.debug(data)
+        logger.success(request.path) 
+        return Response(data, status=status.HTTP_200_OK)

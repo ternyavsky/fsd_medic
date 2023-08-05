@@ -100,34 +100,34 @@ class CreateUserSerializer(serializers.Serializer):
         if stage == '1':
             # Проверка Номера
             if User.objects.filter(number=data['number']).exists():
-                raise serializers.ValidationError('Номер уже используется')
+                raise serializers.ValidationError('Number already in use')
 
             password1 = data.get('password1')
             password2 = data.get('password2')
             if password1 != password2:
-                raise serializers.ValidationError({'password2': 'Пароли должны совпадать'})
+                raise serializers.ValidationError({'password': 'passwords must match'})
             if not password_pattern.match(password1):
                 raise serializers.ValidationError(
-                    {'password1': 'Пароль должен состоять из цифр и букв обоих регистров'})
+                    {'password': 'The password must consist of numbers and letters of both cases'})
 
             if len(password1) < 8:
-                raise serializers.ValidationError({'password1': 'Пароль должен быть не менее 8 символов'})
+                raise serializers.ValidationError({'password': 'Password must be at least 8 characters'})
 
         if stage == '2':
 
             # Проверка присувствия данных
             if data['number'] is None:
-                raise serializers.ValidationError('Введите номер')
+                raise serializers.ValidationError('Enter number')
             if data['password1'] is None:
-                raise serializers.ValidationError('Введите пароль')
+                raise serializers.ValidationError('Enter password')
             elif data['password2'] is None:
-                raise serializers.ValidationError('Подтвердите пароль')
+                raise serializers.ValidationError('Confirm the password')
 
 
     def update_validate(self, data):
         if data['email'] is not None:
             if User.objects.filter(email=data['email']).exists():
-                raise serializers.ValidationError('Почта уже используется')
+                raise serializers.ValidationError('Email already in use')
 
 # sms code block ##
 class VerifyCodeSerializer(serializers.Serializer):
@@ -187,7 +187,7 @@ class EmailBindingSerializer(serializers.Serializer):
 
     def validate(self, data):
         if User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError({"email": 'Почта уже используется'})
+            raise serializers.ValidationError({"email": 'Email already in use'})
         return data
 
 class VerifyEmailCodeSerializer(serializers.Serializer):
@@ -218,25 +218,25 @@ class AdminSerializer(serializers.Serializer):
         password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
 
         if data['email'] is None:
-            raise serializers.ValidationError('Введите почту')
+            raise serializers.ValidationError('Enter email')
         if data['first_name'] is None:
-            raise serializers.ValidationError('Введите Имя')
+            raise serializers.ValidationError('Enter firstname')
         if data['last_name'] is None:
-            raise serializers.ValidationError('Введите Фамилию')
+            raise serializers.ValidationError('Enter lastname')
         if data['password1'] is None:
-            raise serializers.ValidationError('Введите пароль')
+            raise serializers.ValidationError('Enter password')
         elif data['password2'] is None:
-            raise serializers.ValidationError('Подтвердите пароль')
+            raise serializers.ValidationError('Confirm password')
         # Проверка Почты
         if not email_pattern.match(data['email']):
-            raise serializers.ValidationError('Введена некоректная почта')
+            raise serializers.ValidationError('The email entered is incorrect')
         # Проверка Имени
         if not name_pattern.match(data['first_name']):
-            raise serializers.ValidationError('Имя может состоять только из букв кирилицы')
-        if len(data['first_name']) < 3:
-            raise serializers.ValidationError('Имя не может быть кароче 3 символов')
+            raise serializers.ValidationError('The firstname can only consist of Cyrillic letters')
+        if len(data['first_name']) < 2:
+            raise serializers.ValidationError('firstname cannot be shorter than 2 characters')
         if len(data['first_name']) > 20:
-            raise serializers.ValidationError('Имя не может быть длинее 20 символов')
+            raise serializers.ValidationError('firstname cannot be longer than 20 characters')
         # Проверка Фамилии
         # Проверка телефона
         if User.objects.filter(number=data['number']).exists():

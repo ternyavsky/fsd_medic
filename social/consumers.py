@@ -7,12 +7,12 @@ from djangochannelsrestframework.observer import model_observer
 from djangochannelsrestframework.decorators import action
 from api.serializers import UserGetSerializer, CenterSerializer, NewsSerializer
 from api.models import Centers, News
-
 from .models import Chat, Message
-
 from .serializers import MessageSerializer, ChatSerializer 
-
+from loguru import logger
 User = get_user_model()
+
+logger.add("logs/social.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
 
 
 class NotifyConsumer(GenericAsyncAPIConsumer):
@@ -25,7 +25,7 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
         user_id = self.scope["url_route"]["kwargs"]["user_id"]
         user = await database_sync_to_async(User.objects.get)(id=user_id)
         center = user.main_center
-        print('Main center user with id', user_id, center)
+        logger.debug(f"Main center user with id {user_id}, {center}")
         await self.main_center_activity.subscribe(center=center.id)
 
 
@@ -33,20 +33,26 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
     @model_observer(News)
     async def main_center_activity(self, message, observer=None, **kwargs):
         if message["action"] == 'create':
+            logger.debug(message)
             await self.send_json(message)
 
     @main_center_activity.groups_for_signal
     def main_center_activity(self, instance: News, **kwargs):
+        logger.debug(instance)
+        logger.debug(instance.center_id)
         yield f'center__{instance.center_id}'
 
     @main_center_activity.groups_for_consumer
     def main_center_activity(self, center, **kwargs):
+        logger.debug(center)
         yield f'center__{center}'
 
 
     @main_center_activity.serializer
     def main_center_activity(self, instance, action, **kwargs):
-        return dict(text="New post from main center",  data=NewsSerializer(instance).data, action=action.value, pk=instance.pk)
+        data = NewsSerializer(instance).data
+        logger.debug(data)
+        return dict(text="New post from main center",  data=data, action=action.value, pk=instance.pk)
     
     @action()
     async def subscribe_to_centers_activity(self, **kwargs):
@@ -57,21 +63,27 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
     @model_observer(News)
     async def centers_activity(self, message, observer=None, **kwargs):
         if message["update"] == 'create':
+            logger.debug(message)
             await self.send_json(message)
 
 
     @centers_activity.groups_for_signal
     def centers_activity(self, instance: News, **kwargs):
+        logger.debug(instance)
+        logger.debug(instance.center_id)
         yield f'center__{instance.center_id}'
 
     @centers_activity.groups_for_consumer
     def centers_activity(self, center, **kwargs):
+        logger.debug(center)
         for i in center:
             yield f'center__{i.id}'
 
     @centers_activity.serializer
     def centers_activity(self, instance, action, **kwargs):
-        return dict(text="New post from user centers", data=NewsSerializer(instance).data, action=action.value, pk=instance.pk)
+        data = NewsSerializer(instance).data
+        logger.debug(data)
+        return dict(text="New post from user centers", data=data, action=action.value, pk=instance.pk)
 
 class MyConsumer(AsyncWebsocketConsumer):
     queryset = Message.objects.all()
@@ -92,8 +104,12 @@ class MyConsumer(AsyncWebsocketConsumer):
         user_id = self.scope["url_route"]["kwargs"]["user_id"]
         user = User.objects.get(id=user_id)
 
+        logger.debug(self.chat_uuid)
+        logger.debug(user)
+
         self.active_users.append(UserGetSerializer(user).data)
 
+        logger.debug("Active users {self.active_users}")
         
 
         await self.channel_layer.group_send(
@@ -106,8 +122,9 @@ class MyConsumer(AsyncWebsocketConsumer):
         )
 
         chat = Chat.objects.get(uuid=self.chat_uuid)
+        logger.debug(chat)
         messages = await database_sync_to_async(self.queryset.filter)(chat=chat)
-
+        logger.debug(messages)
         await self.send(
             text_data=json.dumps({
                 'action': 'list_message',
@@ -136,6 +153,8 @@ class MyConsumer(AsyncWebsocketConsumer):
         user = User.objects.get(id=user_id)
 
         self.active_users.remove(UserGetSerializer(user).data)
+
+        logger.debug("Active users {self.active_users}")
 
         await self.channel_layer.group_send(
             self.group_name,
@@ -168,18 +187,24 @@ class MyConsumer(AsyncWebsocketConsumer):
                     chat=Chat.objects.get(uuid=data["chat_uuid"]),
                     user=User.objects.get(id=data["user_id"])
                 )
+                logger.debug(obj)
                 message = dict(data=self.serializer(instance=obj).data)
+                logger.debug(message)
                 action_type = "send_message"
 
             case 'delete_message':
                 obj = await self.get_message_db(data["pk"])
+                logger.debug(obj)
                 await self.delete_message_db(data["pk"])
                 message = dict(data=self.serializer(instance=obj).data)
+                logger.debug(message)
                 action_type = "delete_message"
 
             case 'update_message':
                 upd = await self.update_message_db(data["pk"], data["text"])
+                logger.debug(upd)
                 message = dict(data=self.serializer(instance=upd). data)
+                logger.debug(message)
                 action_type = "update_message"
             
         await self.channel_layer.group_send(

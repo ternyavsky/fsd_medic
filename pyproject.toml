@@ -70,6 +70,8 @@ urllib3 = "==2.0.3"
 whitenoise = "==6.5.0"
 yarl = "==1.9.2"
 zope-interface = "==6.0"
+django-redis = "^5.3.0"
+loguru = "^0.7.0"
 
 
 [build-system]

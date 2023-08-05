@@ -1,22 +1,22 @@
-from rest_framework import generics, viewsets
-from django.shortcuts import render, redirect
-from .models import Url_Params, Groups
-from .serializers import *
-from django.contrib import messages
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.http import Http404, HttpResponse
-from api.permissions import *
-from .models import User, Like
+from django.shortcuts import render 
 from django.contrib.auth import logout
+from django.http import Http404, HttpResponse
+from db.queries import *
+from .models import Url_Params, Groups
+from .models import User, Like
 from .permissions import IsAdminOrReadOnly
+from .serializers import *
+from api.permissions import *
 # REST IMPORTS
 from rest_framework.views import APIView
+from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from db.queries import *
 
+from loguru import logger
+
+logger.add("logs/api.log", format="{time} {level} {message}", level="DEBUG"  ,rotation="12:00", compression="zip")
 
 
 def index(request):
@@ -42,14 +42,20 @@ class SaveViewSet(viewsets.ModelViewSet):
     serializer_class = SavedSerializer
 
     def get_queryset(self):
-        return get_saved(user=self.request.user)
+        data = get_saved(user=self.request.user)
+        logger.debug(data)
+        logger.success(request.path)
+        return data
 
 class LikeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
     
     def get_queryset(self):
-        return get_likes(user=self.request.user)
+        data = get_likes(user=self.request.user)
+        logger.debug(data)
+        logger.success(self.request.path)
+        return data
 
 
 class NoteViewSet(viewsets.ModelViewSet):
@@ -57,7 +63,10 @@ class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        return get_notes(user=self.request.user) 
+        data = get_notes(user=self.request.user)
+        logger.debug(data)
+        logger.success(self.request.path)
+        return data 
     
 
 class NewsViewSet(viewsets.ModelViewSet):
@@ -68,18 +77,30 @@ class NewsViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             user = self.request.user
             if user.is_staff:
-                return get_news()
+                data = get_news()
+                logger.info("Admin request")
+                logger.debug(data)
+                return data
 
             if user.is_authenticated:
                 try:
                     center_news = get_news(center__in=user.center.all())
                     disease_news = get_news(disease__in=user.disease.all())
-                    return center_news.union(disease_news)
+                    data = center_news.union(disease_news)
+                    logger.debug(data)
+                    logger.success(self.request.path)
+                    return data
                 except:
-                    raise serializers.ValidationError('Для доступа к новостям, вам следует указать центр или заболевание')
+                    logger.warning(self.request.path)
+                    logger.info("Center or disease not specified!")
+                    raise serializers.ValidationError("To access the news, you must specify the center or disease!")
+
 
             else:
-                return get_news()[:3]
+                data = get_news()[:3]
+                logger.warning("Not authorized")
+                logger.debug(data)
+                return data
         return get_news()
 
 ### SEARCH ###
@@ -95,6 +116,8 @@ class SearchView(APIView):
             'users': users,
         }
         serializer = SearchSerializer(search_results)
+        logger.debug(search_results)
+        logger.success(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -102,6 +125,8 @@ class DoctorsListView(APIView):
     def get(self,request, *args, **kwargs):
         doc = get_users(group=get_groups(name="Врачи").first(), city=request.user.city)
         serializer = UserGetSerializer(doc, many=True)
+        logger.debug(doc)
+        logger.success(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 ## Eclass UpdateUserView(generics.ListCreateAPIView):
