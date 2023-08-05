@@ -35,7 +35,6 @@ dulwich==0.21.5
 filelock==3.12.2
 filetype==1.2.0
 frozenlist==1.3.3
--e git+ssh://git@github.com/ternyavsky/fsd_medic.git@cf5112327a86a7c9ed4a6af54ff0848b78357cfd#egg=fsd_medic
 generics==6.0.0
 html5lib==1.1
 hyperlink==21.0.0

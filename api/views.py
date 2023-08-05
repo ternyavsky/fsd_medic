@@ -25,7 +25,7 @@ def index(request):
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
         group_id = Url_Params.objects.get(parameter=parameter).group_id
-        group_name = Groups.objects.get(id=group_id).name
+        group_name = Group.objects.get(id=group_id).name
         if group_name == 'Администраторы':
             return HttpResponse('Здесь будет форма регистрации админа')
         elif group_name == 'Администраторы Центров':
