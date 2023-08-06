@@ -72,6 +72,7 @@ class NoteSerializer(serializers.ModelSerializer):
     user = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
     doctor = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(), presentation_serializer=UserGetSerializer, required=False)
     center = PresentablePrimaryKeyRelatedField(queryset=Center.objects.all(), presentation_serializer=CenterSerializer, required=False)
+    file = serializers.FileField()
     class Meta:
         model = Note
         fields = '__all__'

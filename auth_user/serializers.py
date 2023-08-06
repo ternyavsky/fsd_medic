@@ -147,6 +147,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         number = self.context['request'].data.get('number')
+        #email validate pydantic class
         email = self.context['request'].data.get('email')
         user = None
         if number:

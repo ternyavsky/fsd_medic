@@ -85,7 +85,10 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False, blank=True)
+
+
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Group', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True, blank=True, related_name="main_center")
@@ -137,6 +140,7 @@ class User(AbstractBaseUser):
 
 
 class Group(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название Группы'), max_length=100, null=True)
     number_of_people = models.IntegerField(verbose_name=_('Количество людей'), default=0)
 
@@ -148,6 +152,7 @@ class Group(models.Model):
         verbose_name = 'Группу'
 
 class Note(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     user = models.ForeignKey('User', verbose_name=_('Пользователь'), on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(verbose_name=_('Название записи'), max_length=255)
     online = models.BooleanField(verbose_name=_('Онлайн'), default=False)
@@ -175,6 +180,7 @@ class Note(models.Model):
 
 
 class Center(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название центра'), max_length=255, null=True)
     image = models.ImageField(verbose_name=_('Фото центра'), upload_to='centers_photos/', blank=True,
                               default='centers_photos/center_photo.jpg')
@@ -202,6 +208,7 @@ class Center(models.Model):
 
 
 class Clinic(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100, null=True)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
     rating = models.FloatField(verbose_name=_('Рейтинг клиники'), default=5,
@@ -244,16 +251,19 @@ class Url_Params(models.Model):
 
 
 class EmailCode(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     code = models.IntegerField()
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
 
 
 class NumberCode(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     code = models.IntegerField()
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
 
 
 class Country(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название страны'), max_length=50, unique=True)
 
     def __str__(self):
@@ -265,6 +275,7 @@ class Country(models.Model):
 
 
 class Interview(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     type = models.CharField(verbose_name=_('Тип интервью'), max_length=30, null=True)
     date = models.DateTimeField(verbose_name=_('Дата интервью'), null=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=30, null=True)
@@ -285,6 +296,7 @@ class Interview(models.Model):
 
 
 class News(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     title = models.CharField(verbose_name=_('Заголовок новости'), max_length=40, null=True, blank=True)
     text = models.TextField(verbose_name=_('Текст новости'), max_length=500, null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фото к новости'), default='news_photos/news_photo.jpg', upload_to='news_photos/')
@@ -303,6 +315,7 @@ class News(models.Model):
 
 
 class Like(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     news = models.ForeignKey('News', verbose_name=_('Новость'), on_delete=models.CASCADE)
     user = models.ForeignKey('User', verbose_name=_('Пользователь'), on_delete=models.CASCADE)
 
@@ -314,6 +327,7 @@ class Like(models.Model):
 
 
 class Saved(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     user = models.OneToOneField('User', on_delete=models.CASCADE, null=True, blank=True)
     news = models.ForeignKey('News', verbose_name=_('Новость'), on_delete=models.CASCADE, null=True, blank=True)
 
@@ -326,6 +340,7 @@ class Saved(models.Model):
 
 
 class Disease(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(max_length=100)
 
     def __str__(self):

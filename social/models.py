@@ -10,10 +10,12 @@ import uuid
 User = AUTH_USER_MODEL
 # Create your models here.
 class Notification(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     pass 
 
 
 class Chat(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     to_center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True)
@@ -26,6 +28,7 @@ class Chat(models.Model):
        return f"Chat - {self.uuid}"
 
 class Message(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
     news = models.ForeignKey(News, on_delete=models.PROTECT,null=True, blank=True)
     text = models.TextField(max_length=500, null=True, blank=True)

@@ -26,7 +26,7 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
         user = await database_sync_to_async(User.objects.get)(id=user_id)
         center = user.main_center
         logger.debug(f"Main center user with id {user_id}, {center}")
-        await self.main_center_activity.subscribe(center=center_id)
+        await self.main_center_activity.subscribe(center=center.id)
 
 
 

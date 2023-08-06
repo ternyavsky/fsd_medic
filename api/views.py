@@ -16,6 +16,8 @@ from rest_framework import status
 
 from loguru import logger
 
+from api import permissions
+
 logger.add("logs/api.log", format="{time} {level} {message}", level="DEBUG"  ,rotation="12:00", compression="zip")
 
 
@@ -123,6 +125,7 @@ class SearchView(APIView):
 
 class DoctorsListView(APIView):
     def get(self,request, *args, **kwargs):
+        print(request.headers)
         doc = get_users(group__name="Врачи", city=request.user.city)
         serializer = UserGetSerializer(doc, many=True)
         logger.debug(doc)
