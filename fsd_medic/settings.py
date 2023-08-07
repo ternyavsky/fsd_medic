@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'djangochannelsrestframework',
     'rest_framework',
 
+     "debug_toolbar",
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'auth_user.apps.AuthUserConfig',
@@ -59,10 +60,16 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+      "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
 
+]
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
 ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -106,7 +113,7 @@ DATABASES = {
          'PASSWORD': os.getenv('DB_PASSWORD'),
          'PORT': os.getenv('DB_PORT'),
          'HOST': os.getenv('DB_HOST'),
-         'OPTIONS': {
+        'OPTIONS': {
              'sql_mode': os.getenv('DB_SQL_MODE')
          }}
     

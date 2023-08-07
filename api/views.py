@@ -3,6 +3,7 @@ from django.contrib.auth import logout
 from django.http import Http404, HttpResponse
 from db.queries import *
 from .models import Url_Params, Group
+from django.db.models import Prefetch
 from .models import User, Like
 from .permissions import IsAdminOrReadOnly
 from .serializers import *
@@ -40,12 +41,10 @@ def registration(request, parameter):
 
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    
     serializer_class = SavedSerializer
 
     def get_queryset(self):
         data = get_saved(user=self.request.user)
-        logger.debug(data)
         logger.success(self.request.path)
         return data
 
@@ -54,26 +53,22 @@ class LikeViewSet(viewsets.ModelViewSet):
     serializer_class = LikeSerializer
     
     def get_queryset(self):
-        data = get_likes(user=self.request.user)
-        logger.debug(data)
         logger.success(self.request.path)
-        return data
+        return get_likes(user=self.request.user)
 
 
 class NoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = NoteSerializer
-
     def get_queryset(self):
         data = get_notes(user=self.request.user)
-        logger.debug(data)
         logger.success(self.request.path)
         return data 
     
 
 class NewsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
     serializer_class = NewsSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.action == 'list':
@@ -81,7 +76,6 @@ class NewsViewSet(viewsets.ModelViewSet):
             if user.is_staff:
                 data = get_news()
                 logger.info("Admin request")
-                logger.debug(data)
                 return data
 
             if user.is_authenticated:
@@ -89,7 +83,6 @@ class NewsViewSet(viewsets.ModelViewSet):
                     center_news = get_news(center__in=user.center.all())
                     disease_news = get_news(disease__in=user.disease.all())
                     data = center_news.union(disease_news)
-                    logger.debug(data)
                     logger.success(self.request.path)
                     return data
                 except:
@@ -101,7 +94,6 @@ class NewsViewSet(viewsets.ModelViewSet):
             else:
                 data = get_news()[:3]
                 logger.warning("Not authorized")
-                logger.debug(data)
                 return data
         return get_news()
 
@@ -118,7 +110,7 @@ class SearchView(APIView):
             'users': users,
         }
         serializer = SearchSerializer(search_results)
-        logger.debug(search_results)
+        logger.debug(serializer.data)
         logger.success(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

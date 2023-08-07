@@ -39,7 +39,7 @@ class CreateUserSerializer(serializers.Serializer):
             user = User.objects.create_user(
                 number=validated_data['number'],
                 password=validated_data['password1'],
-                group=validated_data['group'],
+                group__name=validated_data['group'],
                 birthday=validated_data['birthday']
             )
             user.stage = stage

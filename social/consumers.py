@@ -38,20 +38,16 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
 
     @main_center_activity.groups_for_signal
     def main_center_activity(self, instance: News, **kwargs):
-        logger.debug(instance)
-        logger.debug(instance.center_id)
         yield f'center__{instance.center_id}'
 
     @main_center_activity.groups_for_consumer
     def main_center_activity(self, center, **kwargs):
-        logger.debug(center)
         yield f'center__{center}'
 
 
     @main_center_activity.serializer
     def main_center_activity(self, instance, action, **kwargs):
         data = NewsSerializer(instance).data
-        logger.debug(data)
         return dict(text="New post from main center",  data=data, action=action.value, pk=instance.pk)
     
     @action()
@@ -69,20 +65,16 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
 
     @centers_activity.groups_for_signal
     def centers_activity(self, instance: News, **kwargs):
-        logger.debug(instance)
-        logger.debug(instance.center_id)
         yield f'center__{instance.center_id}'
 
     @centers_activity.groups_for_consumer
     def centers_activity(self, center, **kwargs):
-        logger.debug(center)
         for i in center:
             yield f'center__{i.id}'
 
     @centers_activity.serializer
     def centers_activity(self, instance, action, **kwargs):
         data = NewsSerializer(instance).data
-        logger.debug(data)
         return dict(text="New post from user centers", data=data, action=action.value, pk=instance.pk)
 
 class MyConsumer(AsyncWebsocketConsumer):

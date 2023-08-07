@@ -14,7 +14,7 @@ class UserManager(BaseUserManager):
     def create_user(self, number, password, group=None, center_id=None, email=None, first_name=None, last_name=None,
                     disease_id=None, *args, **kwargs):
         user = self.model(number=number)
-        user_group = Groups.objects.get(name='Пользователи')
+        user_group = Group.objects.get(name='Пользователи')
         user_group.number_of_people += 1
         user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
@@ -30,9 +30,6 @@ class UserManager(BaseUserManager):
             user.last_name = last_name
             user.is_required = False
         # это UserManager(BaseUserManager)
-        if center_id is not None:
-            user.center_id = center_id
-            user.country = Centers.objects.get(id=center_id).country
 
         user.save()
         return user
@@ -41,8 +38,8 @@ class UserManager(BaseUserManager):
                     center_id=None, disease_id=None):
 
         updated_fields = ["updated_at"]
-        user_group = Groups.objects.get(name='Пользователи')
-        last_user_group = Groups.objects.get(name='Пациенты')
+        user_group = Group.objects.get(name='Пользователи')
+        last_user_group = Group.objects.get(name='Пациенты')
         user.group_id = user_group.id
         user_group.number_of_people += 1
         user_group.save(update_fields=['number_of_people'])
@@ -51,7 +48,7 @@ class UserManager(BaseUserManager):
 
         if center_id is not None:
             user.center_id = center_id
-            user.country_id = Centers.objects.get(id=center_id).country_id
+            user.country_id = Center.objects.get(id=center_id).country_id
             updated_fields += 'center_id'
 
 
@@ -70,7 +67,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, number, email, first_name, last_name, password=None):
         superuser = self.model(number=number, email=email, first_name=first_name, last_name=last_name)
 
-        superuser_group = Groups.objects.get(name='Администраторы')
+        superuser_group = Group.objects.get(name='Администраторы')
         superuser_group.number_of_people += 1
         superuser_group.save(update_fields=['number_of_people'])
         superuser.group_id = superuser_group.id
@@ -82,7 +79,6 @@ class UserManager(BaseUserManager):
 
         superuser.save()
         return superuser
-
 
 class User(AbstractBaseUser):
     id = models.BigAutoField(primary_key=True, db_index=True)
@@ -136,7 +132,6 @@ class User(AbstractBaseUser):
     class Meta:
         verbose_name_plural = 'Пользователи'
         verbose_name = 'Пользователья'
-        ordering = ['-created_at']
 
 
 class Group(models.Model):
@@ -311,7 +306,7 @@ class News(models.Model):
         verbose_name = 'Новость'
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
 
 class Like(models.Model):

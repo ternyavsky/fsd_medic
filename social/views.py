@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import permission_classes, action, api_view
-
+from db.queries import get_messages, get_chats
 from .models import *
 from .serializers import *
 
@@ -25,19 +25,14 @@ logger.add("logs/social.log", format="{time} {level} {message}", level="DEBUG", 
 
 
 class MessageView(APIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get(self, request, chat_id):
-        try:
-            messages = Message.objects.all().filter(chat=chat_id)
-            serializer = MessageSerializer(messages, many=True)
-            logger.debug(serializer.data)
-            logger.success(request.path)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            logger.info("No messages")
-            logger.info(request.path)
-            return Response({'result': 'No messages'})
+        messages = get_messages(chat=chat_id)
+        serializer = MessageSerializer(messages, many=True)
+        logger.debug(serializer.data)
+        logger.success(request.path)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ChatView(APIView):

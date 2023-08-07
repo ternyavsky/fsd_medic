@@ -24,8 +24,11 @@ class UserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
-    queryset = User.objects.all()
+    queryset = get_users()
+
+
     def post(self, request):
+
         code = generate_verification_code()
         serializer = CreateUserSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -41,7 +44,6 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserGetSerializer
     permissions_classes = [IsAuthenticated]
-    queryset = get_users()
     
 
     def get_object(self, *args, **kwargs):

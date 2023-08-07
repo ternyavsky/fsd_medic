@@ -8,7 +8,7 @@ User = get_user_model()
 
 class ChatSerializer(serializers.ModelSerializer):
     to_user = UserGetSerializer()
-    to_center= CenterSerializer()
+    to_center = CenterSerializer()
     from_center = CenterSerializer()
     from_user = UserGetSerializer()
 

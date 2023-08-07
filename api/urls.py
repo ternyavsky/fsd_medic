@@ -23,5 +23,6 @@ urlpatterns = [
     path('registration/<str:parameter>/', registration, name='registration_url'),
     # path('api/update/user/', UpdateUserView.as_view(), name='update_user_url'),
     # path('api/update/admin/', UpdateUserView.as_view(), name='update_admin_url'),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
 urlpatterns += router.urls
