@@ -4,6 +4,47 @@ from rest_framework import serializers
 from api.models import Disease, Center, User
 from social.models import Chat
 
+from rest_framework import status, exceptions
+from django.contrib.auth import authenticate
+from django.utils.translation import gettext_lazy as _
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
+    
+  
+    # Overiding validate function in the TokenObtainSerializer  
+    def validate(self, attrs):
+        authenticate_kwargs = {
+            self.username_field: attrs[self.username_field],
+            'password': attrs['password'],
+        }
+        try:
+            authenticate_kwargs['request'] = self.context['request']
+        except KeyError:
+            pass
+
+        try:
+            user = User.objects.get(number=authenticate_kwargs['number'])
+            if user: 
+                auth = authenticate(**authenticate_kwargs)
+                if auth is None:
+                    self.error_messages['no_active_account']=_(
+                 'Incorrect password'
+             )
+                    raise exceptions.AuthenticationFailed(
+                        self.error_messages['no_active_account'],
+                    'Incorrect password',
+             )
+        except User.DoesNotExist:
+          self.error_messages['no_active_account'] =_(
+              'Account does not exist')
+          raise exceptions.AuthenticationFailed(
+              self.error_messages['no_active_account'],
+              'no_active_account',
+          )
+        return super().validate(attrs)
+
 
 
 

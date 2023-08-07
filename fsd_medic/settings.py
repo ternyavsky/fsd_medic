@@ -80,6 +80,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=23),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
     "AUTH_COOKIE": 'access_token',
+    "TOKEN_OBTAIN_SERIALIZER": "auth_user.serializers.CustomTokenObtainPairSerializer"
 }
 
 ROOT_URLCONF = 'fsd_medic.urls'
