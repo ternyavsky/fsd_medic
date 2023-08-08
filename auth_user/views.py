@@ -7,7 +7,9 @@ from django.core.cache import cache
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
 from db.queries import *
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
+from .serializers import CustomTokenObtainPairSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializer
@@ -19,6 +21,11 @@ from loguru import logger
 
 
 logger.add("logs/auth_user.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    # Replace the serializer with your custom
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class UserView(generics.ListCreateAPIView):

@@ -1,6 +1,7 @@
 from django.urls import path, include
 
 from .views import *
+from auth_user.views import CustomTokenObtainPairView
 from social.views import ChatView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (

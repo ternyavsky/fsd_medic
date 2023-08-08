@@ -19,6 +19,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
         authenticate_kwargs = {
             self.username_field: attrs[self.username_field],
             'password': attrs['password'],
+            'number': attrs["number"]
         }
         try:
             authenticate_kwargs['request'] = self.context['request']
@@ -27,26 +28,22 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
 
         try:
             user = User.objects.get(number=authenticate_kwargs['number'])
+        
             if user: 
                 auth = authenticate(**authenticate_kwargs)
                 if auth is None:
-                    self.error_messages['no_active_account']=_(
-                 'Incorrect password'
-             )
+                        self.error_messages['no_active_account']=_(
+                    'Incorrect password'
+                )
                 logger.info("Incorrect password")
-                    
-                raise exceptions.AuthenticationFailed(
-                        self.error_messages['no_active_account'],
-                    'Incorrect password',
-             )
         except User.DoesNotExist:
-          self.error_messages['no_active_account'] =_(
+            self.error_messages['no_active_account'] =_(
               'Account does not exist')
-          logger.info("Account does not exist")
-          raise exceptions.AuthenticationFailed(
+            raise exceptions.AuthenticationFailed(
               self.error_messages['no_active_account'],
-              'Account does not exist',
-          )
+              'no_active_account',
+          )                
+        
         return super().validate(attrs)
 
 

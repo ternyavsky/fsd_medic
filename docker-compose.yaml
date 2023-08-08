@@ -3,7 +3,6 @@ services:
   app:
     container_name: app
     command: bash -c "gunicorn fsd_medic.asgi:application --bind 0.0.0.0:8000  -k uvicorn.workers.UvicornWorker"
-        #"gunicorn --bind 0.0.0.0:8000 fsd_medic.asgi:application -k uvicorn.workers.UvicornWorker"
              
     build: .  
     ports:
