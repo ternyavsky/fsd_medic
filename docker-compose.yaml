@@ -2,11 +2,10 @@ version: "3.8"
 services:
   app:
     container_name: app
-    command: >
-      sh -c   "python manage.py makemigrations && 
-              python manage.py migrate --fake  && 
-              python manage.py runserver 0.0.0.0:8000"
-    build: .
+    command: bash -c "gunicorn fsd_medic.asgi:application --bind 0.0.0.0:8000  -k uvicorn.workers.UvicornWorker"
+        #"gunicorn --bind 0.0.0.0:8000 fsd_medic.asgi:application -k uvicorn.workers.UvicornWorker"
+             
+    build: .  
     ports:
       - '8000:8000'
     links:
