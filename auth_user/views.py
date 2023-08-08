@@ -3,6 +3,7 @@ from api import permissions
 from django.utils.autoreload import raise_last_exception
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
 from db.queries import *
@@ -24,7 +25,7 @@ class UserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
-    queryset = get_users()
+    queryset = User.objects.all()
 
 
     def post(self, request):
@@ -37,6 +38,9 @@ class UserView(generics.ListCreateAPIView):
                 send_sms(user.number, code)
                 user.verification_code = code
                 user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
     
 
 

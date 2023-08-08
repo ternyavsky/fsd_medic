@@ -9,9 +9,10 @@ from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
 
+from loguru import logger
+logger.add("logs/auth_user.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
-    
   
     # Overiding validate function in the TokenObtainSerializer  
     def validate(self, attrs):
@@ -32,16 +33,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
                     self.error_messages['no_active_account']=_(
                  'Incorrect password'
              )
-                    raise exceptions.AuthenticationFailed(
+                logger.info("Incorrect password")
+                    
+                raise exceptions.AuthenticationFailed(
                         self.error_messages['no_active_account'],
                     'Incorrect password',
              )
         except User.DoesNotExist:
           self.error_messages['no_active_account'] =_(
               'Account does not exist')
+          logger.info("Account does not exist")
           raise exceptions.AuthenticationFailed(
               self.error_messages['no_active_account'],
-              'no_active_account',
+              'Account does not exist',
           )
         return super().validate(attrs)
 
@@ -77,6 +81,7 @@ class CreateUserSerializer(serializers.Serializer):
         user = None
 
         if stage == 1:
+            print('dad')
             user = User.objects.create_user(
                 number=validated_data['number'],
                 password=validated_data['password1'],
@@ -92,7 +97,6 @@ class CreateUserSerializer(serializers.Serializer):
             user.main_center = validated_data["main_center"]
             user.country = user.main_center.country
             if "disease_id" in validated_data:
-                print(validated_data["disease_id"])
                 for i in validated_data['disease_id']:
                     user.disease.add(i)
 

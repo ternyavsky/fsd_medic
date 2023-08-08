@@ -1,6 +1,7 @@
 from django.shortcuts import render 
 from django.contrib.auth import logout
 from django.http import Http404, HttpResponse
+from django.core.cache import cache
 from db.queries import *
 from .models import Url_Params, Group
 from django.db.models import Prefetch
@@ -68,7 +69,6 @@ class NoteViewSet(viewsets.ModelViewSet):
 
 class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.action == 'list':
