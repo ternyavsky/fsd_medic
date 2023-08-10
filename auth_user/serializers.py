@@ -78,7 +78,6 @@ class CreateUserSerializer(serializers.Serializer):
         user = None
 
         if stage == 1:
-            print('dad')
             user = User.objects.create_user(
                 number=validated_data['number'],
                 password=validated_data['password1'],
@@ -89,10 +88,18 @@ class CreateUserSerializer(serializers.Serializer):
             validated_data['stage'] = stage
 
         if stage == 2:
-            print(type(validated_data["main_center"]), validated_data["main_center"])
             user = User.objects.get(number=validated_data['number'])
-            user.main_center = validated_data["main_center"]
-            user.country = user.main_center.country
+            if "main_center" not in validated_data:
+                user.main_center = None 
+            else:
+                user.main_center = validated_data["main_center"]
+                chat = Chat.objects.create(
+                to_user=user,
+                from_center=user__main_center
+                )
+                
+                chat.save()
+            user.country = user.main_center__country
             if "disease_id" in validated_data:
                 for i in validated_data['disease_id']:
                     user.disease.add(i)
@@ -100,11 +107,7 @@ class CreateUserSerializer(serializers.Serializer):
                     if user.disease.count() >= 5:
                         raise serializers.ValidationError('You cannot specify more than 5 diseases')
 
-            chat = Chat.objects.create(
-                to_user=user,
-                from_center=user.main_center
-            )
-            chat.save()
+            
             user.stage = stage
             validated_data['stage'] = stage
             user.save()

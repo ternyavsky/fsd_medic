@@ -95,7 +95,7 @@ class User(AbstractBaseUser):
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
-    hobby = models.CharField(verbose_name=_('Интерес'), max_length=225, null=True, blank=True)
+    interest = models.CharField(verbose_name=_('Интерес к заболеванию'), max_length=225, null=True, blank=True)
     birthday = models.DateField(verbose_name=_('День рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='users_photos/AccauntPreview.png')
@@ -189,8 +189,8 @@ class Center(models.Model):
     country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
-    lng = models.DecimalField(max_digits=6, decimal_places=4, default=0)
-    lat = models.DecimalField(max_digits=6, decimal_places=4, default=0)
+    lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6, decimal_places=4, default=0)
+    lat = models.DecimalField(verbose_name=_("Широта"), max_digits=6, decimal_places=4, default=0)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
 
@@ -339,7 +339,7 @@ class Disease(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name if self.name else "Unnamed"
+        return self.name
     class Meta:
         verbose_name_plural = 'Заболевания'
         verbose_name = 'Заболевание'

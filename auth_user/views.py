@@ -32,7 +32,7 @@ class UserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
-    queryset = User.objects.all()
+    queryset = get_users()
 
 
     def post(self, request):
@@ -57,7 +57,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [IsAuthenticated]
     
 
-    def get_object(self, *args, **kwargs):
+    def get_object(self):
         data = get_users(id=self.request.user.id).first()
         logger.debug(data)
         logger.success(self.request.path)

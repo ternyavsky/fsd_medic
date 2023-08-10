@@ -25,8 +25,9 @@ logger.add("logs/social.log", format="{time} {level} {message}", level="DEBUG", 
 
 
 class MessageView(APIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
+    
     def get(self, request, chat_id):
         messages = get_messages(chat=chat_id)
         serializer = MessageSerializer(messages, many=True)
@@ -36,7 +37,7 @@ class MessageView(APIView):
 
 
 class ChatView(APIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
         obj = get_chat(Chat, user_id)

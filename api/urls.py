@@ -1,7 +1,6 @@
 from django.urls import path, include
 
 from .views import *
-from auth_user.views import CustomTokenObtainPairView
 from social.views import ChatView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
@@ -22,8 +21,6 @@ urlpatterns = [
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path('registration/<str:parameter>/', registration, name='registration_url'),
-    # path('api/update/user/', UpdateUserView.as_view(), name='update_user_url'),
-    # path('api/update/admin/', UpdateUserView.as_view(), name='update_admin_url'),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
 urlpatterns += router.urls

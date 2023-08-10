@@ -2,13 +2,13 @@ from django.shortcuts import render
 from django.contrib.auth import logout
 from django.http import Http404, HttpResponse
 from django.core.cache import cache
-from db.queries import *
-from .models import Url_Params, Group
 from django.db.models import Prefetch
+from db.queries import *
+from api.permissions import *
+from .models import Url_Params, Group
 from .models import User, Like
 from .permissions import IsAdminOrReadOnly
 from .serializers import *
-from api.permissions import *
 # REST IMPORTS
 from rest_framework.views import APIView
 from rest_framework import generics, viewsets
@@ -17,8 +17,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from loguru import logger
-
-from api import permissions
 
 logger.add("logs/api.log", format="{time} {level} {message}", level="DEBUG"  ,rotation="12:00", compression="zip")
 
@@ -61,6 +59,7 @@ class LikeViewSet(viewsets.ModelViewSet):
 class NoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = NoteSerializer
+
     def get_queryset(self):
         data = get_notes(user=self.request.user)
         logger.success(self.request.path)
@@ -116,11 +115,10 @@ class SearchView(APIView):
 
 
 class DoctorsListView(APIView):
-    def get(self,request, *args, **kwargs):
-        print(request.headers)
+    def get(self,request):
         doc = get_users(group__name="Врачи", city=request.user.city)
         serializer = UserGetSerializer(doc, many=True)
-        logger.debug(doc)
+        logger.debug(serializer.data)
         logger.success(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
