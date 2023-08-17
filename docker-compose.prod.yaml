@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  app:
+    container_name: prod 
+    command:  bash -c "gunicorn fsd_medic.asgi:application --bind 0.0.0.0:8000  -k uvicorn.workers.UvicornWorker"
+
+    build: .  
+    ports:
+      - '8000:8000'
+    links:
+      - redis
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+  memcached:
+    image: memcached:latest
+#db:
+#   image: mysql
+#   restart: always
+#   ports:
+#     - '3307:3306'
+#   environment:
+
+        #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
