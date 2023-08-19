@@ -6,7 +6,17 @@ services:
       - "6379:6379"
   memcached:
     image: memcached:latest
-#db:
+    ports:
+      - "11211:11211"
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      #db:
 #   image: mysql
 #   restart: always
 #   ports:

@@ -45,8 +45,9 @@ INSTALLED_APPS = [
     'drf_yasg',
     'djangochannelsrestframework',
     'rest_framework',
+    'debug_toolbar',
+    'django_prometheus',
 
-     "debug_toolbar",
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'auth_user.apps.AuthUserConfig',
@@ -54,15 +55,17 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'api.middleware.open_access_middleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-      "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
     
 
 ]
