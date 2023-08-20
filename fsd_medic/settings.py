@@ -105,6 +105,43 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fsd_medic.wsgi.application'
 ASGI_APPLICATION = 'fsd_medic.asgi.application'
+
+
+LOGGING = {
+  'version': 1,
+  'disable_existing_loggers': False,
+  'formatters': {
+      'simple': {
+            'format': 'velname)s %(message)s'
+        },
+  },
+  'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'logstash': {
+            'level': 'INFO',
+            'class': 'logstash.TCPLogstashHandler',
+            'host': 'logstash',
+            'port': 5000, 
+            'version': 1,
+            'message_type': 'django',  # 'type' поле для logstash сообщения.
+            'fqdn': False,
+            'tags': ['django'], # список тег.
+        },
+  },
+  'loggers': {
+        'django.request': {
+            'handlers': ['logstash'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
+}
+
+
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -127,6 +164,8 @@ DATABASES = {
   # }
 #}
 
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 
 CACHES = {
     "default": {

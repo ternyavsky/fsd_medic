@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from api.permissions import IsAdminOrReadOnly
@@ -14,9 +15,9 @@ from db.queries import get_messages, get_chats
 from .models import *
 from .serializers import *
 
-from loguru import logger
 
-logger.add("logs/social.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
+logger = logging.getLogger(__name__)
+
 
 
 
@@ -32,7 +33,7 @@ class MessageView(APIView):
         messages = get_messages(chat=chat_id)
         serializer = MessageSerializer(messages, many=True)
         logger.debug(serializer.data)
-        logger.success(request.path)
+        logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -43,7 +44,7 @@ class ChatView(APIView):
         obj = get_chat(Chat, user_id)
         serializer = ChatSerializer(obj, many=True)
         logger.debug(serializer.data)
-        logger.success(request.path)
+        logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

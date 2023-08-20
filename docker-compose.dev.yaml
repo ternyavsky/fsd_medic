@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   redis:
+    container_name: fsd_medic.redis
     image: redis:alpine
     ports:
       - "6379:6379"
@@ -11,10 +12,12 @@ services:
       retries: 5
       start_period: 10s
   memcached:
+    container_name: fsd_medic.memcached
     image: memcached:latest
     ports:
       - "11211:11211"
   prometheus:
+    container_name: fsd_medic.prometheus
     image: prom/prometheus
     ports:
       - "9090:9090"
@@ -26,9 +29,62 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
   grafana:
+    container_name: fsd_medic.grafana
     image: grafana/grafana
+    volumes:
+      - grafana_storage:/var/lib/grafana
     ports:
       - "3000:3000"
+  
+  celery:
+    build: .
+    container_name: fsd_medic.celery
+    command: poetry run celery -A fsd_medic worker --loglevel=info
+
+
+  rabbitmq:
+    container_name: fsd_medic.rabbitmq
+    image: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics check_running -q" ]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
+# elasticsearch:
+#   container_name: fsd_medic.elasticsearch
+#   image: elasticsearch:8.8.1
+#   networks:
+#     - elk
+#   ports:
+#     - "9200:9200"
+#
+# logstash:
+#   container_name: fsd_medic.logstash
+#   image: logstash:8.8.1
+#   networks:
+#     - elk
+#   volumes:
+#     - ./logstash.conf:/usr/share/logstash/config/logstash-sample.conf
+#   ports:
+#     - "5000:5000"
+# filebeat:
+#   container_name: fsd_medic.filebeat
+#   image: elastic/filebeat:8.8.1 
+#   volumes: 
+#     - ./filebeat.yaml:/usr/share/filebeat/filebeat.yml
+# kibana:
+#   container_name: fsd_medic.kibana
+#   image: kibana:8.8.1
+#   networks:
+#     - elk
+#   ports:
+#     - "5601:5601"
       #db:
 #   image: mysql
 #   restart: always
@@ -37,3 +93,8 @@ services:
 #   environment:
 
         #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+volumes:
+  grafana_storage: {}
+
+# networks:
+#elk:

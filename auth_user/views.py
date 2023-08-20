@@ -17,10 +17,9 @@ from auth_user.service import generate_verification_code, send_sms, send_reset_s
     send_verification_email
 from auth_user.serializers import *
 from api.models import User
-from loguru import logger
+import logging
 
-
-logger.add("logs/auth_user.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
+logger = logging.getLogger(__name__) 
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -42,7 +41,7 @@ class UserView(generics.ListCreateAPIView):
         if serializer.is_valid():
             user = serializer.save()
             if int(request.data['stage']) == 3:
-                send_sms(user.number, code)
+                send_sms.delay(user.number, code)
                 user.verification_code = code
                 user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -60,7 +59,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         data = get_users(id=self.request.user.id).first()
         logger.debug(data)
-        logger.success(self.request.path)
+        logger.debug(self.request.path)
         return data
 
 
@@ -70,7 +69,7 @@ class GetDiseasesView(APIView):
         diseases = get_disease()
         serializer = DiseaseSerializer(diseases, many=True)
         logger.debug(serializer.data)
-        logger.success(self.request.path)
+        logger.debug(self.request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # sms-code block ##
@@ -116,7 +115,7 @@ class ResendSmsView(APIView):
             send_sms(user.number, code)
             user.verification_code = code
             user.save()
-            logger.success(request.path)
+            logger.debug(request.path)
             return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
         logger.warning(serializer.errors)
         logger.warning(request.path)
@@ -149,7 +148,7 @@ class PasswordResetView(APIView):
                     user.save()
             
             logger.info(serializer.data)
-            logger.success(request.path)
+            logger.debug(request.path)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
 
@@ -169,8 +168,8 @@ class VerifyResetCodeView(APIView):
                 user = User.objects.get(number=serializer.validated_data["number"])
             if reset_code == user.reset_code:
                 user.save()
-                logger.success("User got the access to his account")
-                logger.success(request.path)
+                logger.debug("User got the access to his account")
+                logger.debug(request.path)
                 return Response({"message": "User got the access to his account"}, status=status.HTTP_200_OK)
             
             else:
@@ -206,8 +205,8 @@ class SetNewPasswordView(APIView):
 
             if password1 == password2:
                 set_new_password(user, password2)
-                logger.success("Password changed successfully")
-                logger.success(request.path)
+                logger.debug("Password changed successfully")
+                logger.debug(request.path)
                 return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
             else:
                 logger.warning("Password do not match")
@@ -235,8 +234,8 @@ class EmailBindingView(APIView):
             user.email_verification_code = email_code
             user.save()
             
-            logger.success("email has sent successfully")
-            logger.success(request.path)
+            logger.debug("email has sent successfully")
+            logger.debug(request.path)
             return Response({'detail': 'email has sent successfully'}, status=status.HTTP_200_OK)
 
         logger.warning(serializer.errors)
@@ -257,8 +256,8 @@ class VerifyEmailCodeView(APIView):
             if email_code == user.email_verification_code:
                 user.email = email
                 user.save()
-                logger.success("User verified successfully")
-                logger.success(request.path)
+                logger.debug("User verified successfully")
+                logger.debug(request.path)
                 return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
             else:
                 user.email = None
@@ -286,7 +285,7 @@ class CreateAdminView(generics.ListCreateAPIView):
             serializer.save()
 
             logger.debug(serializer.data)
-            logger.success(request.path)
+            logger.debug(request.path)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         logger.warning(serializer.errors)
@@ -301,5 +300,5 @@ class CenterRegistrationView(APIView):
         logger.debug(centers)
         data = CenterSerializer(centers, many=True).data
         logger.debug(data)
-        logger.success(request.path) 
+        logger.debug(request.path) 
         return Response(data, status=status.HTTP_200_OK)

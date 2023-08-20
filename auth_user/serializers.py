@@ -88,18 +88,21 @@ class CreateUserSerializer(serializers.Serializer):
             validated_data['stage'] = stage
 
         if stage == 2:
+            center = None
             user = User.objects.get(number=validated_data['number'])
             if "main_center" not in validated_data:
                 user.main_center = None 
             else:
+                center = validated_data["main_center"]
                 user.main_center = validated_data["main_center"]
                 chat = Chat.objects.create(
                 to_user=user,
-                from_center=user__main_center
+                from_center=user.main_center
                 )
                 
                 chat.save()
-            user.country = user.main_center__country
+                        
+            user.country = center.country 
             if "disease_id" in validated_data:
                 for i in validated_data['disease_id']:
                     user.disease.add(i)

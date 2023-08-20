@@ -16,10 +16,10 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
-from loguru import logger
+import logging
 
-logger.add("logs/api.log", format="{time} {level} {message}", level="DEBUG"  ,rotation="12:00", compression="zip")
 
+logger = logging.getLogger(__name__)
 
 def index(request):
     return render(request, template_name='api/index.html')
@@ -44,7 +44,7 @@ class SaveViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         data = get_saved(user=self.request.user)
-        logger.success(self.request.path)
+        logger.debug(self.request.path)
         return data
 
 class LikeViewSet(viewsets.ModelViewSet):
@@ -52,7 +52,7 @@ class LikeViewSet(viewsets.ModelViewSet):
     serializer_class = LikeSerializer
     
     def get_queryset(self):
-        logger.success(self.request.path)
+        logger.debug(self.request.path)
         return get_likes(user=self.request.user)
 
 
@@ -62,7 +62,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         data = get_notes(user=self.request.user)
-        logger.success(self.request.path)
+        logger.debug(self.request.path)
         return data 
     
 
@@ -82,7 +82,7 @@ class NewsViewSet(viewsets.ModelViewSet):
                     center_news = get_news(center__in=user.center.all())
                     disease_news = get_news(disease__in=user.disease.all())
                     data = center_news.union(disease_news)
-                    logger.success(self.request.path)
+                    logger.debug(self.request.path)
                     return data
                 except:
                     logger.warning(self.request.path)
@@ -108,9 +108,9 @@ class SearchView(APIView):
             'centers': centers,
             'users': users,
         }
-        serializer = SearchSerializer(search_results)
+        serializer = SearchSerializer(search_results) 
         logger.debug(serializer.data)
-        logger.success(request.path)
+        logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -119,7 +119,7 @@ class DoctorsListView(APIView):
         doc = get_users(group__name="Врачи", city=request.user.city)
         serializer = UserGetSerializer(doc, many=True)
         logger.debug(serializer.data)
-        logger.success(request.path)
+        logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 ## Eclass UpdateUserView(generics.ListCreateAPIView):

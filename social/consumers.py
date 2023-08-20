@@ -9,11 +9,11 @@ from api.serializers import UserGetSerializer, CenterSerializer, NewsSerializer
 from api.models import Center, News
 from .models import Chat, Message
 from .serializers import MessageSerializer, ChatSerializer 
-from loguru import logger
+import logging
+
 User = get_user_model()
 
-logger.add("logs/social.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
-
+logger = logging.getLogger(__name__)
 
 class NotifyConsumer(GenericAsyncAPIConsumer):
     queryset = User.objects.all()

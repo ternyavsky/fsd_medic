@@ -106,7 +106,7 @@ class User(AbstractBaseUser):
     updated_at = models.DateTimeField(verbose_name=_('Дата изменения'), auto_now=True, blank=True, null=True, )
     verification_code = models.PositiveIntegerField(verbose_name=_('СМС код подтверждения'), default=1)
     reset_code = models.PositiveIntegerField(_('Код для сброса пароля'), default=1)
-    email_verification_code = models.PositiveIntegerField(_('Код для привязки почты к аккаунту'), default=1)
+    email_verification_code = models.PositiveIntegerField(_('Код для привязки почты к аккаунту'), default=0)
 
     USERNAME_FIELD = 'number'
 
