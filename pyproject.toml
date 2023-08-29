@@ -79,6 +79,7 @@ gunicorn = "^21.2.0"
 django-prometheus = "^2.3.1"
 python-logstash = "^0.4.8"
 celery = "^5.3.1"
+pymysql = "^1.1.0"
 
 
 [build-system]

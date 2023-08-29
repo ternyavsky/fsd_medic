@@ -29,6 +29,8 @@ def send_reset_sms(number, code):
     else:
         print(res)
         return False
+
+
 @shared_task
 def send_reset_email(email, code):
     send_mail(

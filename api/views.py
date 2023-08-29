@@ -61,9 +61,12 @@ class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        data = get_notes(user=self.request.user)
-        logger.debug(self.request.path)
-        return data 
+        if self.user.is_staff:
+            data = get_notes()
+        else:
+            data = get_notes(user=self.request.user)
+            logger.debug(self.request.path)
+            return data 
     
 
 class NewsViewSet(viewsets.ModelViewSet):
