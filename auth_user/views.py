@@ -31,7 +31,7 @@ class UserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
-    queryset = get_users()
+    queryset = cache.get_or_set("users", get_users())
 
 
     def post(self, request):
@@ -57,7 +57,8 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     
 
     def get_object(self):
-        data = get_users(id=self.request.user.id).first()
+        data = cache.get_or_set("users", get_users())
+        data = data.filter(id=self.request.user.id).first()
         logger.debug(data)
         logger.debug(self.request.path)
         return data
@@ -66,7 +67,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 class GetDiseasesView(APIView):
     """Получение всех заболеваний во время этапа регистрации"""
     def get(self, request):
-        diseases = get_disease()
+        diseases = cache.get_or_set(get_disease())
         serializer = DiseaseSerializer(diseases, many=True)
         logger.debug(serializer.data)
         logger.debug(self.request.path)

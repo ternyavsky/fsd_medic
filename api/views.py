@@ -18,6 +18,8 @@ from rest_framework import status
 
 import logging
 
+from api import permissions
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +45,8 @@ class SaveViewSet(viewsets.ModelViewSet):
     serializer_class = SavedSerializer
 
     def get_queryset(self):
-        data = get_saved(user=self.request.user)
+        data = cache.get_or_set("saved", get_saved())
+        data.filter(user=self.request.user)
         logger.debug(self.request.path)
         return data
 
@@ -53,7 +56,9 @@ class LikeViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         logger.debug(self.request.path)
-        return get_likes(user=self.request.user)
+        data = cache.get_or_set("likes", get_likes())
+        data.filter(user=self.request.user)
+        return data 
 
 
 class NoteViewSet(viewsets.ModelViewSet):
@@ -61,10 +66,9 @@ class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        if self.user.is_staff:
-            data = get_notes()
-        else:
-            data = get_notes(user=self.request.user)
+        data = cache.get_or_set("notes", get_notes()) 
+        if not self.user.is_staff:
+            data = data.filter(user=self.request.user)
             logger.debug(self.request.path)
             return data 
     
@@ -74,16 +78,16 @@ class NewsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
+            data = cache.get_or_set("news", get_news())
             user = self.request.user
             if user.is_staff:
-                data = get_news()
                 logger.info("Admin request")
                 return data
 
             if user.is_authenticated:
                 try:
-                    center_news = get_news(center__in=user.center.all())
-                    disease_news = get_news(disease__in=user.disease.all())
+                    center_news = data.filter(center__in=user.center.all())
+                    disease_news = data.filter(disease__in=user.disease.all())
                     data = center_news.union(disease_news)
                     logger.debug(self.request.path)
                     return data
@@ -94,22 +98,22 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 
             else:
-                data = get_news()[:3]
                 logger.warning("Not authorized")
-                return data
+                return data[:3]
         return get_news()
 
 ### SEARCH ###
 class SearchView(APIView):
 
     def get(self, request, *args, **kwargs):
-        clinics = get_clinics()
-        centers = get_centers()
-        users = get_users(group__name="Врачи")
+        clinics = cache.get_or_set("clinics", get_clinics())
+        centers = cache.get_or_set("centers",get_centers())
+        users = cache.get_or_set("users", get_users())
+        doctors = users.filter(group__name="Врачи")
         search_results = {
             'clinics': clinics,
             'centers': centers,
-            'users': users,
+            'users': doctors,
         }
         serializer = SearchSerializer(search_results) 
         logger.debug(serializer.data)
@@ -118,9 +122,11 @@ class SearchView(APIView):
 
 
 class DoctorsListView(APIView):
+    permissions_classes = [IsAuthenticated]
     def get(self,request):
-        doc = get_users(group__name="Врачи", city=request.user.city)
-        serializer = UserGetSerializer(doc, many=True)
+        doc = cache.get_or_set("users", get_users())
+        doctors =  doc.filter(group__name="Врачи", city=request.user.city)
+        serializer = UserGetSerializer(doctors, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
