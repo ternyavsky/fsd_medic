@@ -11,12 +11,12 @@ from loguru import logger
 logger.add("logs/auth_doctor.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
 
 
-class InterviewSerializer(serializers.Model):
+class InterviewSerializer(serializers.ModelSerializer):
     '''Упрвление собесами'''
-    number = serializers.CharField()
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    group = serializers.CharField()
+
+    class Meta:
+        model = Interview
+        fields = ['first_name', 'last_name', 'number', 'email']
 
     def create(self, validated_data):
         return Interview(**validated_data)
