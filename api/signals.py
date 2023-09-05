@@ -92,5 +92,5 @@ def notify_center(sender, instance,  **kwargs):
     data = users.union(users2)
     for i in range(len(data)):
         Notification.objects.create(user=data[i], text=f"Вышел новый пост у мед.центра {instance.center.name}") 
-# Вывод в админке уведомлений
+# Сигнал на изменение чойса записи и комм к мед.карте 
 # Сокет настроить

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'auth_user.apps.AuthUserConfig',
+    'auth_doctor.apps.AuthDoctorConfig',
     'db.apps.DbConfig',
 ]
 

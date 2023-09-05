@@ -67,10 +67,11 @@ class NoteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         data = cache.get_or_set("notes", get_notes()) 
-        if not self.user.is_staff:
+        if not self.request.user.is_staff:
             data = data.filter(user=self.request.user)
             logger.debug(self.request.path)
             return data 
+        return data
     
 
 class NewsViewSet(viewsets.ModelViewSet):
