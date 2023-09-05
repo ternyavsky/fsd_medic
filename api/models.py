@@ -128,10 +128,11 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_staff
-
+    
     class Meta:
         verbose_name_plural = 'Пользователи'
         verbose_name = 'Пользователья'
+
 
 
 class Group(models.Model):
@@ -187,7 +188,7 @@ class Center(models.Model):
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
     employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'), null=True)
     country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
-    observed = models.IntegerField()
+    observed = models.IntegerField(default=100)
     city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
     lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6, decimal_places=4, default=0)

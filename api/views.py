@@ -1,3 +1,5 @@
+from celery import group
+from requests import api
 from django.shortcuts import render 
 from django.contrib.auth import logout
 from django.http import Http404, HttpResponse
@@ -15,7 +17,6 @@ from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-
 import logging
 
 from api import permissions
@@ -43,7 +44,6 @@ def registration(request, parameter):
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SavedSerializer
-
     def get_queryset(self):
         data = cache.get_or_set("saved", get_saved())
         data.filter(user=self.request.user)
@@ -108,12 +108,11 @@ class SearchView(APIView):
     def get(self, request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())
         centers = cache.get_or_set("centers",get_centers())
-        users = cache.get_or_set("users", get_users())
-        doctors = users.filter(group__name="Врачи")
+        users = cache.get_or_set("users", get_users(group__name="Врачи"))
         search_results = {
             'clinics': clinics,
             'centers': centers,
-            'users': doctors,
+            'users': users,
         }
         serializer = SearchSerializer(search_results) 
         logger.debug(serializer.data)

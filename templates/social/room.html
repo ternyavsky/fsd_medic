@@ -23,6 +23,7 @@
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     <input id="delete_message" type="button" value="Удалить">
+    <input id="update_message" type="button" value="Обновить">
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script>
 
@@ -43,7 +44,7 @@
 
         })
         const user_id = 1
-        const chat_uuid = 'a1337ce3-0868-471c-ab85-1d2ac7510def'
+        const chat_uuid = 'ed74c13f-86d0-4cd2-9a85-85f38d1b0b1b'
         const user = '{{ user }}'
         console.log(user_id)
         const request_id = new Date().getTime()
@@ -79,10 +80,18 @@
         document.querySelector('#delete_message').onclick = function(e) {
                 ws.send(JSON.stringify({
                     action: 'delete_message',
-                    pk: 357,
+                    pk: 9,
                 }))
             }
 
+        document.querySelector("#update_message").onclick = function(e){
+              ws.send(JSON.stringify({
+                action: "update_message",
+                pk:8,
+                text: "hello bro"
+              }
+        ))
+      }
 
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {

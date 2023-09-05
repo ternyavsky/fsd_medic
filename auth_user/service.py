@@ -11,7 +11,7 @@ from api.models import Country
 from celery import shared_task
 from celery import Celery
 
-app = Celery('tasks', broker="amqp://localhost", backend="redis://localhost")
+app = Celery('tasks', broker="amqp://localhost")
 
 
 load_dotenv(BASE_DIR / ".env")

@@ -7,8 +7,8 @@ from djangochannelsrestframework.observer import model_observer
 from djangochannelsrestframework.decorators import action
 from api.serializers import UserGetSerializer, CenterSerializer, NewsSerializer
 from api.models import Center, News
-from .models import Chat, Message
-from .serializers import MessageSerializer, ChatSerializer 
+from .models import Chat, Message, Notification
+from .serializers import MessageSerializer, ChatSerializer, NotificationSerializer 
 import logging
 
 User = get_user_model()
@@ -21,63 +21,35 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
 
 
     @action()
-    async def subscribe_to_main_center_activity(self, request_id, **kwargs):
+    async def subscribe_to_notify_activity(self, request_id, **kwargs):
         user_id = self.scope["url_route"]["kwargs"]["user_id"]
         user = await database_sync_to_async(User.objects.get)(id=user_id)
-        center = user.main_center
-        logger.debug(f"Main center user with id {user_id}, {center}")
-        await self.main_center_activity.subscribe(center=center.id)
+        await self.notify_activity.subscribe(user=user_id)
 
 
 
-    @model_observer(News)
-    async def main_center_activity(self, message, observer=None, **kwargs):
+    @model_observer(Notification)
+    async def notify_activity(self, message, observer=None, **kwargs):
         if message["action"] == 'create':
+            print("cr")
             logger.debug(message)
             await self.send_json(message)
 
-    @main_center_activity.groups_for_signal
-    def main_center_activity(self, instance: News, **kwargs):
-        yield f'center__{instance.center_id}'
+    @notify_activity.groups_for_signal
+    def notify_activity(self, instance: Notification, **kwargs):
+        yield f'user__{instance.user_id}'
 
-    @main_center_activity.groups_for_consumer
-    def main_center_activity(self, center, **kwargs):
-        yield f'center__{center}'
-
-
-    @main_center_activity.serializer
-    def main_center_activity(self, instance, action, **kwargs):
-        data = NewsSerializer(instance).data
-        return dict(text="New post from main center",  data=data, action=action.value, pk=instance.pk)
-    
-    @action()
-    async def subscribe_to_centers_activity(self, **kwargs):
-        user_id = self.scope["url_route"]["kwargs"]["user_id"]
-        user = await database_sync_to_async(User.objects.get)(id=user_id)
-        await self.centers_activity.subscribe(center=user.centers.all())
-    
-    @model_observer(News)
-    async def centers_activity(self, message, observer=None, **kwargs):
-        if message["update"] == 'create':
-            logger.debug(message)
-            await self.send_json(message)
+    @notify_activity.groups_for_consumer
+    def notify_activity(self, user, **kwargs):
+        yield f'user__{user}'
 
 
-    @centers_activity.groups_for_signal
-    def centers_activity(self, instance: News, **kwargs):
-        yield f'center__{instance.center_id}'
-
-    @centers_activity.groups_for_consumer
-    def centers_activity(self, center, **kwargs):
-        for i in center:
-            yield f'center__{i.id}'
-
-    @centers_activity.serializer
-    def centers_activity(self, instance, action, **kwargs):
-        data = NewsSerializer(instance).data
-        return dict(text="New post from user centers", data=data, action=action.value, pk=instance.pk)
-
+    @notify_activity.serializer
+    def notify_activity(self, instance, action, **kwargs):
+        data = NotificationSerializer(instance).data
+        return dict(data=data, action=action.value, pk=instance.pk)
 class MyConsumer(AsyncWebsocketConsumer):
+
     queryset = Message.objects.all()
     serializer = MessageSerializer
 

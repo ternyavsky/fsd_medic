@@ -1,9 +1,12 @@
 from django.core.cache import cache
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
+
+from social.models import Notification
 
 from .models import Center, Clinic, Disease, Interview, Like, News, Note, User, Saved
 
+#CACHE SIGNALS
 
 @receiver(post_delete, sender=Disease, dispatch_uid="diseases_deleted")
 def disease_post_delete_handler(sender, **kwargs):
@@ -74,3 +77,20 @@ def clinic_post_delete_handler(sender, **kwargs):
 @receiver(post_save, sender=Clinic, dispatch_uid='clinics_updated')
 def clinic_post_save_handler(sender, **kwargs):
     cache.delete('clinics')
+
+
+
+
+
+
+# NOTIFY SIGNALS
+
+@receiver(pre_save, sender=News)
+def notify_center(sender, instance,  **kwargs):
+    users = User.objects.filter(main_center=instance.center)
+    users2 = User.objects.filter(centers=instance.center)
+    data = users.union(users2)
+    for i in range(len(data)):
+        Notification.objects.create(user=data[i], text=f"Вышел новый пост у мед.центра {instance.center.name}") 
+# Вывод в админке уведомлений
+# Сокет настроить

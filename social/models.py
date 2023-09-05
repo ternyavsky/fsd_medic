@@ -4,14 +4,24 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
 from fsd_medic.settings import AUTH_USER_MODEL
-from api.models import News, Center
+from api.models import News, Center 
 import uuid
 
 User = AUTH_USER_MODEL
 # Create your models here.
 class Notification(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
-    pass 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.CharField(max_length=220, null=False, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.text} {self.user}"
+    
+
+    class Meta:
+        verbose_name = 'Уведомление'
+        verbose_name_plural = 'Уведомления'
 
 
 class Chat(models.Model):
@@ -26,6 +36,10 @@ class Chat(models.Model):
    
     def __str__(self):
        return f"Chat - {self.uuid}"
+    
+    class Meta:
+        verbose_name = 'Чат'
+        verbose_name_plural = 'Чаты'
 
 class Message(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
@@ -39,3 +53,7 @@ class Message(models.Model):
 
     def __str__(self):
         return f'Message {self.user} - {self.chat}'
+    
+    class Meta:
+        verbose_name = 'Сообщение'
+        verbose_name_plural = 'Сообщения'

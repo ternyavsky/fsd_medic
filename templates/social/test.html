@@ -23,16 +23,12 @@
           
             console.log('connect')
             ws.send(JSON.stringify({
-                action: "subscribe_to_main_center_activity",
+                action: "subscribe_to_notify_activity",
                 request_id: request_id,
 
             }))
 
-            ws.send(JSON.stringify({
-                action: "subscribe_to_centers_activity",
-                request_id: request_id,
 
-            }))
 
     }
         ws.onmessage = function(e) {

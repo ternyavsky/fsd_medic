@@ -6,6 +6,14 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
+        fields = "__all__"
+
+
 class ChatSerializer(serializers.ModelSerializer):
     to_user = UserGetSerializer()
     to_center = CenterSerializer()
