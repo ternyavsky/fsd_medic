@@ -85,6 +85,7 @@ def clinic_post_save_handler(sender, **kwargs):
 
 # NOTIFY SIGNALS
 
+# Center post signal
 @receiver(pre_save, sender=News)
 def notify_center(sender, instance,  **kwargs):
     users = User.objects.filter(main_center=instance.center)
@@ -92,5 +93,17 @@ def notify_center(sender, instance,  **kwargs):
     data = users.union(users2)
     for i in range(len(data)):
         Notification.objects.create(user=data[i], text=f"Вышел новый пост у мед.центра {instance.center.name}") 
+
+
+# Change status Note signal
+@receiver(post_save, sender=Note)
+def notify_note(sender, instance, created, **kwargs):
+    if not created:
+        if instance.special_check == True:
+            Notification.objects.create(user=instance.user, text="Созданная запись прошла дополнительную проверку")
+        if instance.status == "Rejected":
+            Notification.objects.create(user=instance.user, text="Запись была отклонена вашим центром")
+        elif instance.status == "Passed":
+            Notification.objects.create(user=instance.user, text="Запись была подтверждена вашим центром")
 # Сигнал на изменение чойса записи и комм к мед.карте 
 # Сокет настроить

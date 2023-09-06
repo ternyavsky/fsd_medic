@@ -30,10 +30,8 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
 
     @model_observer(Notification)
     async def notify_activity(self, message, observer=None, **kwargs):
-        if message["action"] == 'create':
-            print("cr")
-            logger.debug(message)
-            await self.send_json(message)
+        logger.debug(message)
+        await self.send_json(message)
 
     @notify_activity.groups_for_signal
     def notify_activity(self, instance: Notification, **kwargs):
@@ -47,7 +45,7 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
     @notify_activity.serializer
     def notify_activity(self, instance, action, **kwargs):
         data = NotificationSerializer(instance).data
-        return dict(data=data, action=action.value, pk=instance.pk)
+        return dict(data=data, type="notify", pk=instance.pk)
 class MyConsumer(AsyncWebsocketConsumer):
 
     queryset = Message.objects.all()

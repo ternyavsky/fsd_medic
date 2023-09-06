@@ -35,6 +35,7 @@ services:
       - grafana_storage:/var/lib/grafana
     ports:
       - "3000:3000"
+
   celery:
     build: .
     container_name: fsd_medic.celery
