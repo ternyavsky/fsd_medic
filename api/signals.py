@@ -1,10 +1,15 @@
+from celery import shared_task
+from celery import Celery
 from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
-
+ 
+from auth_user.service import start_time_reminder
 from social.models import Notification
 
 from .models import Center, Clinic, Disease, Interview, Like, News, Note, User, Saved
+
+app = Celery('tasks', broker="amqp://localhost")
 
 #CACHE SIGNALS
 
@@ -105,5 +110,16 @@ def notify_note(sender, instance, created, **kwargs):
             Notification.objects.create(user=instance.user, text="Запись была отклонена вашим центром")
         elif instance.status == "Passed":
             Notification.objects.create(user=instance.user, text="Запись была подтверждена вашим центром")
-# Сигнал на изменение чойса записи и комм к мед.карте 
-# Сокет настроить
+
+
+@receiver(post_save, sender=User)
+def notify_verify(sender, instance, created, **kwargs):
+    if not created:
+        if instance.verification_code != 0 and instance.email_verification_code != 0:
+            Notification.objects.create(user=instance, text="Ваш аккаунт был успешно защищен эл.почтой или телефоном")
+
+
+# SEND REMINDER FOR NOTE
+
+
+

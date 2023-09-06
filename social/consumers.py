@@ -31,6 +31,7 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
     @model_observer(Notification)
     async def notify_activity(self, message, observer=None, **kwargs):
         logger.debug(message)
+        print(message)
         await self.send_json(message)
 
     @notify_activity.groups_for_signal
@@ -45,6 +46,7 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
     @notify_activity.serializer
     def notify_activity(self, instance, action, **kwargs):
         data = NotificationSerializer(instance).data
+        print(data)
         return dict(data=data, type="notify", pk=instance.pk)
 class MyConsumer(AsyncWebsocketConsumer):
 

@@ -166,6 +166,7 @@ DATABASES = {
 #}
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 
 CACHES = {
     "default": {

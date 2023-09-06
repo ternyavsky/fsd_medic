@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from dotenv import load_dotenv
 import os
@@ -7,12 +8,16 @@ import random
 import requests
 from fsd_medic.settings import BASE_DIR
 import random
-from api.models import Country
 from celery import shared_task
 from celery import Celery
+import social
+from social import consumers
+from social.models import Notification
 
-app = Celery('tasks', broker="amqp://localhost")
+User = get_user_model()
 
+
+app = Celery('tasks', broker="amqp://localhost", backend="redis://localhost")
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -79,6 +84,11 @@ def generate_email_code():
 def generate_verification_code():
     code = random.randint(1000, 9999)
     return str(code)
+
+
+@app.task
+def start_time_reminder(user, data):
+    Notification.objects.create(user=User.objects.get(id=user), text=f"Напоминание о записи {data}")
 
 @shared_task
 def send_verification_email(email_code, user_email):
