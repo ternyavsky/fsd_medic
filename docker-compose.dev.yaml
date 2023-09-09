@@ -3,6 +3,8 @@ services:
   redis:
     container_name: fsd_medic.redis
     image: redis:alpine
+    expose:
+      - "6379"
     ports:
       - "6379:6379"
     healthcheck:
@@ -45,9 +47,6 @@ services:
   rabbitmq:
     container_name: fsd_medic.rabbitmq
     image: rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
     ports:
       - "5672:5672"
     healthcheck:

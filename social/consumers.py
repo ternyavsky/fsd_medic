@@ -48,6 +48,7 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
         data = NotificationSerializer(instance).data
         print(data)
         return dict(data=data, type="notify", pk=instance.pk)
+
 class MyConsumer(AsyncWebsocketConsumer):
 
     queryset = Message.objects.all()

@@ -9,7 +9,6 @@ from social.models import Notification
 
 from .models import Center, Clinic, Disease, Interview, Like, News, Note, User, Saved
 
-app = Celery('tasks', broker="amqp://localhost")
 
 #CACHE SIGNALS
 
@@ -121,5 +120,9 @@ def notify_verify(sender, instance, created, **kwargs):
 
 # SEND REMINDER FOR NOTE
 
+@receiver(post_save, sender=Note)
+def notify_time(sender, instance, created, **kwargs):
+    if created:
+        start_time_reminder.s(instance.user.id, instance.notify).apply_async(eta=instance.notify) 
 
 

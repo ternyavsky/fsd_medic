@@ -1,5 +1,6 @@
 import os
 
+from . import settings
 from celery import Celery
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fsd_medic.settings")

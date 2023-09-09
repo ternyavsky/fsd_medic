@@ -16,8 +16,8 @@ from social.models import Notification
 
 User = get_user_model()
 
+app = Celery('tasks', broker="amqp://localhost")
 
-app = Celery('tasks', broker="amqp://localhost", backend="redis://localhost")
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -86,9 +86,6 @@ def generate_verification_code():
     return str(code)
 
 
-@app.task
-def start_time_reminder(user, data):
-    Notification.objects.create(user=User.objects.get(id=user), text=f"Напоминание о записи {data}")
 
 @shared_task
 def send_verification_email(email_code, user_email):
@@ -99,6 +96,11 @@ def send_verification_email(email_code, user_email):
         [user_email],
         fail_silently=False,
     )
+
+@app.task
+def start_time_reminder(user, data):
+    Notification.objects.create(user=User.objects.get(id=user), text=f"Напоминание о записи {data}")
+
 
 def set_new_password(user, new_password):
 
