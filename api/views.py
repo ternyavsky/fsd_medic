@@ -109,11 +109,12 @@ class SearchView(APIView):
     def get(self, request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())
         centers = cache.get_or_set("centers",get_centers())
-        users = cache.get_or_set("users", get_users(group__name="Врачи"))
+        users = cache.get_or_set("users", get_users())
+        doctors = users.filter(group__name="Врачи")
         search_results = {
             'clinics': clinics,
             'centers': centers,
-            'users': users,
+            'users': doctors,
         }
         serializer = SearchSerializer(search_results) 
         logger.debug(serializer.data)
@@ -131,17 +132,3 @@ class DoctorsListView(APIView):
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-## Eclass UpdateUserView(generics.ListCreateAPIView):
-#
-#     permission_classes = [AllowAny]
-#     model = User
-#     serializer_class = CreateUserSerializer
-#
-#     def post(self, request):
-#         serializer = CreateUserSerializer()
-#         # serializer.update(instance=request.user, validated_data=request.data)
-#         serializer.update(validated_data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
