@@ -35,7 +35,7 @@ from api import permissions
 
 logger = logging.getLogger(__name__)
 
-def send_email_for_verify(request, user):
+def get_email_verify(request, user):
     current_site = get_current_site(request)
     context = {
         'user': user,
@@ -59,18 +59,26 @@ def index(request):
 
 class EmailVerify(APIView):
 
-    def get(self, request, uidb64, token):
+    def get(self, request, parameter, uidb64, token):
         user = self.get_user(uidb64)
 
         if user is not None and token_generator.check_token(user, token):
             user.email_verify = True
             user.save()
-            #login(request, user)
+            group_id = Url_Params.objects.get(parameter=parameter).group_id
+            group_name = Group.objects.get(id=group_id).name
+            if group_name == 'Администраторы':
+                return HttpResponse('Здесь будет форма регистрации админа')
+            elif group_name == 'Администраторы Центров':
+                return HttpResponse('Здесь будет форма регистрации центра и его админа')
+            elif group_name == 'Администраторы Клиник':
+                return HttpResponse('Здесь будет форма регистрации клиники и его админа')
+            elif group_name == 'Врачи':
+                return HttpResponse('Здесь будет форма регистрации врача')
 
     @staticmethod
     def get_user(uidb64):
         try:
-            # urlsafe_base64_decode() decodes to bytestring
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError,
@@ -80,18 +88,16 @@ class EmailVerify(APIView):
 
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
-        group_id = Url_Params.objects.get(parameter=parameter).group_id
-        group_name = Group.objects.get(id=group_id).name
-        get_email_verify(request, 'user')
-        if group_name == 'Администраторы':
-
-            return HttpResponse('Здесь будет форма регистрации админа')
-        elif group_name == 'Администраторы Центров':
-            return HttpResponse('Здесь будет форма регистрации центра и его админа')
-        elif group_name == 'Администраторы Клиник':
-            return HttpResponse('Здесь будет форма регистрации клиники и его админа')
-        elif group_name == 'Врачи':
-            return HttpResponse('Здесь будет форма регистрации врача')
+        
+        get_email_verify(request, 'user', parameter)
+        # if group_name == 'Администраторы':
+        #     return HttpResponse('Здесь будет форма регистрации админа')
+        # elif group_name == 'Администраторы Центров':
+        #     return HttpResponse('Здесь будет форма регистрации центра и его админа')
+        # elif group_name == 'Администраторы Клиник':
+        #     return HttpResponse('Здесь будет форма регистрации клиники и его админа')
+        # elif group_name == 'Врачи':
+        #     return HttpResponse('Здесь будет форма регистрации врача')
     raise Http404
 
 class SaveViewSet(viewsets.ModelViewSet):
