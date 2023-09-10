@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'debug_toolbar',
     'django_prometheus',
+    'djoser',
 
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
@@ -219,6 +220,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# DJOSER 
+DJOSER = {
+    'PASSWORD_RESET_ CONFIRM_URL': '#/password/reset/confirm/fuid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token]',
+    'ACTIVATION_URL': '#/activate/ {uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True,
+    'SERIALIZERS' : {},
+}
+
 
 # EMAIL
 EMAIL_USE_TLS = os.getenv('EM_USE_TLS')
