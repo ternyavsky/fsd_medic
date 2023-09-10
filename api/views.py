@@ -18,86 +18,28 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 import logging
-# EMAIL IMPORTS
-from django.core.exceptions import ValidationError
-from django.contrib.auth.tokens import default_token_generator as token_generator
-from django.utils.http import urlsafe_base64_decode
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
-from django.contrib.auth.tokens import default_token_generator as \
-    token_generator
 
 from api import permissions
 
 
 logger = logging.getLogger(__name__)
 
-def get_email_verify(request, user):
-    current_site = get_current_site(request)
-    context = {
-        'user': user,
-        'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': token_generator.make_token(user),
-    }
-    message = render_to_string(
-        'account_verification_template.html',
-        context=context,
-    )
-    email = EmailMessage(
-        'Veryfi email',
-        message,
-        to=[user.email],
-    )
-    email.send()
-
 def index(request):
     return render(request, template_name='api/index.html')
 
-class EmailVerify(APIView):
-
-    def get(self, request, parameter, uidb64, token):
-        user = self.get_user(uidb64)
-
-        if user is not None and token_generator.check_token(user, token):
-            user.email_verify = True
-            user.save()
-            group_id = Url_Params.objects.get(parameter=parameter).group_id
-            group_name = Group.objects.get(id=group_id).name
-            if group_name == 'Администраторы':
-                return HttpResponse('Здесь будет форма регистрации админа')
-            elif group_name == 'Администраторы Центров':
-                return HttpResponse('Здесь будет форма регистрации центра и его админа')
-            elif group_name == 'Администраторы Клиник':
-                return HttpResponse('Здесь будет форма регистрации клиники и его админа')
-            elif group_name == 'Врачи':
-                return HttpResponse('Здесь будет форма регистрации врача')
-
-    @staticmethod
-    def get_user(uidb64):
-        try:
-            uid = urlsafe_base64_decode(uidb64).decode()
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError,
-                User.DoesNotExist, ValidationError):
-            user = None
-        return user
 
 def registration(request, parameter):
     if Url_Params.objects.filter(parameter=parameter).exists():
-        
-        get_email_verify(request, 'user', parameter)
-        # if group_name == 'Администраторы':
-        #     return HttpResponse('Здесь будет форма регистрации админа')
-        # elif group_name == 'Администраторы Центров':
-        #     return HttpResponse('Здесь будет форма регистрации центра и его админа')
-        # elif group_name == 'Администраторы Клиник':
-        #     return HttpResponse('Здесь будет форма регистрации клиники и его админа')
-        # elif group_name == 'Врачи':
-        #     return HttpResponse('Здесь будет форма регистрации врача')
+        group_id = Url_Params.objects.get(parameter=parameter).group_id
+        group_name = Group.objects.get(id=group_id).name
+        if group_name == 'Администраторы':
+            return HttpResponse('Здесь будет форма регистрации админа')
+        elif group_name == 'Администраторы Центров':
+            return HttpResponse('Здесь будет форма регистрации центра и его админа')
+        elif group_name == 'Администраторы Клиник':
+            return HttpResponse('Здесь будет форма регистрации клиники и его админа')
+        elif group_name == 'Врачи':
+            return HttpResponse('Здесь будет форма регистрации врача')
     raise Http404
 
 class SaveViewSet(viewsets.ModelViewSet):

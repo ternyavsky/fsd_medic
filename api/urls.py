@@ -26,16 +26,5 @@ urlpatterns = [
     path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path('registration/<str:parameter>/', registration, name='registration_url'),
     path("__debug__/", include("debug_toolbar.urls")),
-
-    path(
-        'verify_email/<uidb64>/<token>/',
-        EmailVerify.as_view(),
-        name='verify_email',
-    ),
-    path(
-        'confirm_email/',
-        TemplateView.as_view(template_name='registration/confirm_email.html'),
-        name='confirm_email'
-    ),
 ]
 urlpatterns += router.urls

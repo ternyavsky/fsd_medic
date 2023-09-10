@@ -47,16 +47,6 @@ class UserGetSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-# TODO remake this serializer
-class CreateUserSerializer(serializers.ModelSerializer):
-    disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(), presentation_serializer=DiseaseSerializer, required=False)
-    class Meta: 
-        model = User
-        fields = '__all__'
-    
-    def create(self, validated_data):
-        user = User.objects.create(**validated_data)
-        user.save()
 
 class NewsSerializer(serializers.ModelSerializer):
     disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(), presentation_serializer=DiseaseSerializer, required=False)
