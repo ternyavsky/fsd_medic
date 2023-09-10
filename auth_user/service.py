@@ -96,10 +96,10 @@ def send_verification_email(email_code, user_email):
         [user_email],
         fail_silently=False,
     )
-
 @app.task
 def start_time_reminder(user, data):
     Notification.objects.create(user=User.objects.get(id=user), text=f"Напоминание о записи {data}")
+
 
 
 def set_new_password(user, new_password):

@@ -9,8 +9,8 @@ filebeat.inputs:
   scan_frequency: 5s
 
 output.logstash:
-  hosts: ["logstash:5000"]
+  hosts: ["fsd_medic.logstash:5000"]
 
 setup.kibana:
-  host: "kibana:5601"
+  host: "fsd_medic.kibana:5601"
   

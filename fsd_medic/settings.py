@@ -107,42 +107,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fsd_medic.wsgi.application'
 ASGI_APPLICATION = 'fsd_medic.asgi.application'
 
-
 LOGGING = {
-  'version': 1,
-  'disable_existing_loggers': False,
-  'formatters': {
-      'simple': {
-            'format': 'velname)s %(message)s'
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
-  },
-  'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
         },
-        'logstash': {
-            'level': 'INFO',
-            'class': 'logstash.TCPLogstashHandler',
-            'host': 'logstash',
-            'port': 5000, 
-            'version': 1,
-            'message_type': 'django',  # 'type' поле для logstash сообщения.
-            'fqdn': False,
-            'tags': ['django'], # список тег.
-        },
-  },
-  'loggers': {
-        'django.request': {
-            'handlers': ['logstash'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    }
+    },
 }
-
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -171,7 +155,7 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "localhost:11211",
+        "LOCATION": "176.57.220.19:11211",
     }
 }
 
@@ -179,7 +163,10 @@ CACHES = {
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("176.57.220.19", 6379)],
+        },
     },
 }
 # Password validation

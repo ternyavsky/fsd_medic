@@ -24,22 +24,7 @@ from api import permissions
 
 logger = logging.getLogger(__name__)
 
-def index(request):
-    return render(request, template_name='api/index.html')
 
-def registration(request, parameter):
-    if Url_Params.objects.filter(parameter=parameter).exists():
-        group_id = Url_Params.objects.get(parameter=parameter).group_id
-        group_name = Group.objects.get(id=group_id).name
-        if group_name == 'Администраторы':
-            return HttpResponse('Здесь будет форма регистрации админа')
-        elif group_name == 'Администраторы Центров':
-            return HttpResponse('Здесь будет форма регистрации центра и его админа')
-        elif group_name == 'Администраторы Клиник':
-            return HttpResponse('Здесь будет форма регистрации клиники и его админа')
-        elif group_name == 'Врачи':
-            return HttpResponse('Здесь будет форма регистрации врача')
-    raise Http404
 
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]

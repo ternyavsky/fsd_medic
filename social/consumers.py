@@ -1,6 +1,6 @@
 import json
 from channels.db import database_sync_to_async
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer, StopConsumer
 from django.contrib.auth import get_user_model
 from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.observer import model_observer
@@ -129,6 +129,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 "user": self.scope['url_route']["kwargs"]["user_id"]
             },
         )
+        raise StopConsumer()
 
     # FUNCTION, THAT SEND JSON ON DISCONNECT
     async def disconnect_to(self, event):
