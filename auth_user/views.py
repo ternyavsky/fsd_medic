@@ -16,10 +16,14 @@ from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializ
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
 from auth_user.serializers import *
-from api.models import User
+from api.models import User, EmailValidationModel
 import logging
 
+import cachetools
+
 logger = logging.getLogger(__name__) 
+
+registration_cache = cachetools.TTLCache(maxsize=100, ttl=3600)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -227,10 +231,11 @@ class EmailBindingView(APIView):
 
         if serializer.is_valid():
             email = serializer.validated_data['email']
+            email_verify = EmailValidationModel(**email)
 
             user = request.user
             email_code = generate_verification_code()
-            send_verification_email(email_code=email_code, user_email=email)
+            send_verification_email(email_code=email_code, user_email=email_verify)
             logger.debug(email_code)
             user.email_verification_code = email_code
             user.save()

@@ -9,6 +9,17 @@ from abc import ABC, abstractmethod
 from django.core.validators import MaxValueValidator, MinValueValidator
 from .choices import NOTE_CHOICES, PROCESS
 
+from pydantic import BaseModel, EmailStr, validator
+
+class EmailValidationModel(BaseModel):
+    email: EmailStr
+
+    @validator("email")
+    def validate_email_format(cls, value):
+        if not value:
+            raise ValueError("Поле 'email' не может быть пустым")
+        return value
+
 
 class UserManager(BaseUserManager):
     def create_user(self, number, password, group=None, center_id=None, email=None, first_name=None, last_name=None,
@@ -91,7 +102,7 @@ class User(AbstractBaseUser):
     centers = models.ManyToManyField('Center', verbose_name=_('Центр'), null=True, blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
-    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
+    email = models.EmailField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)

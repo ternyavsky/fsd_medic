@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
 
 from loguru import logger
+
 logger.add("logs/auth_user.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
