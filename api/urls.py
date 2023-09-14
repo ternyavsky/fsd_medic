@@ -20,7 +20,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
-    path('registration/<str:parameter>/', registration, name='registration_url'),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
 urlpatterns += router.urls
