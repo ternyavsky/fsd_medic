@@ -155,7 +155,7 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "176.57.220.19:11211",
+        "LOCATION": "127.0.0.1:11211",
     }
 }
 
@@ -165,7 +165,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("176.57.220.19", 6379)],
+            "hosts": [("localhost", 6379)],
         },
     },
 }

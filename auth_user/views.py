@@ -277,7 +277,7 @@ class VerifyEmailCodeView(APIView):
 class CreateAdminView(generics.ListCreateAPIView):
     """Создание админа"""
     permission_classes = [AllowAny]
-    model = User
+    queryset = get_users() 
     serializer_class = AdminSerializer
 
     def post(self, request):

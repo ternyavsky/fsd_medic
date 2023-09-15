@@ -49,6 +49,13 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
         print(data)
         return dict(data=data, type="notify", pk=instance.pk)
 
+    def websocket_disconnect(self, message):
+        print(message)
+        raise StopConsumer()
+
+    
+        
+
 class MyConsumer(AsyncWebsocketConsumer):
 
     queryset = Message.objects.all()
