@@ -5,6 +5,7 @@ import os.path
 import sys
 from datetime import timedelta
 from api.middleware import open_access_middleware
+
 AUTH_USER_MODEL = 'api.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'templates',
     'drf_yasg',
     'djangochannelsrestframework',
@@ -67,7 +68,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
-    
 
 ]
 INTERNAL_IPS = [
@@ -131,23 +131,31 @@ LOGGING = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-     'default': {
-         'ENGINE': os.getenv('DB_ENGINE'),
-         'NAME': os.getenv('DB_NAME'),
-         'USER': os.getenv('DB_USER'),
-         'PASSWORD': os.getenv('DB_PASSWORD'),
-         'PORT': os.getenv('DB_PORT'),
-         'HOST': os.getenv('DB_HOST'),
-        'OPTIONS': {
-             'sql_mode': os.getenv('DB_SQL_MODE')
-         }}
-    
-        }
-#'default': {
- #      'ENGINE': 'django.db.backends.sqlite3',
-  #     'NAME': BASE_DIR / 'db.sqlite3',
-  # }
-#}
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+
+    }
+
+
+
+}
+"""
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE'),
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'PORT': os.getenv('DB_PORT'),
+            'HOST': os.getenv('DB_HOST'),
+           'OPTIONS': {
+                'sql_mode': os.getenv('DB_SQL_MODE')
+            }}"""
+# 'default': {
+#      'ENGINE': 'django.db.backends.sqlite3',
+#     'NAME': BASE_DIR / 'db.sqlite3',
+# }
+# }
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
@@ -158,8 +166,6 @@ CACHES = {
         "LOCATION": "127.0.0.1:11211",
     }
 }
-
-
 
 CHANNEL_LAYERS = {
     "default": {
@@ -220,8 +226,6 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-
-
 GEOIP_PATH = os.path.join(BASE_DIR, 'geoip/')
 PHONE_VERIFICATION = {
     "BACKEND": "phone_verify.backends.twilio.TwilioBackend",
@@ -235,5 +239,6 @@ PHONE_VERIFICATION = {
     "MESSAGE": "Welcome to {app}! Please use security code {security_code} to proceed.",
     "APP_NAME": "Phone Verify",
     "SECURITY_CODE_EXPIRATION_TIME": 3600,  # In seconds only
-    "VERIFY_SECURITY_CODE_ONLY_ONCE": False,  # If False, then a security code can be used multiple times for verification
+    "VERIFY_SECURITY_CODE_ONLY_ONCE": False,
+    # If False, then a security code can be used multiple times for verification
 }

@@ -83,8 +83,6 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     id = models.BigAutoField(primary_key=True, db_index=True)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False, blank=True)
-
-
     is_staff = models.BooleanField(verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Group', verbose_name=_('Группа'), on_delete=models.CASCADE, )
     main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True, blank=True, related_name="main_center")

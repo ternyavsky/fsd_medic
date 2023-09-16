@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 
 from loguru import logger
+from .models import Doctor
 logger.add("logs/auth_doctor.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
 
 
@@ -28,3 +29,16 @@ class InterviewSerializer(serializers.ModelSerializer):
         instance.group = validated_data.get('group', instance.group)
 
         return instance
+
+
+class DoctorCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = [
+            'phone_number',
+            'first_name',
+            'last_name',
+            'city',
+            'country',
+            'center'
+        ]

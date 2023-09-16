@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from social.models import *
 from fsd_medic.settings import AUTH_USER_MODEL
 from api import models
+from .services import generate_cache_key
+from django.core.cache import cache
 
 #news
 def get_news(**kwargs):
@@ -75,8 +77,15 @@ def get_groups(**kwargs):
 
 ##
 
+
+
 def get_messages(**kwargs):
-    return (Message.objects.filter(**kwargs)
+    cache_key = generate_cache_key('chat_messages', **kwargs)
+    messages = cache.get(cache_key)
+
+    if messages is None:
+
+        messages = (Message.objects.filter(**kwargs)
         .select_related("chat", "chat__to_user","chat__to_user__country", "chat__to_user__main_center",
         "chat__to_center","chat__to_user__main_center__country", "chat__from_user","chat__from_user__country",
         "chat__to_user__group",
@@ -87,6 +96,8 @@ def get_messages(**kwargs):
         "news__center__country", "user", "user__group", "user__main_center", "user__country",
         "user__main_center__country", "center", "center__country")
         )
+        cache.set(cache_key, messages, 60*5)
+    return messages
 
 def get_chats(**kwargs):
     return Chat.objects.filter(**kwargs)
