@@ -3,19 +3,26 @@ from django.utils.translation import gettext_lazy as _
 
 from api.models import Country, Center
 
+from django.contrib.auth.models import AbstractUser
+
 
 # Create your models here.
-
-class Doctor(models.Model):
-    # врачи
-    id = models.BigAutoField(primary_key=True, db_index=True)
-    phone_number = models.CharField(verbose_name=_("Номер телефона"), max_length=220)
-    first_name = models.CharField(verbose_name=_("Имя"), max_length=220)
-    last_name = models.CharField(verbose_name=_("Фамилия"), max_length=220)
+class Doctor(AbstractUser):
+    # Любой сотрудник центра
+    phone_number = models.CharField(verbose_name=_("Номер телефона"), max_length=12)
+    middle_name = models.CharField(verbose_name="Отчетсво", max_length=50)
     city = models.CharField(verbose_name=_("Город"), max_length=220)
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, verbose_name="Центр, в котором зарегистрирован врач")
+    address = models.CharField(max_length=200, verbose_name="Адрес")
+    specialization = models.CharField(max_length=200, verbose_name="Специальность/должность")
+    work_experience = models.DecimalField(verbose_name="Опыт работы, лет", max_digits=3, decimal_places=1)
     is_approved = models.BooleanField()
+    registration_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Врач"
+        verbose_name_plural = "Врачи"
 
 
 class LinkToInterview(models.Model):

@@ -14,23 +14,19 @@ from rest_framework.decorators import permission_classes, action, api_view
 from db.queries import get_messages, get_chats
 from .models import *
 from .serializers import *
-
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
-
-
 
 
 # Create your views here.
 
 
-
 class MessageView(APIView):
     permission_classes = [IsAuthenticated]
 
-    
     def get(self, request, chat_id):
-        messages = get_messages(chat=chat_id)
+        messages = cache.get_or_set("messages", get_messages(chat=chat_id))
         serializer = MessageSerializer(messages, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
@@ -41,10 +37,8 @@ class ChatView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
-        obj = get_chat(Chat, user_id)
-        serializer = ChatSerializer(obj, many=True)
+        chat = cache.get_or_set("chat", get_chat(get_chats, user_id))
+        serializer = ChatSerializer(chat, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-

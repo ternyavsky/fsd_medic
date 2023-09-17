@@ -161,11 +161,12 @@ CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "127.0.0.1:11211",
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://default:12345@redis-13054.c256.us-east-1-2.ec2.cloud.redislabs.com:13054',  # Здесь укажите параметры подключения к вашему Redis-серверу.
     }
 }
+
 
 CHANNEL_LAYERS = {
     "default": {
