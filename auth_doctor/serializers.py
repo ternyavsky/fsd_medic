@@ -14,6 +14,16 @@ logger.add("logs/auth_doctor.log", format="{time} {level} {message}", level="DEB
            compression="zip")
 
 
+class DateTimeUpdateSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    datetime = serializers.DateTimeField()
+
+
+class DoctorDataResponseSerializer(serializers.Serializer):
+    message = serializers.CharField(max_length=200)
+    user_hash = serializers.CharField(max_length=200)
+
+
 class VerificationCodeSerializer(serializers.Serializer):
     verification_code = serializers.CharField(max_length=10, required=True)
     user_hash = serializers.CharField(max_length=100, required=True)

@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from api.models import Country, Center
+from api.models import Country, Center, Clinic
 
 from django.contrib.auth.models import AbstractUser
 
@@ -14,6 +14,7 @@ class Doctor(AbstractUser):
     city = models.CharField(verbose_name=_("Город"), max_length=220)
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, verbose_name="Центр, в котором зарегистрирован врач")
+    clinic = models.ForeignKey(Clinic, null=True, on_delete=models.CASCADE, verbose_name="Клиника, где врач работает")
     address = models.CharField(max_length=200, verbose_name="Адрес")
     specialization = models.CharField(max_length=200, verbose_name="Специальность/должность")
     work_experience = models.DecimalField(verbose_name="Опыт работы, лет", max_digits=3, decimal_places=1)
