@@ -17,12 +17,19 @@ class Doctor(AbstractUser):
     address = models.CharField(max_length=200, verbose_name="Адрес")
     specialization = models.CharField(max_length=200, verbose_name="Специальность/должность")
     work_experience = models.DecimalField(verbose_name="Опыт работы, лет", max_digits=3, decimal_places=1)
-    is_approved = models.BooleanField()
     registration_date = models.DateTimeField(auto_now_add=True)
+    interview_date_plan = models.DateTimeField(null=True,
+                                               verbose_name="Время, когда пользователь хочет, чтобы было проведено собеседование")
+    # флаги
+    is_approved_for_interview = models.BooleanField(default=False)
+    is_approved_for_work = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Врач"
         verbose_name_plural = "Врачи"
+
+    def __str__(self):
+        return f"{self.id}_{self.first_name}_{self.last_name}"
 
 
 class LinkToInterview(models.Model):

@@ -16,6 +16,7 @@ logger.add("logs/auth_doctor.log", format="{time} {level} {message}", level="DEB
 
 class VerificationCodeSerializer(serializers.Serializer):
     verification_code = serializers.CharField(max_length=10, required=True)
+    user_hash = serializers.CharField(max_length=100, required=True)
 
 
 class InterviewSerializer(serializers.ModelSerializer):

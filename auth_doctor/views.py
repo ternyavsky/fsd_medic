@@ -11,9 +11,10 @@ from auth_doctor.serializers import InterviewSerializer
 from .serializers import DoctorCreateSerializer
 from db.queries import *
 from rest_framework import views
-from .services.doctor_reg_services import doctor_data_passed
+from .services.doctor_reg_services import doctor_data_passed, doctor_compare_code_and_create
 from .services.all_service import send_verification_code_msg, get_code_cache_name
 from .serializers import VerificationCodeSerializer
+
 logger = logging.getLogger(__name__)
 
 
@@ -51,15 +52,19 @@ class DoctorRegSmsCodeSend(views.APIView):
 
 
 class IsDoctorVerCodeRight(views.APIView):
-    def post(self, request, user_hash):
-        right_code = cache.get(get_code_cache_name(user_hash))
-        if right_code:
-            serializer = VerificationCodeSerializer(data=request.data)
-            if serializer.is_valid(raise_exception=True):
-                pass
-        else:
-            return Response(status=404,
-                            data={"message": "Время проверки кодов вышло или такого пользователя вообще не было"})
+    def post(self, request):
+        serializer = VerificationCodeSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            validated_data = serializer.validated_data
+            user_hash = validated_data.get("user_hash")
+            right_code = cache.get(get_code_cache_name(user_hash))
+            if right_code:
+                verification_code = validated_data.get("verification_code")
+                status_code, msg = doctor_compare_code_and_create(user_hash, right_code, verification_code)
+                return Response(status=200)
+            else:
+                return Response(status=404,
+                                data={"message": "Время проверки кодов вышло или такого пользователя вообще не было"})
 
 
 class InterviewView(generics.ListCreateAPIView):  # как бы это не называлось
