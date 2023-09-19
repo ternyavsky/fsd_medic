@@ -220,6 +220,8 @@ class Clinic(models.Model):
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
+    center = models.ForeignKey(Center, verbose_name="Центра", null=True, on_delete=models.CASCADE)
+    review_date = models.DateTimeField(null=True, verbose_name="Предполагаемая дата и время интервью")
 
     def __str__(self):
         return self.name

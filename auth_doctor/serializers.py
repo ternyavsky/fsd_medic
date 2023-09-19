@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.models import Interview, User
+from api.models import Interview, Clinic
 from social.models import Chat
 
 from rest_framework import status, exceptions
@@ -9,9 +9,31 @@ from django.utils.translation import gettext_lazy as _
 from .services.doctor_reg_services import doctor_reg_data_validate
 from loguru import logger
 from .models import Doctor
+from .services.clinic_reg_service import clinic_reg_data_validate
 
 logger.add("logs/auth_doctor.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00",
            compression="zip")
+
+
+class ClinicCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clinic
+        fields = [
+            'name',
+            'description',
+            'number',
+            'email',
+            'employees_number',
+            'supported_diseases',
+            'country',
+            'city',
+            'address',
+            'center'
+        ]
+
+    def validate(self, data):
+        clinic_reg_data_validate(data)
+        return super().validate(data)
 
 
 class DateTimeUpdateSerializer(serializers.Serializer):
