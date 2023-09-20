@@ -21,7 +21,7 @@ class ClinicCreateSerializer(serializers.ModelSerializer):
         fields = [
             'name',
             'description',
-            'number',
+            'phone_number',
             'email',
             'employees_number',
             'supported_diseases',

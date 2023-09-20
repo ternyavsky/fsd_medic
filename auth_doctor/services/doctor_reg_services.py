@@ -33,7 +33,7 @@ def doctor_compare_code_and_create(user_hash: str, right_code: str, ver_code: st
         user_data = cache.get(user_hash)
         if user_data:
             doctor = Doctor.objects.create(**user_data)
-            return 200, {"message": "Успешно создан", "id": doctor.id}
+            return 201, {"message": "Успешно создан", "id": doctor.id}
         else:
             return 400, {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}
     else:

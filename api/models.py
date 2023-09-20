@@ -204,22 +204,22 @@ class Center(models.Model):
 
 class Clinic(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
-    name = models.CharField(verbose_name=_('Название Клиники'), max_length=100, null=True)
+    name = models.CharField(verbose_name=_('Название Клиники'), max_length=100)
     is_required = models.BooleanField(verbose_name=_('Статус подтверждения'), default=False)
     rating = models.FloatField(verbose_name=_('Рейтинг клиники'), default=5,
                                validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
     description = models.TextField(verbose_name=_('Описание клиники'), blank=True, null=True, max_length=550)
     image = models.ImageField(verbose_name=_('Фото клиники'), upload_to='clinics_photos/',
                               default='centers_photos/clinic_photo.jpg', blank=True)
-    number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
-    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True, null=True)
-    employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'), null=True)
-    supported_diseases = models.ManyToManyField('Disease')
-    country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
-    city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
-    address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
-    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
+    phone_number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True)
+    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, unique=True)
+    employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'))
+    supported_diseases = models.TextField(verbose_name="Изученные заболевания")
+    country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'))
+    city = models.CharField(verbose_name=_('Город'), max_length=50)
+    address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True)
+    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True)
     center = models.ForeignKey(Center, verbose_name="Центра", null=True, on_delete=models.CASCADE)
     review_date = models.DateTimeField(null=True, verbose_name="Предполагаемая дата и время интервью")
 

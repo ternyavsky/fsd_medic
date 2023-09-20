@@ -3,7 +3,7 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from django.urls import reverse
-from api.models import Country, Center, Disease
+from api.models import Country, Center, Disease, Clinic
 from .models import Doctor
 from .services.all_service import get_code_cache_name
 
@@ -12,23 +12,21 @@ class TestClinicReg(APITestCase):
     def setUp(self):
         Country.objects.create(name="Russia")
         Center.objects.create(name="Center_1")
-        Disease.objects.create(name="Заболевание 1")
-        Disease.objects.create(name="Заболевание 2")
 
-    def test_doctor_create_1(self):
+    def test_clinic_create_1(self):
         # все норм
         url = reverse('clinic_create')
         req_data = {
             'name': "test_name",
             'description': "test_description",
-            'number': "89856478963",
+            'phone_number': "89856478963",
             'email': "test@yandex.ru",
             'employees_number': 18,
-            'supported_diseases': [1, 2],
+            'supported_diseases': "заболевание1, заболевание2",
             'country': 1,
             'city': "Moscow",
             'address': "test address",
-            'Center': 1
+            'center': 1
         }
         response = self.client.post(url, format='json', data=req_data)
         data = response.data
@@ -42,17 +40,17 @@ class TestClinicReg(APITestCase):
         url = reverse('clinic_verification_code')
         response = self.client.post(url, data={"user_hash": user_hash,
                                                "verification_code": cache.get(get_code_cache_name(user_hash))})
-        self.assertEqual(200, response.status_code)
-        doctor = Doctor.objects.get(id=1)
-        self.assertEqual(req_data["name"], doctor.first_name)
-        self.assertEqual(req_data["description"], doctor.middle_name)
-        self.assertEqual(req_data["number"], doctor.last_name)
-        self.assertEqual(req_data["employees_number"], doctor.phone_number)
-        self.assertEqual(req_data["supported_diseases"], doctor.city)
-        self.assertEqual(req_data["country"], doctor.country.id)
-        self.assertEqual(req_data["city"], doctor.center.id)
-        self.assertEqual(req_data["address"], doctor.address)
-        self.assertEqual(req_data["Center"], doctor.specialization)
+        self.assertEqual(201, response.status_code)
+        clinic = Clinic.objects.get(id=1)
+        self.assertEqual(req_data["name"], clinic.name)
+        self.assertEqual(req_data["description"], clinic.description)
+        self.assertEqual(req_data["phone_number"], clinic.phone_number)
+        self.assertEqual(req_data["employees_number"], clinic.employees_number)
+        self.assertEqual(req_data["supported_diseases"], clinic.supported_diseases)
+        self.assertEqual(req_data["country"], clinic.country.id)
+        self.assertEqual(req_data["city"], clinic.city)
+        self.assertEqual(req_data["address"], clinic.address)
+        self.assertEqual(req_data["center"], clinic.center.id)
 
 
 class TestDoctorReg(APITestCase):
@@ -85,7 +83,7 @@ class TestDoctorReg(APITestCase):
         url = reverse('doctor_verification_code')
         response = self.client.post(url, data={"user_hash": user_hash,
                                                "verification_code": cache.get(get_code_cache_name(user_hash))})
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(201, response.status_code)
         doctor = Doctor.objects.get(id=1)
         self.assertEqual(req_data["first_name"], doctor.first_name)
         self.assertEqual(req_data["middle_name"], doctor.middle_name)
