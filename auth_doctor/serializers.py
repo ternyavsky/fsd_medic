@@ -21,7 +21,7 @@ class ClinicCreateSerializer(serializers.ModelSerializer):
         fields = [
             'name',
             'description',
-            'phone_number',
+            'number',
             'email',
             'employees_number',
             'supported_diseases',
@@ -77,7 +77,7 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = [
-            'phone_number',
+            'number',
             'first_name',
             'middle_name',
             'last_name',

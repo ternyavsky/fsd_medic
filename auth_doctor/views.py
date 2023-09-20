@@ -171,7 +171,7 @@ class RegSmsCodeSend(views.APIView):
     def get(self, request, user_hash):
         user_data = cache.get(user_hash)
         if user_data:
-            to_phone = user_data.get("phone_number")
+            to_phone = user_data.get("number")
             if to_phone is not None:
                 send_verification_code_msg(user_hash, to_phone)
                 return Response(status=200)

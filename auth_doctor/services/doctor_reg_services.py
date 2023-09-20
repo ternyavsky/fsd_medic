@@ -23,9 +23,9 @@ def doctor_data_update(object_id, datetime_obj):
 
 
 def doctor_reg_data_validate(data: dict):
-    phone = data.get("phone_number")
+    phone = data.get("number")
     if not is_valid_phone_number(phone):
-        raise ValidationError({"phone_number": "Невалидный номер телефона"})
+        raise ValidationError({"number": "Невалидный номер телефона"})
 
 
 def doctor_compare_code_and_create(user_hash: str, right_code: str, ver_code: str):
@@ -41,7 +41,7 @@ def doctor_compare_code_and_create(user_hash: str, right_code: str, ver_code: st
 
 
 def doctor_data_passed(validated_data: dict):
-    user_data = f"{validated_data['first_name']}_{validated_data['last_name']}_{validated_data['phone_number']}"
+    user_data = f"{validated_data['first_name']}_{validated_data['last_name']}_{validated_data['number']}"
     cache_key = hashlib.sha256(user_data.encode()).hexdigest()
     cache.set(cache_key, validated_data, 60 * 5)
     return cache_key

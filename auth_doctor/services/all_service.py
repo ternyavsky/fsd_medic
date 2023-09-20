@@ -28,8 +28,9 @@ def phone_normalize(number: str) -> str:
 
 def is_valid_phone_number(phone_number: str) -> bool:
     phone_number = phone_normalize(phone_number)
+    print(phone_number)
     pattern = r'^(7[7,9]\d{9})$'
-    match = re.match(pattern, phone_number)
+    match = re.match(pattern, phone_number) or re.match(r'^\+998[2-9]\d{8}$', phone_number)
     return bool(match)
 
 

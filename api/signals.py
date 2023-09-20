@@ -13,24 +13,24 @@ from social.models import Chat, Message
 
 # CACHE SIGNALS
 
-@receiver(post_delete, sender=Message, dispatch_uid="diseases_deleted")
+@receiver(post_delete, sender=Message, dispatch_uid="messages_deleted")
 def disease_post_delete_handler(sender, **kwargs):
     cache.delete('messages')
 
 
-@receiver(post_save, sender=Message, dispatch_uid='diseases_updated')
+@receiver(post_save, sender=Message, dispatch_uid='messagess_updated')
 def disease_post_save_handler(sender, **kwargs):
     cache.delete('messages')
 
 
-@receiver(post_delete, sender=Chat, dispatch_uid="diseases_deleted")
+@receiver(post_delete, sender=Chat, dispatch_uid="chats_deleted")
 def disease_post_delete_handler(sender, **kwargs):
-    cache.delete('chat')
+    cache.delete('chats')
 
 
-@receiver(post_save, sender=Chat, dispatch_uid='diseases_updated')
+@receiver(post_save, sender=Chat, dispatch_uid='chats_deleted')
 def disease_post_save_handler(sender, **kwargs):
-    cache.delete('chat')
+    cache.delete('chats')
 
 
 @receiver(post_delete, sender=Disease, dispatch_uid="diseases_deleted")

@@ -19,7 +19,7 @@ class TestClinicReg(APITestCase):
         req_data = {
             'name': "test_name",
             'description': "test_description",
-            'phone_number': "89856478963",
+            'number': "89856478963",
             'email': "test@yandex.ru",
             'employees_number': 18,
             'supported_diseases': "заболевание1, заболевание2",
@@ -44,7 +44,7 @@ class TestClinicReg(APITestCase):
         clinic = Clinic.objects.get(id=1)
         self.assertEqual(req_data["name"], clinic.name)
         self.assertEqual(req_data["description"], clinic.description)
-        self.assertEqual(req_data["phone_number"], clinic.phone_number)
+        self.assertEqual(req_data["number"], clinic.number)
         self.assertEqual(req_data["employees_number"], clinic.employees_number)
         self.assertEqual(req_data["supported_diseases"], clinic.supported_diseases)
         self.assertEqual(req_data["country"], clinic.country.id)
@@ -65,7 +65,7 @@ class TestDoctorReg(APITestCase):
             "first_name": "qwer",
             'middle_name': "qwer",
             "last_name": "qwer",
-            "phone_number": "89743251489",
+            "number": "89743251489",
             "city": "Moscow",
             "country": 1,
             "center": 1,
@@ -88,7 +88,7 @@ class TestDoctorReg(APITestCase):
         self.assertEqual(req_data["first_name"], doctor.first_name)
         self.assertEqual(req_data["middle_name"], doctor.middle_name)
         self.assertEqual(req_data["last_name"], doctor.last_name)
-        self.assertEqual(req_data["phone_number"], doctor.phone_number)
+        self.assertEqual(req_data["number"], doctor.number)
         self.assertEqual(req_data["city"], doctor.city)
         self.assertEqual(req_data["country"], doctor.country.id)
         self.assertEqual(req_data["center"], doctor.center.id)
@@ -103,7 +103,7 @@ class TestDoctorReg(APITestCase):
             "first_name": "qwer",
             'middle_name': "qwer",
             "last_name": "qwer",
-            "phone_number": "89743251489",
+            "number": "89743251489",
             "city": "Moscow",
             "country": 1,
             "center": 1,
@@ -131,7 +131,7 @@ class TestDoctorReg(APITestCase):
             "first_name": "qwer",
             'middle_name': "qwer",
             "last_name": "qwer",
-            "phone_number": "546841",
+            "number": "546841",
             "city": "Moscow",
             "country": 1,
             "center": 1,
@@ -142,7 +142,7 @@ class TestDoctorReg(APITestCase):
         response = self.client.post(url, format='json', data=req_data)
         data = response.data
         self.assertEqual(400, response.status_code)
-        self.assertEqual(True, "phone_number" in data)
+        self.assertEqual(True, "number" in data)
 
     def test_doctor_valid_3(self):
         # нет страны и центра
@@ -151,7 +151,7 @@ class TestDoctorReg(APITestCase):
             "first_name": "qwer",
             'middle_name': "qwer",
             "last_name": "qwer",
-            "phone_number": "546841",
+            "number": "546841",
             "city": "Moscow",
             "country": 2,
             "center": 2,
@@ -172,7 +172,7 @@ class TestDoctorReg(APITestCase):
             "first_name": "qwer",
             'middle_name': "qwer",
             "last_name": "qwer",
-            "phone_number": "546841",
+            "number": "546841",
             "city": "Moscow",
             "country": 1,
             "center": 1,
@@ -184,3 +184,23 @@ class TestDoctorReg(APITestCase):
         data = response.data
         self.assertEqual(400, response.status_code)
         self.assertEqual(True, "work_experience" in data)
+
+    def test_doctor_valid_5(self):
+        # Много цифр в опыте
+        url = reverse('doctor_create')
+        req_data = {
+            "first_name": "qwer",
+            'middle_name': "qwer",
+            "last_name": "qwer",
+            "number": "+998 71 444-44-44",
+            "city": "Moscow",
+            "country": 1,
+            "center": 1,
+            "address": "qwer",
+            "specialization": "sadasdas",
+            "work_experience": 3.5
+        }
+        response = self.client.post(url, format='json', data=req_data)
+        data = response.data
+        print(data)
+        self.assertEqual(200, response.status_code)

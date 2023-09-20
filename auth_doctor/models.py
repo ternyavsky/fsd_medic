@@ -9,7 +9,7 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class Doctor(AbstractUser):
     # Любой сотрудник центра
-    phone_number = models.CharField(verbose_name=_("Номер телефона"), max_length=12)
+    number = models.CharField(verbose_name=_("Номер телефона"), max_length=30)
     middle_name = models.CharField(verbose_name="Отчетсво", max_length=50)
     city = models.CharField(verbose_name=_("Город"), max_length=220)
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
