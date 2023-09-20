@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SavedSerializer
+
     def get_queryset(self):
         data = cache.get_or_set("saved", get_saved())
         data.filter(user=self.request.user)
@@ -60,16 +61,17 @@ class NoteViewSet(viewsets.ModelViewSet):
     
 
 class NewsViewSet(viewsets.ModelViewSet):
+    #permissions_classes = [IsAuthenticated]
     serializer_class = NewsSerializer
 
     def get_queryset(self):
+        logger.debug(self.request)
         if self.action == 'list':
             data = cache.get_or_set("news", get_news())
             user = self.request.user
             if user.is_staff:
                 logger.info("Admin request")
                 return data
-
             if user.is_authenticated:
                 try:
                     center_news = data.filter(center__in=user.center.all())
@@ -90,6 +92,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 ### SEARCH ###
 class SearchView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())

@@ -31,8 +31,9 @@ class UserView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
-    queryset = get_users() 
 
+    def get_queryset(self):
+        return cache.get_or_set("users", get_users())
 
     def post(self, request):
 

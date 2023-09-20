@@ -66,7 +66,7 @@ def get_users(**kwargs):
     """Получение пользователей"""
     return(models.User.objects.filter(**kwargs)
         .select_related("group", "main_center", "country", "main_center__country")
-        .prefetch_related("disease", "centers", "centers__country")
+        .prefetch_related("disease", "centers", "centers__country", "access_accept", "access_unaccept")
         )
 
 def get_groups(**kwargs):
