@@ -1,6 +1,6 @@
 from celery import group
 from requests import api
-from django.shortcuts import render 
+from django.shortcuts import render
 from django.contrib.auth import logout
 from django.http import Http404, HttpResponse
 from django.core.cache import cache
@@ -21,9 +21,7 @@ import logging
 
 from api import permissions
 
-
 logger = logging.getLogger(__name__)
-
 
 
 class SaveViewSet(viewsets.ModelViewSet):
@@ -36,15 +34,16 @@ class SaveViewSet(viewsets.ModelViewSet):
         logger.debug(self.request.path)
         return data
 
+
 class LikeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
-    
+
     def get_queryset(self):
         logger.debug(self.request.path)
         data = cache.get_or_set("likes", get_likes())
         data.filter(user=self.request.user)
-        return data 
+        return data
 
 
 class NoteViewSet(viewsets.ModelViewSet):
@@ -52,13 +51,13 @@ class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        data = cache.get_or_set("notes", get_notes()) 
+        data = cache.get_or_set("notes", get_notes())
         if not self.request.user.is_staff:
             data = data.filter(user=self.request.user)
             logger.debug(self.request.path)
-            return data 
+            return data
         return data
-    
+
 
 class NewsViewSet(viewsets.ModelViewSet):
     #permissions_classes = [IsAuthenticated]
@@ -90,13 +89,14 @@ class NewsViewSet(viewsets.ModelViewSet):
                 return data[:3]
         return get_news()
 
+
 ### SEARCH ###
 class SearchView(APIView):
     # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())
-        centers = cache.get_or_set("centers",get_centers())
+        centers = cache.get_or_set("centers", get_centers())
         users = cache.get_or_set("users", get_users())
         doctors = users.filter(group__name="Врачи")
         search_results = {
@@ -104,7 +104,7 @@ class SearchView(APIView):
             'centers': centers,
             'users': doctors,
         }
-        serializer = SearchSerializer(search_results) 
+        serializer = SearchSerializer(search_results)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -112,11 +112,11 @@ class SearchView(APIView):
 
 class DoctorsListView(APIView):
     permissions_classes = [IsAuthenticated]
-    def get(self,request):
+
+    def get(self, request):
         doc = cache.get_or_set("users", get_users())
-        doctors =  doc.filter(group__name="Врачи", city=request.user.city)
+        doctors = doc.filter(group__name="Врачи", city=request.user.city)
         serializer = UserGetSerializer(doctors, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
-

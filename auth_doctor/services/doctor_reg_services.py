@@ -1,0 +1,47 @@
+import hashlib
+from django.core.cache import cache
+from .all_service import is_valid_phone_number, get_code_cache_name
+from rest_framework.serializers import ValidationError
+from ..models import Doctor
+from datetime import datetime
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.exceptions import ObjectDoesNotExist
+
+
+def doctor_data_update(object_id, datetime_obj):
+    try:
+        obj = Doctor.objects.get(id=object_id)
+        obj.dateTimeField = datetime_obj
+        obj.save()
+        return Response({'message': 'Datetime успешно обновлен'}, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response({'message': 'Объект с указанным id не найден'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'message': 'Произошла ошибка: {}'.format(str(e))},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def doctor_reg_data_validate(data: dict):
+    phone = data.get("number")
+    if not is_valid_phone_number(phone):
+        raise ValidationError({"number": "Невалидный номер телефона"})
+
+
+def doctor_compare_code_and_create(user_hash: str, right_code: str, ver_code: str):
+    if right_code == ver_code:
+        user_data = cache.get(user_hash)
+        if user_data:
+            doctor = Doctor.objects.create(**user_data)
+            return 201, {"message": "Успешно создан", "id": doctor.id}
+        else:
+            return 400, {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}
+    else:
+        return 400, "Коды не совпадают"
+
+
+def doctor_data_passed(validated_data: dict):
+    user_data = f"{validated_data['first_name']}_{validated_data['last_name']}_{validated_data['number']}"
+    cache_key = hashlib.sha256(user_data.encode()).hexdigest()
+    cache.set(cache_key, validated_data, 60 * 5)
+    return cache_key
