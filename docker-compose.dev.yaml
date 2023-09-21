@@ -38,6 +38,14 @@ services:
     ports:
       - "3000:3000"
 
+
+  loki:
+    container_name: fsd_medic.loki
+    image: grafana/loki
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+
   celery:
     build: .
     container_name: fsd_medic.celery
@@ -55,29 +63,6 @@ services:
       timeout: 60s
       retries: 5
       start_period: 10s
-  
-  filebeat:
-    container_name: fsd_medic.filebeat
-    image: elastic/filebeat:8.9.2
-
-
-  logstash:
-    container_name: fsd_medic.logstash
-    image: logstash:8.9.2
-    volumes:
-      - ./logstash.conf:/etc/prometheus/prometheus.yaml
-    ports:
-      - "5000:5000"
-
-  elasticsearch:
-    container_name: fsd_medic.elasticsearch
-    image: elastic/elasticsearch:8.9.2
-    ports:
-      - "9200:9200"
-
-  kibana:
-    container_name: fsd_medic.kibana
-    image: elastic/kibana:8.9.2
 
 
 

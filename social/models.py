@@ -13,6 +13,7 @@ class Notification(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.CharField(max_length=220, null=False, blank=True)
+    add = models.JSONField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -27,10 +28,10 @@ class Notification(models.Model):
 class Chat(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    to_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    to_center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True)
     from_center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True, related_name="from_center")
     from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='from_user', null=True, blank=True)
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    to_center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
    

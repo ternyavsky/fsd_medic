@@ -752,6 +752,20 @@ files = [
 Django = ">=3.2"
 
 [[package]]
+name = "django-loki"
+version = "0.1.4"
+description = "logging handler with loki for django"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-loki-0.1.4.tar.gz", hash = "sha256:462940c5f8a66b7290a528f80be192a0192e22974de6b9799879b7b44204797a"},
+]
+
+[package.dependencies]
+pytz = "*"
+requests = "*"
+
+[[package]]
 name = "django-model-utils"
 version = "4.3.1"
 description = "Django model mixins and utilities"
@@ -2101,4 +2115,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "03b8edddc8925f0a07168a4bfd0ed4798dbbc9747577a3b89fbce7d9292413bd"
+content-hash = "9e66d095fadea664323eed14f15a9a3fdeebd2bd25ac2662f3463332a9d48363"

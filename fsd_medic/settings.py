@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'debug_toolbar',
     'django_prometheus',
+    'django_loki',
 
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
@@ -108,23 +109,34 @@ WSGI_APPLICATION = 'fsd_medic.wsgi.application'
 ASGI_APPLICATION = 'fsd_medic.asgi.application'
 
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
+    'version': 1,
+    'formatters': {
+        'loki': {
+            'class': 'django_loki.LokiFormatter',  # required
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] [%(funcName)s] %(message)s',  # optional, default is logging.BASIC_FORMAT
+            'datefmt': '%Y-%m-%d %H:%M:%S',  # optional, default is '%Y-%m-%d %H:%M:%S'
         },
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "DEBUG",
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            "propagate": False,
+    'handlers': {
+        'loki': {
+            'level': 'DEBUG',  # required
+            'class': 'django_loki.LokiHttpHandler',  # required
+            'host': 'localhost',  # required, your grafana/Loki server host, e.g:192.168.57.242
+            'formatter': 'loki',  # required, loki formatter,
+            'port': 3100,  # optional, your grafana/Loki server port, default is 3100
+            'timeout': 0.5,  # optional, request Loki-server by http or https time out, default is 0.5
+            'protocol': 'http',  # optional, Loki-server protocol, default is http
+            'source': 'Loki',  # optional, label name for Loki, default is Loki
+            'src_host': 'localhost',  # optional, label name for Loki, default is localhost
+            'tz': 'UTC',  # optional, timezone for formatting timestamp, default is UTC, e.g:Asia/Shanghai
         },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['loki'],
+            'level': 'INFO',
+            'propagate': False,
+        }
     },
 }
 # Database

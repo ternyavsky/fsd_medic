@@ -95,7 +95,7 @@ class User(AbstractBaseUser):
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
     interest = models.CharField(verbose_name=_('Интерес к заболеванию'), max_length=225, null=True, blank=True)
-    birthday = models.DateField(verbose_name=_('День рождения'), null=True, blank=True)
+    birthday = models.DateField(verbose_name=_('Дата рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='users_photos/AccauntPreview.png')
     country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
@@ -143,6 +143,21 @@ class Group(models.Model):
     class Meta:
         verbose_name_plural = 'Группы'
         verbose_name = 'Группу'
+
+
+class Access(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
+    user = models.ForeignKey("User", verbose_name=_("Пользователь"), on_delete=models.CASCADE, related_name="user")
+    access_accept = models.ManyToManyField("User", verbose_name=_("Доступ (принятые)"), related_name="access")
+    access_unaccept = models.ManyToManyField("User",verbose_name=_("Доступ (непринятые)"), related_name="unaccept")
+
+    def __str__(self):
+        return f'Доступ пользователя {self.user}'
+
+
+    class Meta:
+        verbose_name_plural = 'Доступ'
+        verbose_name = 'Доступ'
 
 
 class Note(models.Model):
