@@ -92,7 +92,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 ### SEARCH ###
 class SearchView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())

@@ -3,16 +3,18 @@ from api import permissions
 from django.utils.autoreload import raise_last_exception
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.db import transaction
 from django.core.cache import cache
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from db.queries import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from .serializers import CustomTokenObtainPairSerializer
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.views import APIView
-from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializer
+from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializer, AccessSerializer
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
 from auth_user.serializers import *
@@ -203,7 +205,7 @@ class SetNewPasswordView(APIView):
             else:
                 logger.warning("User not found")
                 logger.warning(request.path)
-                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
             if password1 == password2:
                 set_new_password(user, password2)
@@ -238,7 +240,7 @@ class EmailBindingView(APIView):
             
             logger.debug("email has sent successfully")
             logger.debug(request.path)
-            return Response({'detail': 'email has sent successfully'}, status=status.HTTP_200_OK)
+            return Response({'message': 'email has sent successfully'}, status=status.HTTP_200_OK)
 
         logger.warning(serializer.errors)
         logger.warning(request.path)
@@ -304,3 +306,62 @@ class CenterRegistrationView(APIView):
         logger.debug(data)
         logger.debug(request.path) 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class AccessViewSet(viewsets.ModelViewSet):
+    serializer_class = AccessSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = cache.get_or_set("access", get_access())
+        if self.request.user.is_staff:
+            return queryset
+        else:
+            return queryset.filter(user=get_users(id=1).first())
+
+    @transaction.atomic
+    def create(self, request):
+        """ JSON {"id": 22} """
+        users = cache.get_or_set("users", get_users())
+        user_to_access, uta_created = Access.objects.get_or_create(user=users.filter(id=request.data["id"]).first())
+        user, user_created = Access.objects.get_or_create(user=users.filter(id=request.user.id).first())
+        user.access_unaccept.add(user_to_access.user)
+        user_to_access.access_unaccept.add(user.user)
+        Notification.objects.create(user=user_to_access.user, text="Вам отправлен запрос на доступ от", add=UserGetSerializer(user.user).data)
+        return Response({"message": "created"}, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    @action(detail=False, methods=['DELETE'])
+    def delete(self, request):
+        """ JSON {"id": 22, "access": "accept"} """
+        users = cache.get_or_set("users", get_users())
+        user_to_delete_access = get_access(user=users.filter(id=request.data["id"]).first()).first()
+        user = get_access(user=users.filter(id=request.user.id).first()).first()
+        if request.data["access"] == "accept":
+            user.access_accept.remove(user_to_delete_access.user)
+            user_to_delete_access.access_accept.remove(user.user)
+        else:
+            user.access_unaccept.remove(user_to_delete_access.user)
+            user_to_delete_access.access_unaccept.remove(user.user)
+        return Response({"message": "deleted"}, status=status.HTTP_202_ACCEPTED)
+
+
+    @transaction.atomic
+    @action(detail=False, methods=["PUT"])
+    def put(self, request):
+        """ JSON {"id": 22} """
+        users = cache.get_or_set("users", get_users())
+        user = get_access(user=users.filter(id=request.data["id"]).first()).first()
+        user_to_accept_access = get_access(user=users.filter(id=request.user.id).first()).first()
+        user.access_unaccept.remove(user_to_accept_access.user)
+        user_to_accept_access.access_unaccept.remove(user.user)
+        user.access_accept.add(user_to_accept_access.user)
+        user_to_accept_access.access_accept.add(user.user)
+        Chat.objects.create(from_user=user.user, to_center=user_to_accept_access.user.main_center)
+        return Response({"message": "accepted"}, status=status.HTTP_200_OK)
+
+
+
+
+
+

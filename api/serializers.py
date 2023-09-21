@@ -4,7 +4,7 @@ import random
 from rest_framework import serializers
 
 from db.queries import get_users
-from .models import News, User, NumberCode, Center, Clinic, Disease, Note, Saved, Like, Country
+from .models import News, User, NumberCode, Center, Clinic, Disease, Note, Saved, Like, Country, Access
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 
 
@@ -35,6 +35,9 @@ class DiseaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+
+
 class UserGetSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""
     disease = DiseaseSerializer(many=True, allow_null=True, required=False)
@@ -43,9 +46,34 @@ class UserGetSerializer(serializers.ModelSerializer):
     group = serializers.CharField(allow_null=True, required=False)  # убираем обяз. поле group
     country = CountrySerializer(required=False) 
     centers = CenterSerializer(many=True, required=False)
+    # access_accept = serializers.SerializerMethodField()
+    # access_unaccept = serializers.SerializerMethodField()
+
+    # def get_access_accept(self, obj):
+    #     return UserGetSerializer(obj.access_accept.all(), many=True).data 
+
+    # def get_access_unaccept(self, obj):
+    #     return UserGetSerializer(obj.access_unaccept.all(),many=True).data
+
     class Meta:
         model = User
         fields = '__all__'
+
+class AccessSerializer(serializers.ModelSerializer):
+    user = UserGetSerializer()
+    access_accept = serializers.SerializerMethodField()
+    access_unaccept = serializers.SerializerMethodField()
+
+    """Доступ"""
+    class Meta:
+        model = Access
+        fields = '__all__'
+
+    def get_access_accept(self, obj):
+        return UserGetSerializer(obj.access_accept.all(), many=True).data
+
+    def get_access_unaccept(self, obj):
+        return UserGetSerializer(obj.access_unaccept.all(), many=True).data
 
 class NewsSerializer(serializers.ModelSerializer):
     disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(), presentation_serializer=DiseaseSerializer, required=False)
@@ -132,3 +160,5 @@ class SearchSerializer(serializers.Serializer):
 
     class Meta:
         fields = '__all__'
+
+

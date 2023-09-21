@@ -90,8 +90,6 @@ class User(AbstractBaseUser):
     main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True, blank=True, related_name="main_center")
     centers = models.ManyToManyField('Center', verbose_name=_('Центр'), null=True, blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'),  blank=True)
-    access_accept = models.ManyToManyField("User", verbose_name=_("Доступ (принятые)"), blank=True, related_name="accept")
-    access_unaccept = models.ManyToManyField("User", verbose_name=_("Доступ (непринятые)"),  blank=True,  related_name="unaccept")
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
@@ -148,6 +146,22 @@ class Group(models.Model):
     class Meta:
         verbose_name_plural = 'Группы'
         verbose_name = 'Группу'
+
+
+class Access(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
+    user = models.ForeignKey("User", verbose_name=_("Пользователь"), on_delete=models.CASCADE, related_name="user")
+    access_accept = models.ManyToManyField("User", verbose_name=_("Доступ (принятые)"), related_name="access")
+    access_unaccept = models.ManyToManyField("User",verbose_name=_("Доступ (непринятые)"), related_name="unaccept")
+
+    def __str__(self):
+        return f'Доступ пользователя {self.user}'
+
+
+    class Meta:
+        verbose_name_plural = 'Доступ'
+        verbose_name = 'Доступ'
+
 
 class Note(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)

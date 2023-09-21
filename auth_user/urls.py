@@ -1,5 +1,9 @@
 from  django.urls import path
 from  .views import *
+
+from rest_framework.routers import DefaultRouter
+router = DefaultRouter()
+router.register(r'api/access', AccessViewSet, basename='access')
 urlpatterns = [
     
     path('api/users/', UserView.as_view(), name='user_list'),
@@ -16,3 +20,5 @@ urlpatterns = [
     path('api/users/diseases/', GetDiseasesView.as_view(), name='diseases_view_url'),
     path('api/users/centers/<str:city>/', CenterRegistrationView.as_view(), name='center_reg_url'),
 ]
+
+urlpatterns += router.urls
