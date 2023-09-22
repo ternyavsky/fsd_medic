@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import permission_classes, action, api_view
+from drf_yasg.utils import swagger_auto_schema
 from db.queries import get_messages, get_chats
 from .models import *
 from .serializers import *
@@ -25,6 +26,7 @@ logger = logging.getLogger(__name__)
 class MessageView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Получение сообщений по конкретному чату")
     def get(self, request, chat_id):
         messages = cache.get_or_set("messages", get_messages(chat=chat_id))
         serializer = MessageSerializer(messages, many=True)
@@ -36,6 +38,7 @@ class MessageView(APIView):
 class ChatView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Получение чатов по конкретному пользователю")
     def get(self, request, user_id):
         chat = cache.get_or_set("chat", get_chat(get_chats, user_id))
         serializer = ChatSerializer(chat, many=True)

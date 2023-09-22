@@ -2,11 +2,12 @@ from  django.urls import path
 from  .views import *
 
 from rest_framework.routers import DefaultRouter
-router = DefaultRouter()
-router.register(r'api/access', AccessViewSet, basename='access')
+# router = DefaultRouter()
+# router.register(r'api/access', AccessViewSet, basename='access')
 urlpatterns = [
     
     path('api/users/', UserView.as_view(), name='user_list'),
+    path('api/access/', AccessViewSet.as_view(), name="user_access"),
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),
     path('api/users-detail/', UserDetailView.as_view(), name="put_view" ),
     path('api/verify-code/', VerifyCodeView.as_view(), name='verify_code'),
@@ -21,4 +22,4 @@ urlpatterns = [
     path('api/users/centers/<str:city>/', CenterRegistrationView.as_view(), name='center_reg_url'),
 ]
 
-urlpatterns += router.urls
+# urlpatterns += router.urls

@@ -4,6 +4,8 @@ from django.utils.autoreload import raise_last_exception
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.db import transaction
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.core.cache import cache
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics, viewsets
@@ -299,6 +301,9 @@ class CreateAdminView(generics.ListCreateAPIView):
 class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(
+        operation_summary="Получение центров(при регистрации)",
+    ) 
     def get(self, request, city):
         centers = get_centers().filter(city=city)
         logger.debug(centers)
@@ -308,19 +313,32 @@ class CenterRegistrationView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class AccessViewSet(viewsets.ModelViewSet):
+class AccessViewSet(APIView):
     serializer_class = AccessSerializer
-    permission_classes = [IsAuthenticated]
-    
+    #permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
         queryset = cache.get_or_set("access", get_access())
         if self.request.user.is_staff:
             return queryset
         else:
-            return queryset.filter(user=get_users(id=1).first())
+            return queryset.filter(user=get_users(id=self.request.user.id).first())
+    
+    @swagger_auto_schema(operation_summary="Получение доступа пользователя")
+    def get(self, request):
+        return Response(self.serializer_class(self.get_queryset(), many=True).data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_summary="Добавление доступа пользователя",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id"],
+            properties={
+                "id":openapi.Schema(type=openapi.TYPE_INTEGER)
+            }),
+    ) 
     @transaction.atomic
-    def create(self, request):
+    def post(self, request):
         """ JSON {"id": 22} """
         users = cache.get_or_set("users", get_users())
         user_to_access, uta_created = Access.objects.get_or_create(user=users.filter(id=request.data["id"]).first())
@@ -330,10 +348,19 @@ class AccessViewSet(viewsets.ModelViewSet):
         Notification.objects.create(user=user_to_access.user, text="Вам отправлен запрос на доступ от", add=UserGetSerializer(user.user).data)
         return Response({"message": "created"}, status=status.HTTP_201_CREATED)
 
+    @swagger_auto_schema(
+        operation_summary="Удаление/Отклонение доступа пользователя",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id", "access"],
+            properties={
+                "id":openapi.Schema(type=openapi.TYPE_INTEGER),
+                "access": openapi.Schema(type=openapi.TYPE_STRING)
+            }),
+    )
     @transaction.atomic
-    @action(detail=False, methods=['DELETE'])
     def delete(self, request):
-        """ JSON {"id": 22, "access": "accept"} """
+        """ JSON {"id": 22, "access": "accept/unaccept"} """
         users = cache.get_or_set("users", get_users())
         user_to_delete_access = get_access(user=users.filter(id=request.data["id"]).first()).first()
         user = get_access(user=users.filter(id=request.user.id).first()).first()
@@ -345,9 +372,16 @@ class AccessViewSet(viewsets.ModelViewSet):
             user_to_delete_access.access_unaccept.remove(user.user)
         return Response({"message": "deleted"}, status=status.HTTP_202_ACCEPTED)
 
-
+    @swagger_auto_schema(
+        operation_summary="Принять доступ пользователя",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id"],
+            properties={
+                "id":openapi.Schema(type=openapi.TYPE_INTEGER)
+            }),
+    )
     @transaction.atomic
-    @action(detail=False, methods=["PUT"])
     def put(self, request):
         """ JSON {"id": 22} """
         users = cache.get_or_set("users", get_users())

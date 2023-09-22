@@ -12,6 +12,7 @@ from .models import User, Like
 from .permissions import IsAdminOrReadOnly
 from .serializers import *
 # REST IMPORTS
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -60,7 +61,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 
 
 class NewsViewSet(viewsets.ModelViewSet):
-    #permissions_classes = [IsAuthenticated]
+    permissions_classes = [IsAuthenticated]
     serializer_class = NewsSerializer
 
     def get_queryset(self):
@@ -94,6 +95,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 class SearchView(APIView):
     # permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())
         centers = cache.get_or_set("centers", get_centers())
@@ -113,6 +115,7 @@ class SearchView(APIView):
 class DoctorsListView(APIView):
     permissions_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Получение докторов")
     def get(self, request):
         doc = cache.get_or_set("users", get_users())
         doctors = doc.filter(group__name="Врачи", city=request.user.city)

@@ -60,7 +60,7 @@ class ClinicDataPast(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = ClinicCreateSerializer(data=request.data)
 
-        if serializer.is_valid():
+        if serializer.is_valid():   
             validated_data = serializer.validated_data
             user_hash = clinic_data_pass(validated_data)
             response_serializer = DoctorDataResponseSerializer({
@@ -199,6 +199,7 @@ class IsDoctorVerCodeRight(views.APIView):
                         'id': openapi.Schema(type=openapi.TYPE_INTEGER),
                     }
                 )
+                
             ),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
             status.HTTP_404_NOT_FOUND: "Not Found",
