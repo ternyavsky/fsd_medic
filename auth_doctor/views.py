@@ -17,7 +17,7 @@ from .serializers import VerificationCodeSerializer, DoctorDataResponseSerialize
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from api.models import Clinic
-from .services.clinic_reg_service import clinic_data_pass, clinic_compare_code_and_create, clinic_data_update
+from .services.clinic_reg_service import clinic_data_pass, clinic_compare_code_and_create, clinic_date_update
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class UpdateDateTimeViewClinic(APIView):
         if serializer.is_valid():
             id = serializer.validated_data['id']
             datetime_obj = serializer.validated_data['datetime']
-            return clinic_data_update(id, datetime_obj)
+            return clinic_date_update(id, datetime_obj)
         else:
             return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -60,7 +60,7 @@ class ClinicDataPast(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = ClinicCreateSerializer(data=request.data)
 
-        if serializer.is_valid():
+        if serializer.is_valid():   
             validated_data = serializer.validated_data
             user_hash = clinic_data_pass(validated_data)
             response_serializer = DoctorDataResponseSerializer({
@@ -199,6 +199,7 @@ class IsDoctorVerCodeRight(views.APIView):
                         'id': openapi.Schema(type=openapi.TYPE_INTEGER),
                     }
                 )
+                
             ),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
             status.HTTP_404_NOT_FOUND: "Not Found",
