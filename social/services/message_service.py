@@ -1,14 +1,12 @@
 from api.models import News
-from ..serializers import MessageGetSerializer
 
-def message_create(chat_id, validates_data):
+
+def get_message_data(chat_id, validates_data):
     message_data = validates_data.copy()
     del message_data["user_ids"]
     del message_data["center_ids"]
     message_data["chat_id"] = chat_id
-    serializer = MessageGetSerializer(data=message_data)
-    serializer.save()  
-    return serializer.data
+    return message_data
     
 
 

@@ -29,7 +29,7 @@ class Chat(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     users = models.ManyToManyField(User, verbose_name="Пациенты")
-    centers = models.ForeignKey(Center, verbose_name="Центры")
+    centers = models.ManyToManyField(Center, verbose_name="Центры")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
    
