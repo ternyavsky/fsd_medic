@@ -75,6 +75,10 @@ class AccessSerializer(serializers.ModelSerializer):
     def get_access_unaccept(self, obj):
         return UserGetSerializer(obj.access_unaccept.all(), many=True).data
 
+class NewsPreviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = News
+        fields = ['image', 'title', 'created_at']
 class NewsSerializer(serializers.ModelSerializer):
     disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(), presentation_serializer=DiseaseSerializer, required=False)
     center = PresentablePrimaryKeyRelatedField(queryset=Center.objects.all(), presentation_serializer=CenterSerializer, required=False)

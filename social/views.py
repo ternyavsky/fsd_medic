@@ -2,7 +2,7 @@ import logging
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from api.permissions import IsAdminOrReadOnly
-from .service import get_chat
+from .services.chat_services import get_chat
 
 # REST IMPORTS
 from rest_framework.views import APIView
@@ -15,11 +15,35 @@ from db.queries import get_messages, get_chats
 from .models import *
 from .serializers import *
 from django.core.cache import cache
-
+from drf_yasg.utils import swagger_auto_schema
+from .serializers import FirstMessageCreateSerializer, FirstMessageCreateRespSerializer
+from .services.chat_services import chat_create
 logger = logging.getLogger(__name__)
 
 
 # Create your views here.
+
+class SendFirstMessage(ApiView):
+    @swagger_auto_schema(
+        operation_summary="Сохраняет данные клиники в кэш",
+        query_serializer=FirstMessageCreateSerializer,
+        responses={
+            status.HTTP_200_OK: FirstMessageCreateRespSerializer(),
+            status.HTTP_400_BAD_REQUEST: "Bad Request",
+        }
+    )
+    def post(self, request):
+        serializer = FirstMessageCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            chat = chat_create(serializers.validated_data)
+            message = message_create()
+            return 
+        else:
+            return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
+
+class SendMessage(ApiView):
+    def post(self, request):
+        pass
 
 
 class MessageView(APIView):

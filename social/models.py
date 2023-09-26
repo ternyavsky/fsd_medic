@@ -28,10 +28,8 @@ class Notification(models.Model):
 class Chat(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    from_center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True, related_name="from_center")
-    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='from_user', null=True, blank=True)
-    to_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    to_center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True)
+    users = models.ManyToManyField(User, verbose_name="Пациенты")
+    centers = models.ForeignKey(Center, verbose_name="Центры")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
    
@@ -47,8 +45,8 @@ class Message(models.Model):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
     news = models.ForeignKey(News, on_delete=models.PROTECT,null=True, blank=True)
     text = models.TextField(max_length=500, null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)#отправитель
+    center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True) # отправитель
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -3,8 +3,40 @@ from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 from .models import *
 from api.serializers import NewsSerializer, UserGetSerializer, CenterSerializer
 from django.contrib.auth import get_user_model
-
+from .services.chat_services import chat_create_data_validate
+from .services.message_service import first_message_validate
+from api.serializers import NewsPreviewSerializer
 User = get_user_model()
+
+
+class FirstMessageCreateSerializer(serializers.Serializer):
+    user_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
+    center_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
+    news_id = serializers.IntegerField(min_value=0)
+    text = serializers.CharField(max_length=500)
+
+    def validate(self, data):
+        res, field, msg = chat_create_data_validate(data)
+        if not res:
+            raise serializers.ValidationError({field, msg})
+        res, field, msg = first_message_validate(data)
+        if not res:
+            raise serializers.ValidationError({field, msg})
+        return super().validate(data)
+
+class MessageGetSerializer(serializers.ModelSerializer):
+    news = NewsPreviewSerializer()
+    class Meta:
+        model = Message
+        fields = ["id", "news", "text", "user", "center", "created_at"]
+
+class FirstMessageCreateRespSerializer(serializers.Serializer):
+    chat_id = serializers.IntegerField()
+    MessageGetSerializer()
+
+
+
+
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -23,6 +55,7 @@ class ChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
         fields = ['id', 'uuid', 'to_user', 'to_center' ,'from_center', 'from_user']
+
 
 
 
