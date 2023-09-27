@@ -25,13 +25,12 @@ class TestChatCreate(APITestCase):
         req_data = {
             'user_ids': [1,2],
             'center_ids': [1],
-            'news_id': 1,
+            'news': 1,
             'text': "test@yandex.ru",
             'user': 1
         }
         response = self.client.post(url, format='json', data=req_data)
         data = response.data
-        print(data)
         self.assertEqual(200, response.status_code)
         chat = Chat.objects.get(id=1)
         self.assertEqual(chat.users.all()[0].id, req_data["user_ids"][0])
@@ -39,10 +38,41 @@ class TestChatCreate(APITestCase):
         self.assertEqual(chat.centers.all()[0].id, req_data["center_ids"][0])
         message = Message.objects.get(id=1)
         self.assertEqual(message.chat.id, data["chat"]["id"])
-        self.assertEqual(message.news.id, req_data["news_id"])
+        self.assertEqual(message.news.id, req_data["news"])
         self.assertEqual(message.note, None)
-        self.assertEqual(message.text, None)
-        self.assertEqual(message.user, req_data["user"])
+        self.assertEqual(message.text, req_data["text"])
+        self.assertEqual(message.user.id, req_data["user"])
         self.assertEqual(message.center, None)
 
+    def test_clinic_create_2(self):
+        # все норм
+    
+        url = reverse('send_first_message')
+
+        req_data = {
+            'user_ids': [1,2],
+            'center_ids': [1],
+            'news': 2,
+            'text': "test@yandex.ru",
+            'user': 1
+        }
+        response = self.client.post(url, format='json', data=req_data)
+        data = response.data
+        print(data)
+        self.assertEqual(400, response.status_code)
+
+    def test_clinic_create_3(self):
+        # все норм
+    
+        url = reverse('send_first_message')
+
+        req_data = {
+            'user_ids': [1,2],
+            'center_ids': [1],
+            'user': 1
+        }
+        response = self.client.post(url, format='json', data=req_data)
+        data = response.data
+        print(data)
+        self.assertEqual(400, response.status_code)
         

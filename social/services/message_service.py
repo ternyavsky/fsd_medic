@@ -14,7 +14,7 @@ def first_message_validate(data):
     news_id = data.get("news")
     text = data.get("text")
     note = data.get("note")
-    if news_id is None and text is None and note is not None:
+    if news_id is None and text is None and note is None:
         return False, "news, text, note", "В сообении должна быть либо новость, либо текст, либо заметка"
     
     if news_id is not None and not News.objects.filter(id=news_id).exists():
