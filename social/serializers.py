@@ -33,7 +33,10 @@ class MessageCreateSerializer(serializers.ModelSerializer):
 
 
 
-
+class ChatSerializerNew(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ['id', 'uuid', 'users', 'centers']
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -42,10 +45,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = "__all__"
 
-class ChatSerializerNew(serializers.ModelSerializer):
-    class Meta:
-        model = Chat
-        fields = ['id', 'uuid', 'users', 'centers']
+
 
 
 class ChatSerializer(serializers.ModelSerializer):

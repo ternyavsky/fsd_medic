@@ -44,7 +44,7 @@ class SendFirstMessage(APIView):
                 message = msg_serializer.data
                 chat_serializer = ChatSerializerNew(chat)
                 chat_data = chat_serializer.data
-                return Response(status=200, data={**chat_data,**message})
+                return Response(status=200, data={"chat": chat_data,"message": message})
         else:
             return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 

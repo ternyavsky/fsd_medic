@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from django.urls import reverse
 from api.models import Country, Center, Disease, Clinic, User, Group, News
+from social.models import Chat, Message
 
 class TestChatCreate(APITestCase):
     def setUp(self):
@@ -32,4 +33,16 @@ class TestChatCreate(APITestCase):
         data = response.data
         print(data)
         self.assertEqual(200, response.status_code)
+        chat = Chat.objects.get(id=1)
+        self.assertEqual(chat.users.all()[0].id, req_data["user_ids"][0])
+        self.assertEqual(chat.users.all()[1].id, req_data["user_ids"][1])
+        self.assertEqual(chat.centers.all()[0].id, req_data["center_ids"][0])
+        message = Message.objects.get(id=1)
+        self.assertEqual(message.chat.id, data["chat"]["id"])
+        self.assertEqual(message.news.id, req_data["news_id"])
+        self.assertEqual(message.note, None)
+        self.assertEqual(message.text, None)
+        self.assertEqual(message.user, req_data["user"])
+        self.assertEqual(message.center, None)
+
         
