@@ -16,7 +16,7 @@ from .models import *
 from .serializers import *
 from django.core.cache import cache
 from drf_yasg.utils import swagger_auto_schema
-from .serializers import FirstMessageCreateSerializer, FirstMessageCreateRespSerializer
+from .serializers import FirstMessageCreateSerializer,MessageCreateSerializer, ChatSerializer, ChatSerializerNew
 from .services.chat_services import chat_create
 from .services.message_service import get_message_data
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class SendFirstMessage(APIView):
         operation_summary="Сохраняет данные клиники в кэш",
         query_serializer=FirstMessageCreateSerializer,
         responses={
-            status.HTTP_200_OK: FirstMessageCreateRespSerializer(),
+            status.HTTP_200_OK: FirstMessageCreateSerializer(),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
         }
     )
@@ -37,11 +37,14 @@ class SendFirstMessage(APIView):
         serializer = FirstMessageCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             chat = chat_create(serializer.validated_data)
-            message_data = get_message_data(serializer.validated_data)
-            serializer = MessageGetSerializer(data=message_data)
-            serializer.save()  
-            message = serializer.data
-            return Response(status=200, data=chat+message)
+            message_data = get_message_data(chat.id, serializer.validated_data)
+            msg_serializer = MessageCreateSerializer(data=message_data)
+            if msg_serializer.is_valid(raise_exception=True):
+                msg_serializer.save()  
+                message = msg_serializer.data
+                chat_serializer = ChatSerializerNew(chat)
+                chat_data = chat_serializer.data
+                return Response(status=200, data={**chat_data,**message})
         else:
             return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 

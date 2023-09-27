@@ -4,7 +4,7 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
 from fsd_medic.settings import AUTH_USER_MODEL
-from api.models import News, Center 
+from api.models import News, Center, Note 
 import uuid
 
 User = AUTH_USER_MODEL
@@ -44,6 +44,7 @@ class Message(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
     news = models.ForeignKey(News, on_delete=models.PROTECT,null=True, blank=True)
+    note = models.ForeignKey(Note, on_delete=models.PROTECT,null=True, blank=True)
     text = models.TextField(max_length=500, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)#отправитель
     center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True) # отправитель

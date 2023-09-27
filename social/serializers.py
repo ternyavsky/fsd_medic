@@ -12,9 +12,11 @@ User = get_user_model()
 class FirstMessageCreateSerializer(serializers.Serializer):
     user_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
     center_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
-    news_id = serializers.IntegerField(min_value=0)
-    text = serializers.CharField(max_length=500)
-
+    news = serializers.IntegerField(min_value=0, required=False)
+    text = serializers.CharField(max_length=500, required=False)
+    user = serializers.IntegerField(min_value=0, required=False)
+    center = serializers.IntegerField(min_value=0, required=False)
+    note = serializers.IntegerField(min_value=0, required=False)
     def validate(self, data):
         res, field, msg = chat_create_data_validate(data)
         if not res:
@@ -24,15 +26,10 @@ class FirstMessageCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError({field, msg})
         return super().validate(data)
 
-class MessageGetSerializer(serializers.ModelSerializer):
-    news = NewsPreviewSerializer()
+class MessageCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ["id", "news", "text", "user", "center", "created_at"]
-
-class FirstMessageCreateRespSerializer(serializers.Serializer):
-    chat_id = serializers.IntegerField()
-    MessageGetSerializer()
+        fields = ["id", "news", "chat", "note", "text", "user", "center", "created_at"]
 
 
 
@@ -44,6 +41,11 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = "__all__"
+
+class ChatSerializerNew(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ['id', 'uuid', 'users', 'centers']
 
 
 class ChatSerializer(serializers.ModelSerializer):

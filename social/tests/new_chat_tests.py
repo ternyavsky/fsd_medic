@@ -26,6 +26,7 @@ class TestChatCreate(APITestCase):
             'center_ids': [1],
             'news_id': 1,
             'text': "test@yandex.ru",
+            'user': 1
         }
         response = self.client.post(url, format='json', data=req_data)
         data = response.data
