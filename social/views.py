@@ -16,7 +16,7 @@ from .models import *
 from .serializers import *
 from django.core.cache import cache
 from drf_yasg.utils import swagger_auto_schema
-from .serializers import FirstMessageCreateSerializer,MessageCreateSerializer, ChatSerializer, ChatSerializerNew
+from .serializers import ChatCreateSerializer,MessageCreateSerializer, ChatSerializer
 from .services.chat_services import chat_create
 from .services.message_service import get_message_data
 logger = logging.getLogger(__name__)
@@ -24,27 +24,25 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 
-class SendFirstMessage(APIView):
+class ChatCreate(APIView):
     @swagger_auto_schema(
         operation_summary="Сохраняет данные клиники в кэш",
-        query_serializer=FirstMessageCreateSerializer,
+        query_serializer=ChatCreateSerializer,
         responses={
-            status.HTTP_200_OK: FirstMessageCreateSerializer(),
+            status.HTTP_200_OK: ChatSerializer,
             status.HTTP_400_BAD_REQUEST: "Bad Request",
         }
     )
     def post(self, request):
-        serializer = FirstMessageCreateSerializer(data=request.data)
+        print("SKJSAHASKJSHASAKJDAHJKJKHKJH")
+        print(request.data)
+        serializer = ChatCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             chat = chat_create(serializer.validated_data)
-            message_data = get_message_data(chat.id, serializer.validated_data)
-            msg_serializer = MessageCreateSerializer(data=message_data)
-            if msg_serializer.is_valid(raise_exception=True):
-                msg_serializer.save()  
-                message = msg_serializer.data
-                chat_serializer = ChatSerializerNew(chat)
-                chat_data = chat_serializer.data
-                return Response(status=200, data={"chat": chat_data,"message": message})
+            chat_serializer = ChatSerializer(chat)
+            if chat_serializer.is_valid():
+                chat_data = chat_serializer.validated_data
+                return Response(status=200, data=chat_data)
         else:
             return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 

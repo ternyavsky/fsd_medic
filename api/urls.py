@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from .views import *
-from social.views import ChatView, SendFirstMessage
+from social.views import ChatView, ChatCreate
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -39,6 +39,6 @@ urlpatterns = [
     path('clinic/set_interview_date', UpdateDateTimeViewClinic.as_view(), name='clinic_set_date'),
     # устанавливаем дату интервью
 
-    path('message/send_first',SendFirstMessage.as_view(),  name='send_first_message')
+    path('chat/create', ChatCreate.as_view(),  name='chat_create')
 ]
 urlpatterns += router.urls

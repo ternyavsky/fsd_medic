@@ -9,19 +9,12 @@ from api.serializers import NewsPreviewSerializer
 User = get_user_model()
 
 
-class FirstMessageCreateSerializer(serializers.Serializer):
+class ChatCreateSerializer(serializers.Serializer):
     user_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
     center_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
-    news = serializers.IntegerField(min_value=0, required=False)
-    text = serializers.CharField(max_length=500, required=False)
-    user = serializers.IntegerField(min_value=0, required=False)
-    center = serializers.IntegerField(min_value=0, required=False)
-    note = serializers.IntegerField(min_value=0, required=False)
+    
     def validate(self, data):
         res, field, msg = chat_create_data_validate(data)
-        if not res:
-            raise serializers.ValidationError({field, msg})
-        res, field, msg = first_message_validate(data)
         if not res:
             raise serializers.ValidationError({field, msg})
         return super().validate(data)
@@ -31,12 +24,6 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         model = Message
         fields = ["id", "news", "chat", "note", "text", "user", "center", "created_at"]
 
-
-
-class ChatSerializerNew(serializers.ModelSerializer):
-    class Meta:
-        model = Chat
-        fields = ['id', 'uuid', 'users', 'centers']
 
 
 class NotificationSerializer(serializers.ModelSerializer):
