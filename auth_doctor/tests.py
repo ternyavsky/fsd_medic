@@ -12,6 +12,8 @@ class TestClinicReg(APITestCase):
     def setUp(self):
         Country.objects.create(name="Russia")
         Center.objects.create(name="Center_1")
+        Disease.objects.create(name="Disease_1")
+        Disease.objects.create(name="Disease_2")
 
     def test_clinic_create_1(self):
         # все норм
@@ -22,7 +24,7 @@ class TestClinicReg(APITestCase):
             'number': "89856478963",
             'email': "test@yandex.ru",
             'employees_number': 18,
-            'supported_diseases': "заболевание1, заболевание2",
+            'supported_diseases': [1,2],
             'country': 1,
             'city': "Moscow",
             'address': "test address",
@@ -46,7 +48,9 @@ class TestClinicReg(APITestCase):
         self.assertEqual(req_data["description"], clinic.description)
         self.assertEqual(req_data["number"], clinic.number)
         self.assertEqual(req_data["employees_number"], clinic.employees_number)
-        self.assertEqual(req_data["supported_diseases"], clinic.supported_diseases)
+        cure_diseades = list(clinic.supported_diseases.all())
+        self.assertEqual(req_data["supported_diseases"][0], cure_diseades[0].id)
+        self.assertEqual(req_data["supported_diseases"][1], cure_diseades[1].id)
         self.assertEqual(req_data["country"], clinic.country.id)
         self.assertEqual(req_data["city"], clinic.city)
         self.assertEqual(req_data["address"], clinic.address)

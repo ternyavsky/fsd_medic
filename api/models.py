@@ -91,24 +91,15 @@ class User(AbstractBaseUser):
         'Группа'), on_delete=models.CASCADE, )
     main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True,
                                     blank=True, related_name="main_center")
-    centers = models.ManyToManyField(
-        'Center', verbose_name=_('Центр'),  blank=True)
-    disease = models.ManyToManyField(
-        'Disease', verbose_name=_('Заболевания'), blank=True)
-    number = models.CharField(verbose_name=_(
-        'Номер'), max_length=30, unique=True, null=True)
-    email = models.CharField(verbose_name=_(
-        'Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
-    first_name = models.CharField(verbose_name=_(
-        'Имя'), max_length=20, null=True, blank=True)
-    last_name = models.CharField(verbose_name=_(
-        'Фамилия'), max_length=30, null=True, blank=True)
-    surname = models.CharField(verbose_name=_(
-        'Отчество'), max_length=40, null=True, blank=True)
-    interest = models.CharField(verbose_name=_(
-        'Интерес к заболеванию'), max_length=225, null=True, blank=True)
-    birthday = models.DateField(verbose_name=_(
-        'Дата рождения'), null=True, blank=True)
+    centers = models.ManyToManyField('Center', verbose_name=_('Центр'),  blank=True)
+    disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'), blank=True)
+    number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
+    email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
+    first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
+    last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
+    surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
+    interest = models.CharField(verbose_name=_('Интерес к заболеванию'), max_length=225, null=True, blank=True)
+    birthday = models.DateField(verbose_name=_('Дата рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='users_photos/AccauntPreview.png')
     country = models.ForeignKey(
@@ -247,20 +238,13 @@ class Center(models.Model):
     country = models.ForeignKey(
         'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     observed = models.IntegerField(verbose_name=_("Наблюдается"), default=100)
-    observed_after = models.IntegerField(
-        verbose_name=_("Наблюдалось"), default=100)
-    city = models.CharField(verbose_name=_(
-        'Город'), max_length=50, blank=True, null=True)
-    address = models.CharField(verbose_name=_(
-        'Адрес'), max_length=100, unique=True, null=True)
-    lng = models.DecimalField(verbose_name=_(
-        "Долгота"), max_digits=6,  decimal_places=4, default=0)
-    lat = models.DecimalField(verbose_name=_(
-        "Широта"), max_digits=6, decimal_places=4, default=0)
-    created_at = models.DateTimeField(verbose_name=_(
-        'Дата создания'), auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(verbose_name=_(
-        'Дата Изменения'), auto_now=True, null=True)
+    observed_after = models.IntegerField(verbose_name=_("Наблюдалось"), default=100)
+    city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
+    address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
+    lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6,  decimal_places=4, default=0)
+    lat = models.DecimalField(verbose_name=_("Широта"), max_digits=6, decimal_places=4, default=0)
+    created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
 
     def __str__(self):
         return self.name
@@ -286,10 +270,8 @@ class Clinic(models.Model):
     email = models.CharField(verbose_name=_(
         'Электронный адрес'), max_length=100, unique=True)
     employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'))
-    supported_diseases = models.ManyToManyField(
-        "Disease", verbose_name=_('Поддерживаемые заболевания'))
-    country = models.ForeignKey(
-        'Country', on_delete=models.PROTECT, verbose_name=_('Страна'))
+    supported_diseases = models.ManyToManyField('Disease', verbose_name="Изученные заболевания")
+    country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'))
     city = models.CharField(verbose_name=_('Город'), max_length=50)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=True)

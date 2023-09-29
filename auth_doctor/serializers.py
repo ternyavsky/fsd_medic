@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from api.models import Interview, Clinic
 from social.models import Chat
-
+from api.serializers import CenterSerializer, CountrySerializer
 from rest_framework import status, exceptions
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
@@ -13,6 +13,26 @@ from .services.clinic_reg_service import clinic_reg_data_validate
 
 logger.add("logs/auth_doctor.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00",
            compression="zip")
+
+class DoctorGetSerializer(serializers.ModelSerializer):
+    center = CenterSerializer()
+    country = CountrySerializer()
+    class Meta:
+        model = Clinic
+        fields = [
+            'number',
+            "first_name",
+            'middle_name',
+            'last_name',
+            'city',
+            'country',
+            'center',
+            'clinic',
+            'address',
+            'specialization',
+            'work_experience',
+            'registration_date'
+        ]
 
 
 class ClinicCreateSerializer(serializers.ModelSerializer):

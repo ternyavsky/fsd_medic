@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from .views import *
-from social.views import ChatView
+from social.views import ChatView, ChatCreate
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -24,5 +24,22 @@ urlpatterns = [
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path("__debug__/", include("debug_toolbar.urls")),
+    path('doctor_clinic/send_code/<str:user_hash>', RegSmsCodeSend.as_view(), name='create_send_code'),
+    # отправка кода на смс и сохранение его в кэше
+
+    path('doctor/create', DoctorDataPast.as_view(), name='doctor_create'),  # Сохранение данных в кэше
+
+    path('doctor/compare_code', IsDoctorVerCodeRight.as_view(), name='doctor_verification_code'),
+    # ввод кода из смс и создание пользователя в БД
+    path('doctor/set_interview_date', UpdateDateTimeViewDoctor.as_view(), name='doctor_set_date'),
+    # устанавливаем дату интервью
+
+    path('clinic/create', ClinicDataPast.as_view(), name='clinic_create'),  # Сохранение данных в кэше
+    path('clinic/compare_code', IsClinicVerCodeRight.as_view(), name='clinic_verification_code'),
+    # ввод кода из смс и создание пользователя в БД
+    path('clinic/set_interview_date', UpdateDateTimeViewClinic.as_view(), name='clinic_set_date'),
+    # устанавливаем дату интервью
+
+    path('chat/create', ChatCreate.as_view(),  name='chat_create')
 ]
 urlpatterns += router.urls

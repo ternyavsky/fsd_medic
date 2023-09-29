@@ -6,7 +6,7 @@ from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from .all_service import is_valid_phone_number
 from rest_framework.exceptions import ValidationError
-
+from api.models import Disease
 
 def clinic_reg_data_validate(data: dict):
     phone = data.get("number")
@@ -14,7 +14,7 @@ def clinic_reg_data_validate(data: dict):
         raise ValidationError({"number": "Невалидный номер телефона"})
 
 
-def clinic_data_update(object_id, datetime_obj):
+def clinic_date_update(object_id, datetime_obj):
     try:
         obj = Clinic.objects.get(id=object_id)
         obj.dateTimeField = datetime_obj
@@ -31,7 +31,10 @@ def clinic_compare_code_and_create(user_hash: str, right_code: str, ver_code: st
     if right_code == ver_code:
         user_data = cache.get(user_hash)
         if user_data:
+            supported_diseases = user_data.pop("supported_diseases")
             clinic = Clinic.objects.create(**user_data)
+            clinic.supported_diseases.add(*supported_diseases)
+            clinic.save()
             return 201, {"message": "Успешно создан", "id": clinic.id}
         else:
             return 400, {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}

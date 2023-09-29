@@ -73,6 +73,10 @@ class AccessSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class NewsPreviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = News
+        fields = ['image', 'title', 'created_at']
 class NewsSerializer(serializers.ModelSerializer):
     disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(
     ), presentation_serializer=DiseaseSerializer, required=False)

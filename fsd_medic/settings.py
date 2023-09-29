@@ -186,13 +186,6 @@ CACHES = {
         "LOCATION": "localhost:11211",
     }
 }
-# FOR TEST
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://default:12345@redis-13054.c256.us-east-1-2.ec2.cloud.redislabs.com:13054',  # Здесь укажите параметры подключения к вашему Redis-серверу.
-#     }
-# }
 
 CHANNEL_LAYERS = {
     "default": {
