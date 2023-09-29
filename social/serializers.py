@@ -4,7 +4,7 @@ from .models import *
 from api.serializers import NewsSerializer, UserGetSerializer, CenterSerializer
 from django.contrib.auth import get_user_model
 from .services.chat_services import chat_create_data_validate
-from .services.message_service import first_message_validate
+
 from api.serializers import NewsPreviewSerializer
 User = get_user_model()
 

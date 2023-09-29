@@ -39,10 +39,7 @@ class ChatCreate(APIView):
         serializer = ChatCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             chat = chat_create(serializer.validated_data)
-            chat_serializer = ChatSerializer(chat)
-            if chat_serializer.is_valid():
-                chat_data = chat_serializer.validated_data
-                return Response(status=200, data=chat_data)
+            return Response(status=200, data={"chat_id": chat.id})
         else:
             return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 

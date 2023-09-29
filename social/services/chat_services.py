@@ -25,11 +25,6 @@ def chat_create_data_validate(data: dict) -> tuple[bool,str, str]:
                 return False,"center_ids", "Центра с таким id не существует"
     if len(center_ids) == 0:
         return False,"center_ids", "Добавьте хотябы один центр в чат"
-    
-    user = data.get("user")
-    center = data.get("center")
-    if user is None and center is None:
-        return False,"user, center", "Добавьте отправителя сообщения (пациента или центр)"
     return True, "", ""
 
 

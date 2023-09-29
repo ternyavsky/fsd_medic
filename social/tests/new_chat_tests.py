@@ -34,7 +34,7 @@ class TestChatCreate(APITestCase):
         self.assertEqual(chat.users.all()[0].id, req_data["user_ids"][0])
         self.assertEqual(chat.users.all()[1].id, req_data["user_ids"][1])
         self.assertEqual(chat.centers.all()[0].id, req_data["center_ids"][0])
-"""
+
     def test_clinic_create_2(self):
         # все норм
     
@@ -55,12 +55,10 @@ class TestChatCreate(APITestCase):
         url = reverse('chat_create')
 
         req_data = {
-            'user_ids': [1,2],
+            'user_ids': [],
             'center_ids': [1],
-            'user': 1
         }
         response = self.client.post(url, format='json', data=req_data)
         data = response.data
         print(data)
         self.assertEqual(400, response.status_code)
-        """
