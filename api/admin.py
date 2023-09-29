@@ -9,16 +9,16 @@ from .models import *
 class UserAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group',
                     'country', 'city', 'is_staff',
-                    'is_required', 'created_at', 'updated_at', 'verification_code','email_verification_code']
+                    'is_required', 'created_at', 'updated_at', 'verification_code', 'email_verification_code']
     search_fields = ['login', 'number', 'email', 'first_name', 'last_name', ]
     list_editable = ['is_required', ]
-    list_filter = ['group', 'country', 'disease', 'centers', 'is_staff', 'is_required', ]
+    list_filter = ['group', 'country', 'disease',
+                   'centers', 'is_staff', 'is_required', ]
     fields = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'centers', 'disease', 'country',
               'city', 'is_staff',
-              'is_required', 'created_at', 'updated_at','verification_code', 'reset_code','email_verification_code' ]
+              'is_required', 'created_at', 'updated_at', 'verification_code', 'reset_code', 'email_verification_code']
     readonly_fields = ['id', 'number',  'first_name', 'last_name', 'birthday', 'group', 'is_staff',
                        'created_at', 'updated_at', 'country', 'city',]
-
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -33,18 +33,18 @@ class CountryAdmin(admin.ModelAdmin):
 
 
 class CenterAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'is_required', 'employees_number', 'country', 'address', 'lng', 'lat',
-                   'created_at', 'updated_at']
+    list_display = ['id', 'name', 'is_required',  'country', 'address', 'lng', 'lat',
+                    'created_at', 'updated_at']
     search_fields = ['name', 'address']
     list_editable = ['is_required']
     list_filter = ['is_required', 'country', 'created_at', 'updated_at']
-    fields = ['name', 'is_required', 'employees_number', 'country', 'address',
-         ]
+    fields = ['name', 'is_required',  'country', 'address',
+              ]
     readonly_fields = ['id', 'created_at', 'updated_at']
 
 
 class UrlParamsAdmin(admin.ModelAdmin):
-    list_display = ['id','get_parameter','group']
+    list_display = ['id', 'get_parameter', 'group']
     list_filter = ['group']
     fields = ['group']
 
@@ -53,6 +53,7 @@ class UrlParamsAdmin(admin.ModelAdmin):
         return format_html(f'<a href="/registration/{obj}">registration/{obj}</a>')
 
     get_parameter.short_description = 'Ссылка'
+
 
 admin.site.register(Center, CenterAdmin)
 admin.site.register(User, UserAdmin)

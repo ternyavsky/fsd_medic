@@ -9,6 +9,8 @@ import uuid
 
 User = AUTH_USER_MODEL
 # Create your models here.
+
+
 class Notification(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -18,7 +20,6 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.text} {self.user}"
-    
 
     class Meta:
         verbose_name = 'Уведомление'
@@ -32,13 +33,14 @@ class Chat(models.Model):
     centers = models.ManyToManyField(Center, verbose_name="Центры")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-   
+
     def __str__(self):
-       return f"Chat - {self.uuid}"
-    
+        return f"Chat - {self.uuid}"
+
     class Meta:
         verbose_name = 'Чат'
         verbose_name_plural = 'Чаты'
+
 
 class Message(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
@@ -53,7 +55,7 @@ class Message(models.Model):
 
     def __str__(self):
         return f'Message {self.user} - {self.chat}'
-    
+
     class Meta:
         verbose_name = 'Сообщение'
         verbose_name_plural = 'Сообщения'

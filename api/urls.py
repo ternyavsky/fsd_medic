@@ -17,9 +17,10 @@ router.register(r'api/saved', SaveViewSet, basename='saved')
 router.register(r'api/likes', LikeViewSet, basename='likes')
 
 urlpatterns = [
-
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair_url'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
+    path('api/token/', TokenObtainPairView.as_view(),
+         name='token_obtain_pair_url'),
+    path('api/token/refresh/', TokenRefreshView.as_view(),
+         name='token_refresh_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path("__debug__/", include("debug_toolbar.urls")),

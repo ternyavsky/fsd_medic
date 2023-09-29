@@ -83,8 +83,10 @@ class InterviewSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.number = validated_data.get('number', instance.number)
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name)
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name)
         instance.group = validated_data.get('group', instance.group)
 
         return instance

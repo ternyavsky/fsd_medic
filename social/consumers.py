@@ -158,7 +158,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 obj = await database_sync_to_async(Message.objects.create)(
                     text=data["text"],
                     chat=Chat.objects.get(uuid=data["chat_uuid"]),
-                    user=User.objects.get(id=data["user_id"])
+                    user=User.objects.get(id=data["user_id"]),
                 )
                 logger.debug(obj)
                 message = dict(data=self.serializer(instance=obj).data)

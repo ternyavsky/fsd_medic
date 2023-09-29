@@ -12,6 +12,7 @@ from .models import User, Like
 from .permissions import IsAdminOrReadOnly
 from .serializers import *
 # REST IMPORTS
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -60,7 +61,6 @@ class NoteViewSet(viewsets.ModelViewSet):
 
 
 class NewsViewSet(viewsets.ModelViewSet):
-    #permissions_classes = [IsAuthenticated]
     serializer_class = NewsSerializer
 
     def get_queryset(self):
@@ -81,8 +81,8 @@ class NewsViewSet(viewsets.ModelViewSet):
                 except:
                     logger.warning(self.request.path)
                     logger.info("Center or disease not specified!")
-                    raise serializers.ValidationError("To access the news, you must specify the center or disease!")
-
+                    raise serializers.ValidationError(
+                        "To access the news, you must specify the center or disease!")
 
             else:
                 logger.warning("Not authorized")
@@ -94,11 +94,11 @@ class NewsViewSet(viewsets.ModelViewSet):
 class SearchView(APIView):
     # permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())
         centers = cache.get_or_set("centers", get_centers())
-        users = cache.get_or_set("users", get_users())
-        doctors = users.filter(group__name="Врачи")
+        doctors = cache.get_or_set("doctors", get_doctors())
         search_results = {
             'clinics': clinics,
             'centers': centers,
@@ -113,9 +113,10 @@ class SearchView(APIView):
 class DoctorsListView(APIView):
     permissions_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Получение докторов")
     def get(self, request):
-        doc = cache.get_or_set("users", get_users())
-        doctors = doc.filter(group__name="Врачи", city=request.user.city)
+        doc = cache.get_or_set("doctors", get_doctors())
+        doctors = doc.filter(city=request.user.city)
         serializer = UserGetSerializer(doctors, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
