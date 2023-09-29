@@ -60,7 +60,7 @@ class ClinicDataPast(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = ClinicCreateSerializer(data=request.data)
 
-        if serializer.is_valid():   
+        if serializer.is_valid():
             validated_data = serializer.validated_data
             user_hash = clinic_data_pass(validated_data)
             response_serializer = DoctorDataResponseSerializer({
@@ -100,7 +100,8 @@ class IsClinicVerCodeRight(views.APIView):
             right_code = cache.get(get_code_cache_name(user_hash))
             if right_code:
                 verification_code = validated_data.get("verification_code")
-                status_code, msg = clinic_compare_code_and_create(user_hash, right_code, verification_code)
+                status_code, msg = clinic_compare_code_and_create(
+                    user_hash, right_code, verification_code)
                 return Response(status=status_code, data={"message": msg})
             else:
                 return Response(status=404,
@@ -199,7 +200,7 @@ class IsDoctorVerCodeRight(views.APIView):
                         'id': openapi.Schema(type=openapi.TYPE_INTEGER),
                     }
                 )
-                
+
             ),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
             status.HTTP_404_NOT_FOUND: "Not Found",
@@ -213,7 +214,8 @@ class IsDoctorVerCodeRight(views.APIView):
             right_code = cache.get(get_code_cache_name(user_hash))
             if right_code:
                 verification_code = validated_data.get("verification_code")
-                status_code, msg = doctor_compare_code_and_create(user_hash, right_code, verification_code)
+                status_code, msg = doctor_compare_code_and_create(
+                    user_hash, right_code, verification_code)
                 return Response(status=status_code, data={"message": msg})
             else:
                 return Response(status=404,

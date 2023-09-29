@@ -113,7 +113,8 @@ LOGGING = {
     'formatters': {
         'loki': {
             'class': 'django_loki.LokiFormatter',  # required
-            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] [%(funcName)s] %(message)s',  # optional, default is logging.BASIC_FORMAT
+            # optional, default is logging.BASIC_FORMAT
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] [%(funcName)s] %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S',  # optional, default is '%Y-%m-%d %H:%M:%S'
         },
     },
@@ -141,16 +142,16 @@ LOGGING = {
 }
 
 SWAGGER_SETTINGS = {
-   'SECURITY_DEFINITIONS': {
-      'Basic': {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
             'type': 'basic'
-      },
-      'Bearer': {
+        },
+        'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
-      }
-   }
+        }
+    }
 }
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -165,14 +166,15 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),
         'OPTIONS': {
             'sql_mode': os.getenv('DB_SQL_MODE')
-        }}
+        },
+    }
 
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
-# 'default': {
-#      'ENGINE': 'django.db.backends.sqlite3',
-#     'NAME': BASE_DIR / 'db.sqlite3',
-# }
-#     }
 
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER")

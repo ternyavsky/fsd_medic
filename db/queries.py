@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from social.models import *
 from fsd_medic.settings import AUTH_USER_MODEL
 from api import models
+from auth_doctor.models import Doctor
 from .services import generate_cache_key
 from django.core.cache import cache
 
@@ -31,7 +32,7 @@ def get_saved(**kwargs):
             )
 
 
-##notes
+# notes
 def get_notes(**kwargs):
     """Получение записей"""
     return (Note.objects.filter(**kwargs)
@@ -47,7 +48,7 @@ def get_notes(**kwargs):
 def get_clinics(**kwargs):
     """Получение списка клиник"""
     return (Clinic.objects.filter(**kwargs)
-            .select_related("country")
+            .select_related("country", "center")
             .prefetch_related("supported_diseases")
             )
 
@@ -60,7 +61,8 @@ def get_disease(**kwargs):
 def get_centers(**kwargs):
     """Получение центров"""
     return (Center.objects.filter(**kwargs)
-            .select_related("country")
+            .select_related("country", "admin")
+            .prefetch_related("supported_diseases", "employees")
             )
 
 
@@ -73,12 +75,19 @@ def get_users(**kwargs):
             )
 
 
+def get_doctors(**kwargs):
+    return (Doctor.objects.filter(**kwargs)
+            .select_related("country", "center", "clinic")
+            )
+
+
 def get_access(**kwargs):
     """Получение доступа"""
-    return(Access.objects.filter(**kwargs)
-        .select_related("user")
-        .prefetch_related("access_accept", "access_unaccept")
-    )
+    return (Access.objects.filter(**kwargs)
+            .select_related("user")
+            .prefetch_related("access_accept", "access_unaccept")
+            )
+
 
 def get_groups(**kwargs):
     """Получение групп пользователей"""

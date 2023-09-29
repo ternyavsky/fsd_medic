@@ -132,7 +132,8 @@ def notify_center(sender, instance, **kwargs):
     users2 = User.objects.filter(centers=instance.center)
     data = users.union(users2)
     for i in range(len(data)):
-        Notification.objects.create(user=data[i], text=f"Вышел новый пост у мед.центра {instance.center.name}")
+        Notification.objects.create(
+            user=data[i], text=f"Вышел новый пост у мед.центра {instance.center.name}")
 
     # Change status Note signal
 
@@ -141,18 +142,22 @@ def notify_center(sender, instance, **kwargs):
 def notify_note(sender, instance, created, **kwargs):
     if not created:
         if instance.special_check == True:
-            Notification.objects.create(user=instance.user, text="Созданная запись прошла дополнительную проверку")
+            Notification.objects.create(
+                user=instance.user, text="Созданная запись прошла дополнительную проверку")
         if instance.status == "Rejected":
-            Notification.objects.create(user=instance.user, text="Запись была отклонена вашим центром")
+            Notification.objects.create(
+                user=instance.user, text="Запись была отклонена вашим центром")
         elif instance.status == "Passed":
-            Notification.objects.create(user=instance.user, text="Запись была подтверждена вашим центром")
+            Notification.objects.create(
+                user=instance.user, text="Запись была подтверждена вашим центром")
 
 
 @receiver(post_save, sender=User)
 def notify_verify(sender, instance, created, **kwargs):
     if not created:
         if instance.verification_code != 0 and instance.email_verification_code != 0:
-            Notification.objects.create(user=instance, text="Ваш аккаунт был успешно защищен эл.почтой или телефоном")
+            Notification.objects.create(
+                user=instance, text="Ваш аккаунт был успешно защищен эл.почтой или телефоном")
 
 
 # SEND REMINDER FOR NOTE
@@ -160,4 +165,5 @@ def notify_verify(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Note)
 def notify_time(sender, instance, created, **kwargs):
     if created:
-        start_time_reminder.s(instance.user.id, instance.notify).apply_async(eta=instance.notify)
+        start_time_reminder.s(instance.user.id, instance.notify).apply_async(
+            eta=instance.notify)

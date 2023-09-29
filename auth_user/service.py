@@ -21,6 +21,7 @@ app = Celery('tasks', broker="amqp://localhost")
 
 load_dotenv(BASE_DIR / ".env")
 
+
 @shared_task
 def send_reset_sms(number, code):
 
@@ -47,7 +48,6 @@ def send_reset_email(email, code):
     )
 
 
-
 @shared_task
 def Send_email(user_email, message):
     send_mail(
@@ -57,6 +57,7 @@ def Send_email(user_email, message):
         [user_email],
         fail_silently=False,
     )
+
 
 @shared_task
 def send_sms(number, code):
@@ -72,10 +73,6 @@ def send_sms(number, code):
         return False
 
 
-
-
-
-    
 def generate_email_code():
     code = random.randrange(start=10000000, stop=99999999)
     return code
@@ -84,7 +81,6 @@ def generate_email_code():
 def generate_verification_code():
     code = random.randint(1000, 9999)
     return str(code)
-
 
 
 @shared_task
@@ -100,8 +96,8 @@ def send_verification_email(email_code, user_email):
 
 @app.task
 def start_time_reminder(user, data):
-    Notification.objects.create(user=User.objects.get(id=user), text=f"Напоминание о записи {data}")
-
+    Notification.objects.create(user=User.objects.get(
+        id=user), text=f"Напоминание о записи {data}")
 
 
 def set_new_password(user, new_password):
