@@ -88,9 +88,11 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(
         verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Group', verbose_name=_(
-        'Группа'), on_delete=models.CASCADE, )
+        'Группа'), on_delete=models.CASCADE)
+    sex = models.CharField(_("Пол"), max_length=255, default=None, null=True)
     main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True,
                                     blank=True, related_name="main_center")
+    clinic = models.ForeignKey("Clinic", on_delete=models.PROTECT, verbose_name=_("Клиника"), null=True, related_name="user_clinic")
     centers = models.ManyToManyField('Center', verbose_name=_('Центр'),  blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'), blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
@@ -187,13 +189,14 @@ class Note(models.Model):
         verbose_name=_('Конец'), null=True, blank=True)
     notify = models.DateTimeField(verbose_name=_(
         'Время уведомления о записи'), null=True, blank=True)
-    doctor = models.ForeignKey('User', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True,
+    doctor = models.ForeignKey('auth_doctor.Doctor', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True,
                                related_name="to_doctor")
     problem = models.CharField(verbose_name=_(
         'Причина'), max_length=255, null=True, blank=True)
     duration_note = models.IntegerField(
         verbose_name=_('Длительность'), null=True, blank=True)
     center = models.ForeignKey('Center', on_delete=models.CASCADE, null=True)
+    clinic = models.ForeignKey('Clinic', on_delete=models.CASCADE, null=True)
     file = models.FileField(verbose_name=_(
         'Файлы к записи'), upload_to='files_to_notes/', null=True, blank=True)
     special_check = models.BooleanField(verbose_name=_(
@@ -257,6 +260,7 @@ class Center(models.Model):
 class Clinic(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100)
+    admin = models.ForeignKey("User", on_delete=models.CASCADE, verbose_name=_("Администартор"), null=True, related_name="admin_clinic")
     is_required = models.BooleanField(
         verbose_name=_('Статус подтверждения'), default=False)
     rating = models.FloatField(verbose_name=_('Рейтинг клиники'), default=5,
@@ -269,7 +273,8 @@ class Clinic(models.Model):
         'Номер'), max_length=30, unique=True)
     email = models.CharField(verbose_name=_(
         'Электронный адрес'), max_length=100, unique=True)
-    employees_number = models.IntegerField(verbose_name=_('Число Сотрудников'))
+    employees = models.ManyToManyField(to="auth_doctor.Doctor", verbose_name=_(
+        'Сотрудники'), related_name="clinic_employees")
     supported_diseases = models.ManyToManyField('Disease', verbose_name="Изученные заболевания")
     country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'))
     city = models.CharField(verbose_name=_('Город'), max_length=50)

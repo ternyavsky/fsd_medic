@@ -2,7 +2,6 @@ import logging
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from api.permissions import IsAdminOrReadOnly
-from .services.chat_services import get_chat
 
 # REST IMPORTS
 from rest_framework.views import APIView
@@ -44,9 +43,6 @@ class ChatCreate(APIView):
         else:
             return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 
-class SendMessage(APIView):
-    def post(self, request):
-        pass
 
 
 class MessageView(APIView):
@@ -62,12 +58,13 @@ class MessageView(APIView):
 
 
 class ChatView(APIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Получение чатов по конкретному пользователю")
     def get(self, request, user_id):
-        chat = cache.get_or_set("chat", get_chat(get_chats, user_id))
-        serializer = ChatSerializer(chat, many=True)
+        chat = cache.get_or_set("chats", get_chats())
+        result = chat.filter(users__id=user_id)
+        serializer = ChatSerializer(result, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)

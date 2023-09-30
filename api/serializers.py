@@ -6,7 +6,7 @@ from rest_framework import serializers
 from db.queries import get_users
 from .models import News, User, NumberCode, Center, Clinic, Disease, Note, Saved, Like, Country, Access
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
-
+from auth_doctor.models import Doctor
 
 class CountrySerializer(serializers.ModelSerializer):
     """Страны"""
@@ -17,26 +17,11 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class CenterSerializer(serializers.ModelSerializer):
-    country = PresentablePrimaryKeyRelatedField(
-        presentation_serializer=CountrySerializer,
-        queryset=Country.objects.all(),
-    )
-    employees = serializers.SerializerMethodField()
-    employees_number = serializers.SerializerMethodField()
-    supported_diseases_number = serializers.SerializerMethodField()
     """Клиники"""
     class Meta:
         model = Center
         fields = '__all__'
-
-    def get_employees(self, obj):
-        return UserGetSerializer(obj.employees.all(), many=True).data
-
-    def get_employees_number(self, obj):
-        return obj.employees.all().count()
-
-    def get_supported_diseases_number(self, obj):
-        return obj.supported_diseases.all().count()
+        depth = 1
 
 
 class DiseaseSerializer(serializers.ModelSerializer):
@@ -48,44 +33,34 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 class UserGetSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""
-    disease = DiseaseSerializer(many=True, allow_null=True, required=False)
-    main_center = CenterSerializer(many=False, allow_null=True, required=False)
-    password = serializers.CharField(
-        allow_null=True, required=False)  # убираем обяз. поле password
-    group = serializers.CharField(
-        allow_null=True, required=False)  # убираем обяз. поле group
-    country = CountrySerializer(required=False)
-    centers = CenterSerializer(many=True, required=False)
 
     class Meta:
+        depth = 1
         model = User
         fields = '__all__'
 
 
+
+
 class AccessSerializer(serializers.ModelSerializer):
-    user = UserGetSerializer()
-    access_accept = UserGetSerializer(many=True)
-    access_unaccept = UserGetSerializer(many=True)
 
     """Доступ"""
     class Meta:
         model = Access
         fields = '__all__'
+        depth = 1
 
 
 class NewsPreviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = ['image', 'title', 'created_at']
-class NewsSerializer(serializers.ModelSerializer):
-    disease = PresentablePrimaryKeyRelatedField(queryset=Disease.objects.all(
-    ), presentation_serializer=DiseaseSerializer, required=False)
-    center = PresentablePrimaryKeyRelatedField(queryset=Center.objects.all(
-    ), presentation_serializer=CenterSerializer, required=False)
 
+class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
+        depth = 1
 
     def create(self, validated_data):
         news = News.objects.create(**validated_data)
@@ -103,17 +78,11 @@ class NewsSerializer(serializers.ModelSerializer):
 
 
 class NoteSerializer(serializers.ModelSerializer):
-    user = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(
-    ), presentation_serializer=UserGetSerializer, required=False)
-    doctor = PresentablePrimaryKeyRelatedField(queryset=User.objects.all(
-    ), presentation_serializer=UserGetSerializer, required=False)
-    center = PresentablePrimaryKeyRelatedField(queryset=Center.objects.all(
-    ), presentation_serializer=CenterSerializer, required=False)
-    file = serializers.FileField()
 
     class Meta:
         model = Note
         fields = '__all__'
+        depth = 1
 
     def create(self, validated_data):
         self.create_validate(validated_data)
@@ -133,44 +102,43 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class ClinicSerializer(serializers.ModelSerializer):
-    supported_diseases = serializers.SerializerMethodField()
 
     class Meta:
         model = Clinic
         fields = '__all__'
+        depth = 1
 
-    def get_supported_diseases(self, obj):
-        return DiseaseSerializer(obj.supported_diseases.all(), many=True).data
 
+
+class DoctorGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = "__all__"
+        depth = 1
+
+
+class SearchSerializer(serializers.Serializer):
+    doctors = DoctorGetSerializer(read_only=True, many=True)
+    clinics = ClinicSerializer(read_only=True, many=True)
+    centers = CenterSerializer(read_only=True, many=True)
+    class Meta:
+        depth = 1
 
 class SavedSerializer(serializers.ModelSerializer):
     ''' get serialier for saved model'''
-    user = PresentablePrimaryKeyRelatedField(
-        queryset=User.objects.all(), presentation_serializer=UserGetSerializer)
-    news = PresentablePrimaryKeyRelatedField(
-        queryset=News.objects.all(), presentation_serializer=NewsSerializer)
-
     class Meta:
         model = Saved
         fields = '__all__'
+        depth = 1
 
 
 # like too up
 class LikeSerializer(serializers.ModelSerializer):
-    user = PresentablePrimaryKeyRelatedField(
-        queryset=User.objects.all(), presentation_serializer=UserGetSerializer)
-    news = PresentablePrimaryKeyRelatedField(
-        queryset=News.objects.all(), presentation_serializer=NewsSerializer)
-
+    ''' get serializer for saved model'''
     class Meta:
         model = Like
         fields = '__all__'
+        depth = 1
 
 
-class SearchSerializer(serializers.Serializer):
-    clinics = ClinicSerializer(read_only=True, many=True)
-    centers = CenterSerializer(read_only=True, many=True)
-    users = UserGetSerializer(read_only=True, many=True)
 
-    class Meta:
-        fields = '__all__'

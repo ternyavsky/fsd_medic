@@ -32,15 +32,15 @@ class CountryAdmin(admin.ModelAdmin):
     readonly_fields = ['id']
 
 
-class CenterAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'is_required',  'country', 'address', 'lng', 'lat',
-                    'created_at', 'updated_at']
-    search_fields = ['name', 'address']
-    list_editable = ['is_required']
-    list_filter = ['is_required', 'country', 'created_at', 'updated_at']
-    fields = ['name', 'is_required',  'country', 'address',
-              ]
-    readonly_fields = ['id', 'created_at', 'updated_at']
+# class CenterAdmin(admin.ModelAdmin):
+#     list_display = ['id', 'name', 'is_required',  'country', 'address', 'lng', 'lat',
+#                     'created_at', 'updated_at']
+#     search_fields = ['name', 'address']
+#     list_editable = ['is_required']
+#     list_filter = ['is_required', 'country', 'created_at', 'updated_at']
+#     fields = ['name', 'is_required',  'country', 'address',
+#               ]
+#     readonly_fields = ['id', 'created_at', 'updated_at']
 
 
 class UrlParamsAdmin(admin.ModelAdmin):
@@ -55,7 +55,7 @@ class UrlParamsAdmin(admin.ModelAdmin):
     get_parameter.short_description = 'Ссылка'
 
 
-admin.site.register(Center, CenterAdmin)
+admin.site.register(Center)
 admin.site.register(User, UserAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Interview)

@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from fsd_medic.settings import AUTH_USER_MODEL
 from api.models import News, Center, Note 
 import uuid
+from auth_doctor.models import Doctor
+from django.utils.translation import gettext_lazy as _
 
 User = AUTH_USER_MODEL
 # Create your models here.
@@ -29,8 +31,9 @@ class Notification(models.Model):
 class Chat(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    users = models.ManyToManyField(User, verbose_name="Пациенты")
-    centers = models.ManyToManyField(Center, verbose_name="Центры")
+    users = models.ManyToManyField(User, verbose_name=_("Пациенты"), blank=True)
+    doctors = models.ManyToManyField(Doctor, verbose_name=_("Врачи"), blank=True)
+    centers = models.ManyToManyField(Center, verbose_name=_("Центры"), blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -50,6 +53,7 @@ class Message(models.Model):
     text = models.TextField(max_length=500, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)#отправитель
     center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, blank=True) # отправитель
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, null=True, blank=True) # отправитель
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

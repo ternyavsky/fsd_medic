@@ -175,7 +175,9 @@ class RegSmsCodeSend(views.APIView):
             to_phone = user_data.get("number")
             if to_phone is not None:
                 send_verification_code_msg(user_hash, to_phone)
-                return Response(status=200)
+                return Response(status=200, data={
+                    "message": "Отправлено"
+                })
             else:
                 return Response(status=400,
                                 data={

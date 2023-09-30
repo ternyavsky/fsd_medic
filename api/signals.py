@@ -5,10 +5,9 @@ from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 from auth_user.service import start_time_reminder
-from social.models import Notification
-
 from .models import Center, Clinic, Disease, Interview, Like, News, Note, User, Saved
-from social.models import Chat, Message
+from social.models import Chat, Message, Notification
+from auth_doctor.models import Doctor
 
 
 # CACHE SIGNALS
@@ -111,6 +110,15 @@ def user_post_delete_handler(sender, **kwargs):
 @receiver(post_save, sender=User, dispatch_uid='users_updated')
 def user_post_save_handler(sender, **kwargs):
     cache.delete('users')
+
+@receiver(post_delete, sender=Doctor, dispatch_uid="doctors_deleted")
+def user_post_delete_handler(sender, **kwargs):
+    cache.delete('doctors')
+
+
+@receiver(post_save, sender=Doctor, dispatch_uid='doctors_updated')
+def user_post_save_handler(sender, **kwargs):
+    cache.delete('doctors')
 
 
 @receiver(post_delete, sender=Clinic, dispatch_uid="clinics_deleted")

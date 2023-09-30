@@ -4,10 +4,7 @@ from api.models import User, Center
 
 
 
-def get_chat(Chat, user_id):
-    obj1 = Chat.objects.all().filter(from_user=user_id)
-    obj2 = Chat.objects.all().filter(to_user=user_id)
-    return obj1 ^ obj2
+
 
 
 def chat_create_data_validate(data: dict) -> tuple[bool,str, str]:

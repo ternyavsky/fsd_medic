@@ -8,6 +8,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.core.cache import cache
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from api.permissions import IsAdminOrReadOnly, OnlyCreate
 from rest_framework import generics, viewsets
 from db.queries import *
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -32,7 +33,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class UserView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [OnlyCreate]
     """Список пользоватлей"""
     serializer_class = UserGetSerializer
 
@@ -57,7 +58,7 @@ class UserView(generics.ListCreateAPIView):
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserGetSerializer
-    permissions_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         data = cache.get_or_set("users", get_users())

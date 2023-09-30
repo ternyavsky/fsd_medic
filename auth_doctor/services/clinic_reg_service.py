@@ -31,7 +31,7 @@ def clinic_compare_code_and_create(user_hash: str, right_code: str, ver_code: st
     if right_code == ver_code:
         user_data = cache.get(user_hash)
         if user_data:
-            supported_diseases = user_data.pop("supported_diseases")
+            #supported_diseases = user_data.pop("supported_diseases")
             clinic = Clinic.objects.create(**user_data)
             clinic.supported_diseases.add(*supported_diseases)
             clinic.save()

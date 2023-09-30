@@ -92,7 +92,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 ### SEARCH ###
 class SearchView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):
@@ -102,7 +102,7 @@ class SearchView(APIView):
         search_results = {
             'clinics': clinics,
             'centers': centers,
-            'users': doctors,
+            'doctors': doctors,
         }
         serializer = SearchSerializer(search_results)
         logger.debug(serializer.data)
@@ -116,8 +116,8 @@ class DoctorsListView(APIView):
     @swagger_auto_schema(operation_summary="Получение докторов")
     def get(self, request):
         doc = cache.get_or_set("doctors", get_doctors())
-        doctors = doc.filter(city=request.user.city)
-        serializer = UserGetSerializer(doctors, many=True)
+        doctors = doc.filter(city=self.request.user.city)
+        serializer = DoctorGetSerializer(doctors, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
