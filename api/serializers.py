@@ -121,8 +121,6 @@ class SearchSerializer(serializers.Serializer):
     doctors = DoctorGetSerializer(read_only=True, many=True)
     clinics = ClinicSerializer(read_only=True, many=True)
     centers = CenterSerializer(read_only=True, many=True)
-    class Meta:
-        depth = 1
 
 class SavedSerializer(serializers.ModelSerializer):
     ''' get serialier for saved model'''

@@ -201,7 +201,6 @@ class PasswordResetSerializer(serializers.Serializer):
         if number:
             try:
                 user = User.objects.get(number=validated_data['number'])
-                user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not have a number')
         if email:

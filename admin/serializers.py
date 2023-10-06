@@ -6,9 +6,85 @@ from rest_framework import serializers
 from api.serializers import CenterSerializer, UserGetSerializer, NoteSerializer
 from db.queries import *
 from datetime import date
+from api import models
 
 
 
+class CityProfileSerializer(serializers.ModelSerializer):
+    quant_centers = serializers.SerializerMethodField()
+    quant_centers_today = serializers.SerializerMethodField()
+    quant_clinics = serializers.SerializerMethodField()
+    quant_clinics_today = serializers.SerializerMethodField()
+    quant_users = serializers.SerializerMethodField()
+    quant_users_today = serializers.SerializerMethodField()
+    # quant_interview = serializers.SerializerMethodField()
+    # quant_interview_today = serializers.SerializerMethodField()
+    # quant_lid = serializers.SerializerMethodField()
+    # quant_lid_today = serializers.SerializerMethodField()
+
+    class Meta:
+        model = City
+        fields = "__all__"
+
+    
+    def get_quant_centers(self, obj):
+        return obj.quant_centers
+    def get_quant_centers_today(self, obj):
+        return obj.quant_centers_today
+    def get_quant_clinics(self, obj):
+        return obj.quant_clinics
+    def get_quant_clinics_today(self, obj):
+        return obj.quant_clinics_today
+    def get_quant_users(self, obj):
+        return obj.quant_users
+    def get_quant_users_today(self, obj):
+        return obj.quant_users_today
+
+
+class CountryProfileSerializer(serializers.ModelSerializer):
+    quant_clinics = serializers.SerializerMethodField()
+    quant_clinics_today = serializers.SerializerMethodField()
+    quant_users = serializers.SerializerMethodField()
+    quant_users_today = serializers.SerializerMethodField()
+    quant_doctors = serializers.SerializerMethodField()
+    quant_doctors_today = serializers.SerializerMethodField()
+    quant_use_site = serializers.SerializerMethodField()
+    quant_use_site_today = serializers.SerializerMethodField()
+
+
+    def get_quant_clinics(self, obj):
+        return obj.quant_clinics
+    def get_quant_clinics_today(self, obj):
+        return obj.quant_clinics_today
+
+
+    def get_quant_users(self, obj):
+        return obj.quant_users
+    def get_quant_users_today(self, obj):
+        return obj.quant_users_today
+
+
+    def get_quant_doctors(self, obj):
+        return obj.quant_doctors
+    def get_quant_doctors_today(self, obj):
+        return obj.quant_doctors_today
+
+
+    def get_quant_use_site(self, obj):
+        return obj.quant_users
+    def get_quant_use_site_today(self, obj):
+        return obj.quant_users_today
+
+    class Meta:
+        model = Country
+        fields = "__all__"
+        depth = 1
+
+
+class CountryCitySerializer(serializers.Serializer):
+    cities = CityProfileSerializer(many=True, read_only=True)
+    country = CountryProfileSerializer(read_only=True, many=True)
+    
 
 
 class DiseasePacientSerializer(serializers.ModelSerializer):
@@ -28,14 +104,14 @@ class MainPageSerializer(serializers.Serializer):
 
     def get_ucreated_today(self, obj):
         users = cache.get_or_set("users", get_users())
-        return users.filter(created_at__day=date.today().day).count()
+        return users.filter(created_at__date=date.today()).count()
 
     
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = User
+class UserProfileSerializer(serializers.Serializer):
+    users = UserGetSerializer(many=True, read_only=True)
+    curr_notes = NoteSerializer(many=True, read_only=True)
+    process_notes = NoteSerializer(many=True, read_only=True)
 
 
 class CenterProfileSerializer(serializers.ModelSerializer):

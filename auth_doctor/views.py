@@ -6,46 +6,23 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.serializers import CenterSerializer, UserGetSerializer
-from api.models import Interview
+from .models import Interview, LinkToInterview
 from auth_doctor.serializers import InterviewSerializer
-from .serializers import DoctorCreateSerializer, DateTimeUpdateSerializer
+from .serializers import DoctorCreateSerializer, DateTimeUpdateSerializer, DoctorNewPasswordSerializer, DoctorPasswordResetSerializer, DoctorVerifyResetCodeSerializer
 from db.queries import *
 from rest_framework import views
-from .services.doctor_reg_services import doctor_data_passed, doctor_compare_code_and_create, doctor_data_update
-from .services.all_service import send_verification_code_msg, get_code_cache_name
-from .serializers import VerificationCodeSerializer, DoctorDataResponseSerializer, ClinicCreateSerializer
+from .services.doctor_reg_services import doctor_data_pass,  send_verification_code_doctor, doctor_create
+from .services.clinic_reg_service import clinic_data_pass, clinic_create, send_verification_code_clinic
+from .services.all_service import get_code_cache_name
+from .service import *
+from .serializers import *
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db import transaction
 from api.models import Clinic
-from .services.clinic_reg_service import clinic_data_pass, clinic_compare_code_and_create, clinic_date_update
+
 
 logger = logging.getLogger(__name__)
-
-
-class UpdateDateTimeViewClinic(APIView):
-    @swagger_auto_schema(
-        request_body=DateTimeUpdateSerializer,
-        responses={
-            200: 'Datetime успешно обновлен',
-            400: 'Неверный формат данных',
-            404: 'Объект с указанным id не найден',
-            500: 'Произошла ошибка'
-        }
-    )
-    def post(self, request, *args, **kwargs):
-        """
-        Обновляет значение поля dateTimeField объекта по его ID.
-
-        :param request: Запрос с данными id и datetime.
-        :return: Сообщение об успешном обновлении или сообщение об ошибке.
-        """
-        serializer = DateTimeUpdateSerializer(data=request.data)
-        if serializer.is_valid():
-            id = serializer.validated_data['id']
-            datetime_obj = serializer.validated_data['datetime']
-            return clinic_date_update(id, datetime_obj)
-        else:
-            return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ClinicDataPast(views.APIView):
@@ -57,171 +34,284 @@ class ClinicDataPast(views.APIView):
             status.HTTP_400_BAD_REQUEST: "Bad Request",
         }
     )
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         serializer = ClinicCreateSerializer(data=request.data)
-
         if serializer.is_valid():   
             validated_data = serializer.validated_data
-            user_hash = clinic_data_pass(validated_data)
-            response_serializer = DoctorDataResponseSerializer({
-                'message': "Данные сохранены, ожидаем подтверждение",
-                'user_hash': user_hash
-            })
-            return Response(data=response_serializer.data, status=status.HTTP_200_OK)
+            clinic_hash: str = clinic_data_pass(validated_data)
+            try:
+                LinkToInterview.objects.create(
+                    used=False,
+                    link=clinic_hash
+                )
+                number = validated_data["number"]
+                send_verification_code_clinic(clinic_hash, number)
+                return Response({"message": f"Код для регистрации клинкики отправлен на номер {number}",
+                                "clinic_hash": clinic_hash}, status=status.HTTP_200_OK)
+            except:
+                return Response({"message": "Запрос с такими данными уже существует"}, status.HTTP_400_BAD_REQUEST)
         else:
             # Если данные не прошли валидацию, верните ошибки
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class IsClinicVerCodeRight(views.APIView):
-    @swagger_auto_schema(
-        operation_summary="Проверка верификационного кода для клиники, создание аккаунта",
-        request_body=VerificationCodeSerializer,
-        responses={
-            status.HTTP_201_CREATED: openapi.Response(
-                description="Created",
-                schema=openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        'message': openapi.Schema(type=openapi.TYPE_STRING, description='Успешно создан'),
-                        'id': openapi.Schema(type=openapi.TYPE_INTEGER),
-                    }
-                )
-            ),
-            status.HTTP_400_BAD_REQUEST: "Bad Request",
-            status.HTTP_404_NOT_FOUND: "Not Found",
-        }
-    )
-    def post(self, request):
-        serializer = VerificationCodeSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            validated_data = serializer.validated_data
-            user_hash = validated_data.get("user_hash")
-            right_code = cache.get(get_code_cache_name(user_hash))
-            if right_code:
-                verification_code = validated_data.get("verification_code")
-                status_code, msg = clinic_compare_code_and_create(
-                    user_hash, right_code, verification_code)
-                return Response(status=status_code, data={"message": msg})
-            else:
-                return Response(status=404,
-                                data={"message": "Время проверки кодов вышло или такого пользователя вообще не было"})
-
-
-class UpdateDateTimeViewDoctor(APIView):
-    @swagger_auto_schema(
-        request_body=DateTimeUpdateSerializer,
-        responses={
-            200: 'Datetime успешно обновлен',
-            400: 'Неверный формат данных',
-            404: 'Объект с указанным id не найден',
-            500: 'Произошла ошибка'
-        }
-    )
-    def post(self, request, *args, **kwargs):
-        """
-        Обновляет значение поля dateTimeField объекта по его ID.
-
-        :param request: Запрос с данными id и datetime.
-        :return: Сообщение об успешном обновлении или сообщение об ошибке.
-        """
-        serializer = DateTimeUpdateSerializer(data=request.data)
-        if serializer.is_valid():
-            id = serializer.validated_data['id']
-            datetime_obj = serializer.validated_data['datetime']
-            return doctor_data_update(id, datetime_obj)
+class ClinicInterviewCreate(views.APIView):
+    def post(self, request, clinic_hash):
+        obj = LinkToInterview.objects.get(link=clinic_hash)
+        if obj.used == True:
+            return Response({"error": "Ссылка уже использовалась"}, 404)
         else:
-            return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
+            obj.used = True
+            obj.save()
+            print(cache.get(clinic_hash))
+            result, status = clinic_create(clinic_hash, request.data["datetime"])
+            return Response(result, status=status)
 
 
 class DoctorDataPast(views.APIView):
     @swagger_auto_schema(
-        operation_summary="Сохраняет данные врача в кэш",
+        operation_summary="Сохранение данных врача в кэш и отправка ссылки",
         query_serializer=DoctorCreateSerializer,
         responses={
             status.HTTP_200_OK: DoctorDataResponseSerializer(),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
         }
     )
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         serializer = DoctorCreateSerializer(data=request.data)
-
-        if serializer.is_valid():
+        if serializer.is_valid():   
             validated_data = serializer.validated_data
-            user_hash = doctor_data_passed(validated_data)
-            response_serializer = DoctorDataResponseSerializer({
-                'message': "Данные сохранены, ожидаем подтверждение",
-                'user_hash': user_hash
-            })
-
-            return Response(data=response_serializer.data, status=status.HTTP_200_OK)
+            doctor_hash: str = doctor_data_pass(validated_data)
+            try:
+                LinkToInterview.objects.create(
+                    used=False,
+                    link=doctor_hash
+                )
+                number = validated_data["number"]
+                send_verification_code_doctor(doctor_hash, number)
+                return Response({"message": f"Код для регистрации врача отправлен на номер {number}",
+                                "doctor_hash": doctor_hash}, status=status.HTTP_200_OK)
+            except:
+                return Response({"message": "Запрос с такими данными уже существует, повторите попытку позже"}, status.HTTP_400_BAD_REQUEST)
         else:
             # Если данные не прошли валидацию, верните ошибки
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class RegSmsCodeSend(views.APIView):
-    @swagger_auto_schema(
-        operation_summary="Отправка SMS-кода для регистрации",
-        responses={
-            status.HTTP_200_OK: "Success",
-            status.HTTP_400_BAD_REQUEST: "Bad Request",
-            status.HTTP_404_NOT_FOUND: "Not Found",
-        }
-    )
-    def get(self, request, user_hash):
-        user_data = cache.get(user_hash)
-        if user_data:
-            to_phone = user_data.get("number")
-            if to_phone is not None:
-                send_verification_code_msg(user_hash, to_phone)
-                return Response(status=200, data={
-                    "message": "Отправлено"
-                })
-            else:
-                return Response(status=400,
-                                data={
-                                    "message": "У нас нет вашего номера телефона, попробуйте начать регистрацию заново"})
-            pass
+class DoctorInterviewCreate(views.APIView):
+    def post(self, request, doctor_hash):
+        obj = LinkToInterview.objects.get(link=doctor_hash)
+        if obj.used == True:
+            return Response({"error": "Ссылка уже использовалась"}, 404)
         else:
-            return Response(status=404,
-                            data={"message": "Время проверки кодов вышло или такого пользователя вообще не было"})
+            print(obj.used)
+            obj.used = True
+            obj.save()
+            print(cache.get(doctor_hash))
+            result, status = doctor_create(doctor_hash, request.data["datetime"])
+            return Response(result, status=status)
 
+class DoctorPasswordResetView(APIView):
+    """Сброс пароля. Этап отправки"""
 
-class IsDoctorVerCodeRight(views.APIView):
-    @swagger_auto_schema(
-        operation_summary="Проверка верификационного кода для врача и создание аккаунта",
-        request_body=VerificationCodeSerializer,
-        responses={
-            status.HTTP_201_CREATED: openapi.Response(
-                description="Created",
-                schema=openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        'message': openapi.Schema(type=openapi.TYPE_STRING, description='Успешно создан'),
-                        'id': openapi.Schema(type=openapi.TYPE_INTEGER),
-                    }
-                )
-
-            ),
-            status.HTTP_400_BAD_REQUEST: "Bad Request",
-            status.HTTP_404_NOT_FOUND: "Not Found",
-        }
-    )
     def post(self, request):
-        serializer = VerificationCodeSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            validated_data = serializer.validated_data
-            user_hash = validated_data.get("user_hash")
-            right_code = cache.get(get_code_cache_name(user_hash))
-            if right_code:
-                verification_code = validated_data.get("verification_code")
-                status_code, msg = doctor_compare_code_and_create(
-                    user_hash, right_code, verification_code)
-                return Response(status=status_code, data={"message": msg})
+        serializer = DoctorPasswordResetSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid():
+            doctor = serializer.save()
+            if 'number' in request.data:
+                code = generate_verification_code()
+                num = request.data['number']
+                send_reset_sms(num, code)
+                doctor.reset_code = code
+                logger.debug(code)
+                doctor.save()
+
+            if 'email' in request.data:
+                code = generate_verification_code()
+                email = request.data['email']
+                send_reset_email(email, code)
+                doctor.reset_code = code
+                logger.debug(code)
+                doctor.save()
+
+            logger.info(serializer.data)
+            logger.debug(request.path)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        logger.warning(serializer.errors)
+        logger.warning(request.path)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DoctorVerifyResetCodeView(APIView):
+    """Проверка кода для сброса пароля"""
+
+    def post(self, request):
+        serializer = DoctorVerifyResetCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            reset_code = serializer.validated_data['reset_code']
+            if 'email' in serializer.validated_data:
+                doctor = Doctor.objects.get(
+                    email=serializer.validated_data['email'])
             else:
-                return Response(status=404,
-                                data={"message": "Время проверки кодов вышло или такого пользователя вообще не было"})
+                doctor = Doctor.objects.get(
+                    number=serializer.validated_data["number"])
+            if reset_code == doctor.reset_code:
+                doctor.save()
+                logger.debug("Doctor got the access to his account")
+                logger.debug(request.path)
+                return Response({"message": "Doctor got the access to his account"}, status=status.HTTP_200_OK)
+
+            else:
+                logger.warning("Doctor didnt get the access to his account")
+                logger.warning(request.path)
+                return Response({"message": "Doctor didnt get the access to his account"},
+                                status=status.HTTP_404_NOT_FOUND)
+        else:
+            logger.warning(serializer.errors)
+            logger.warning(request.path)
+            return Response(serializer.errors)
+
+
+class DoctorSetNewPasswordView(APIView):
+    """Установка нового пароля"""
+
+    def post(self, request):
+        serializer = DoctorNewPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            password1 = serializer.validated_data['password1']
+            password2 = serializer.validated_data['password2']
+
+            if "email" in serializer.validated_data:
+                doctor = Doctor.objects.get(
+                    email=serializer.validated_data["email"])
+
+            if "number" in serializer.validated_data:
+                doctor = Doctor.objects.get(
+                    number=serializer.validated_data["number"])
+
+            else:
+                logger.warning("Doctor not found")
+                logger.warning(request.path)
+                return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if password1 == password2:
+                doctor_set_new_password(doctor, password2)
+                logger.debug("Password changed successfully")
+                logger.debug(request.path)
+                return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+            else:
+                logger.warning("Password do not match")
+                logger.warning(request.path)
+                return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            logger.warning(serializer.errors)
+            logger.warning(request.path)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ClinicPasswordResetView(APIView):
+    """Сброс пароля. Этап отправки"""
+
+    def post(self, request):
+        serializer = ClinicPasswordResetSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid():
+            clinic = serializer.save()
+            if 'number' in request.data:
+                code = generate_verification_code()
+                num = request.data['number']
+                send_reset_sms(num, code)
+                clinic.reset_code = code
+                logger.debug(code)
+                clinic.save()
+
+            if 'email' in request.data:
+                code = generate_verification_code()
+                email = request.data['email']
+                send_reset_email(email, code)
+                clinic.reset_code = code
+                logger.debug(code)
+                clinic.save()
+
+            logger.info(serializer.data)
+            logger.debug(request.path)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        logger.warning(serializer.errors)
+        logger.warning(request.path)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ClinicVerifyResetCodeView(APIView):
+    """Проверка кода для сброса пароля"""
+
+    def post(self, request):
+        serializer = ClinicVerifyResetCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            reset_code = serializer.validated_data['reset_code']
+            if 'email' in serializer.validated_data:
+                clinic = Clinic.objects.get(
+                    email=serializer.validated_data['email'])
+            else:
+                clinic = Clinic.objects.get(
+                    number=serializer.validated_data["number"])
+            if reset_code == clinic.reset_code:
+                clinic.save()
+                logger.debug("Clinic got the access to his account")
+                logger.debug(request.path)
+                return Response({"message": "Clinic got the access to his account"}, status=status.HTTP_200_OK)
+
+            else:
+                logger.warning("Clinic didnt get the access to his account")
+                logger.warning(request.path)
+                return Response({"message": "Clinic didnt get the access to his account"},
+                                status=status.HTTP_404_NOT_FOUND)
+        else:
+            logger.warning(serializer.errors)
+            logger.warning(request.path)
+            return Response(serializer.errors)
+
+
+class ClinicSetNewPasswordView(APIView):
+    """Установка нового пароля"""
+
+    def post(self, request):
+        serializer = ClinicNewPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            password1 = serializer.validated_data['password1']
+            password2 = serializer.validated_data['password2']
+
+            if "email" in serializer.validated_data:
+                clinic = Clinic.objects.get(
+                    email=serializer.validated_data["email"])
+
+            if "number" in serializer.validated_data:
+                clinic = Clinic.objects.get(
+                    number=serializer.validated_data["number"])
+
+            else:
+                logger.warning("Clinic not found")
+                logger.warning(request.path)
+                return Response({'error': 'Clinic not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            if password1 == password2:
+                set_new_password(doctor, password2)
+                logger.debug("Password changed successfully")
+                logger.debug(request.path)
+                return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+            else:
+                logger.warning("Password do not match")
+                logger.warning(request.path)
+                return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            logger.warning(serializer.errors)
+            logger.warning(request.path)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 class InterviewView(generics.ListCreateAPIView):  # как бы это не называлось
@@ -234,7 +324,6 @@ class InterviewView(generics.ListCreateAPIView):  # как бы это не на
         serializer = InterviewSerializer(data=request.data)
         if serializer.is_valid():
             interview = serializer.save()
-            # interview.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -243,7 +332,8 @@ class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, city):
-        centers = get_centers(city=city)
+        data = cache.get_or_set("centers", get_centers(city=city))
+        centers = data.filter(city=city)
         logger.debug(centers)
         data = CenterSerializer(centers, many=True).data
         logger.debug(data)

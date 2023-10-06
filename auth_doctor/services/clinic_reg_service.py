@@ -1,49 +1,41 @@
 import hashlib
 from django.core.cache import cache
-from api.models import Clinic
+from api.models import Clinic, Country, City
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
-from .all_service import is_valid_phone_number
 from rest_framework.exceptions import ValidationError
 from api.models import Disease
 
-def clinic_reg_data_validate(data: dict):
-    phone = data.get("number")
-    if not is_valid_phone_number(phone):
-        raise ValidationError({"number": "Невалидный номер телефона"})
 
-
-def clinic_date_update(object_id, datetime_obj):
-    try:
-        obj = Clinic.objects.get(id=object_id)
-        obj.dateTimeField = datetime_obj
-        obj.save()
-        return Response({'message': 'Datetime успешно обновлен'}, status=status.HTTP_200_OK)
-    except ObjectDoesNotExist:
-        return Response({'message': 'Объект с указанным id не найден'}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'message': 'Произошла ошибка: {}'.format(str(e))},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-def clinic_compare_code_and_create(user_hash: str, right_code: str, ver_code: str):
-    if right_code == ver_code:
-        user_data = cache.get(user_hash)
-        if user_data:
-            #supported_diseases = user_data.pop("supported_diseases")
-            clinic = Clinic.objects.create(**user_data)
-            clinic.supported_diseases.add(*supported_diseases)
-            clinic.save()
-            return 201, {"message": "Успешно создан", "id": clinic.id}
-        else:
-            return 400, {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}
+def clinic_create(clinic_hash: str, datetime_obj):
+    clinic_data = cache.get(clinic_hash)
+    if clinic_data:
+        supported_diseases = clinic_data.pop("supported_diseases")
+        clinic_country = clinic_data.pop("country")
+        clinic_city = clinic_data.pop("city")
+        clinic = Clinic.objects.create(**clinic_data)
+        clinic.review_date = datetime_obj
+        clinic.review_passed = False
+        clinic.country = Country.objects.get(name=clinic_country)
+        clinic.city = City.objects.get(name=clinic_city)
+        for i in supported_diseases:
+            clinic.supported_diseases.add(i)
+        clinic.save()
+        return {"message": "Успешно создан", "id": clinic.id}, 201
     else:
-        return 400, "Коды не совпадают"
+        return {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}, 400
+
+
+def send_verification_code_clinic(clinic_hash,number_to):
+    print("Хэш для вставки(Фронт)", clinic_hash)
+    print("http://127.0.0.1:8000/api/create_clinic/{}".format(clinic_hash))
+
+
 
 
 def clinic_data_pass(validated_data: dict):
-    user_data = f"{validated_data['name']}_{validated_data['number']}"
-    cache_key = hashlib.sha256(user_data.encode()).hexdigest()
-    cache.set(cache_key, validated_data, 60 * 5)
+    clinic_data = f"{validated_data['name']}_{validated_data['number']}"
+    cache_key = hashlib.sha256(clinic_data.encode()).hexdigest()
+    cache.set(cache_key, validated_data, timeout=None)
     return cache_key

@@ -25,11 +25,6 @@ class GroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'number_of_people']
 
 
-class CountryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name',]
-    search_fields = ['name']
-    fields = ['name']
-    readonly_fields = ['id']
 
 
 # class CenterAdmin(admin.ModelAdmin):
@@ -58,8 +53,7 @@ class UrlParamsAdmin(admin.ModelAdmin):
 admin.site.register(Center)
 admin.site.register(User, UserAdmin)
 admin.site.register(Group, GroupAdmin)
-admin.site.register(Interview)
-admin.site.register(Country, CountryAdmin)
+admin.site.register(Country)
 admin.site.register(News)
 admin.site.register(Like)
 admin.site.register(Disease)

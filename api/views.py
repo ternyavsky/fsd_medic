@@ -59,7 +59,6 @@ class NoteViewSet(viewsets.ModelViewSet):
             return data
         return data
 
-
 class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
 
@@ -92,7 +91,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 ### SEARCH ###
 class SearchView(APIView):
-    permission_classes = [IsAuthenticated]
+   # permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):
@@ -118,6 +117,16 @@ class DoctorsListView(APIView):
         doc = cache.get_or_set("doctors", get_doctors())
         doctors = doc.filter(city=self.request.user.city)
         serializer = DoctorGetSerializer(doctors, many=True)
+        logger.debug(serializer.data)
+        logger.debug(request.path)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CountryListView(APIView):
+    
+    @swagger_auto_schema(operation_summary="Получение стран")
+    def get(self, request):
+        countries = cache.get_or_set("countries", get_countries())
+        serializer = CountrySerializer(countries, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)

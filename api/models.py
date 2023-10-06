@@ -100,13 +100,13 @@ class User(AbstractBaseUser):
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
-    interest = models.CharField(verbose_name=_('Интерес к заболеванию'), max_length=225, null=True, blank=True)
+    interest = models.ForeignKey("Disease", verbose_name=_('Интерес к заболеванию'), null=True, blank=True, on_delete=models.CASCADE, related_name="interest")
     birthday = models.DateField(verbose_name=_('Дата рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='users_photos/AccauntPreview.png')
     country = models.ForeignKey(
         'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
-    city = models.CharField(verbose_name=_('Город'), max_length=50, null=True)
+    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_(
@@ -195,8 +195,8 @@ class Note(models.Model):
         'Причина'), max_length=255, null=True, blank=True)
     duration_note = models.IntegerField(
         verbose_name=_('Длительность'), null=True, blank=True)
-    center = models.ForeignKey('Center', on_delete=models.CASCADE, null=True)
-    clinic = models.ForeignKey('Clinic', on_delete=models.CASCADE, null=True)
+    center = models.ForeignKey('Center', on_delete=models.CASCADE, null=True, blank=True)
+    clinic = models.ForeignKey('Clinic', on_delete=models.CASCADE, null=True, blank=True)
     file = models.FileField(verbose_name=_(
         'Файлы к записи'), upload_to='files_to_notes/', null=True, blank=True)
     special_check = models.BooleanField(verbose_name=_(
@@ -242,13 +242,15 @@ class Center(models.Model):
         'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     observed = models.IntegerField(verbose_name=_("Наблюдается"), default=100)
     observed_after = models.IntegerField(verbose_name=_("Наблюдалось"), default=100)
-    city = models.CharField(verbose_name=_('Город'), max_length=50, blank=True, null=True)
+    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
     lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6,  decimal_places=4, default=0)
     lat = models.DecimalField(verbose_name=_("Широта"), max_digits=6, decimal_places=4, default=0)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
-
+    review_date = models.DateTimeField(
+        null=True, verbose_name=_("Предполагаемая дата и время интервью"))
+    review_passed = models.BooleanField(_("Собеседование пройдено"), null=True)
     def __str__(self):
         return self.name
 
@@ -277,7 +279,7 @@ class Clinic(models.Model):
         'Сотрудники'), related_name="clinic_employees")
     supported_diseases = models.ManyToManyField('Disease', verbose_name="Изученные заболевания")
     country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'))
-    city = models.CharField(verbose_name=_('Город'), max_length=50)
+    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=True)
     created_at = models.DateTimeField(
@@ -288,6 +290,13 @@ class Clinic(models.Model):
         Center, verbose_name="Центры", null=True, on_delete=models.CASCADE)
     review_date = models.DateTimeField(
         null=True, verbose_name="Предполагаемая дата и время интервью")
+    review_passed = models.BooleanField(_("Собеседование пройдено"), null=True)
+    verification_code = models.PositiveIntegerField(
+        verbose_name=_('СМС код подтверждения'), default=1)
+    reset_code = models.PositiveIntegerField(
+        _('Код для сброса пароля'), default=1)
+    email_verification_code = models.PositiveIntegerField(
+        _('Код для привязки почты к аккаунту'), default=0)
 
     def __str__(self):
         return self.name
@@ -330,6 +339,7 @@ class NumberCode(models.Model):
 
 class Country(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
+    cities = models.ManyToManyField("City", verbose_name=_("Города"))
     name = models.CharField(verbose_name=_(
         'Название страны'), max_length=50, unique=True)
 
@@ -338,37 +348,19 @@ class Country(models.Model):
 
     class Meta:
         verbose_name_plural = 'Страны'
-        verbose_name = 'Страну'
+        verbose_name = 'Страна'
 
-
-class Interview(models.Model):
+class City(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
-    type = models.CharField(verbose_name=_(
-        'Тип интервью'), max_length=30, null=True)
-    date = models.DateTimeField(verbose_name=_('Дата интервью'), null=True)
-    first_name = models.CharField(
-        verbose_name=_('Имя'), max_length=30, null=True)
-    last_name = models.CharField(verbose_name=_(
-        'Фамилия'), max_length=40, null=True, blank=True)
-    number = models.CharField(verbose_name=_(
-        'Номер'), max_length=30, unique=True, null=True)
-    email = models.CharField(verbose_name=_(
-        'Электронный адрес'), max_length=100, unique=True, null=True)
-    is_required = models.BooleanField(
-        verbose_name=_('Статус подтверждения'), default=False)
-    application = models.CharField(verbose_name=_(
-        'Приложение'), max_length=30, null=True, )
-    created_at = models.DateTimeField(verbose_name=_(
-        'Дата создания'), auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(verbose_name=_(
-        'Дата обновления'), auto_now=True, null=True)
-
-    class Meta:
-        verbose_name_plural = 'Интервью'
-        verbose_name = 'Интервью'
+    name = models.CharField(verbose_name=_("Название страны"), max_length=255, unique=True)
 
     def __str__(self):
-        return str(self.date)
+        return self.name 
+
+    class Meta:
+        verbose_name_plural = 'Города'
+        verbose_name = 'Город'
+
 
 
 class News(models.Model):
