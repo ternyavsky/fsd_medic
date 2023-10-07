@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Docker Login
         run:
-          echo ${{ secrets.DOCKER_TOKEN }} | docker login -u ${{ secrets.DOCKER_LOGIN }} --password-stdin
+          echo ${{  secrets.DOCKER_TOKEN }} | docker login -u ${{ secrets.DOCKER_LOGIN }} --password-stdin
       - uses: actions/checkout@main
       - name: Build image
         run: docker build -t ${{ secrets.DOCKER_LOGIN }}/${{secrets.DOCKER_NAME }} .
