@@ -1,26 +1,24 @@
 import logging
-
-from rest_framework import generics, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from api.serializers import CenterSerializer, UserGetSerializer
-from .models import Interview, LinkToInterview
-from auth_doctor.serializers import InterviewSerializer
-from .serializers import DoctorCreateSerializer, DateTimeUpdateSerializer, DoctorNewPasswordSerializer, DoctorPasswordResetSerializer, DoctorVerifyResetCodeSerializer
-from db.queries import *
-from rest_framework import views
-from .services.doctor_reg_services import doctor_data_pass,  send_verification_code_doctor, doctor_create
-from .services.clinic_reg_service import clinic_data_pass, clinic_create, send_verification_code_clinic
-from .services.all_service import get_code_cache_name
-from .service import *
-from .serializers import *
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 from django.db import transaction
-from api.models import Clinic
-
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import generics
+from rest_framework import views
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from db.queries import *
+from .models import LinkToInterview
+from .serializers import *
+from .service import *
+from .services.clinic_reg_service import (
+    clinic_data_pass,
+    clinic_create,
+    send_verification_code_clinic,
+)
+from .services.doctor_reg_services import (
+    doctor_data_pass,
+    send_verification_code_doctor,
+    doctor_create,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,10 +45,10 @@ class ClinicDataPast(views.APIView):
                 )
                 number = validated_data["number"]
                 send_verification_code_clinic(clinic_hash, number)
-                return Response({"message": f"Код для регистрации клинкики отправлен на номер {number}",
+                return Response({"message": f"Код для регистрации клиники отправлен на номер {number}",
                                 "clinic_hash": clinic_hash}, status=status.HTTP_200_OK)
             except:
-                return Response({"message": "Запрос с такими данными уже существует"}, status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "Запрос с такими данными уже существует"}, status.HTTP_400_BAD_REQUEST)
         else:
             # Если данные не прошли валидацию, верните ошибки
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

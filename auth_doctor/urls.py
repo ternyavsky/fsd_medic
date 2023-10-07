@@ -3,7 +3,7 @@ from auth_doctor.views import *
 from django.urls import path, include
 
 urlpatterns = [
-      path('api/create_clinic/<str:clinic_hash>/', ClinicInterviewCreate.as_view(), name="create_interview"),
+      path('api/create_clinic/<str:clinic_hash>/', ClinicInterviewCreate.as_view(), name="clinic_interview"),
       path('api/create_doctor/<str:doctor_hash>/', DoctorInterviewCreate.as_view(), name="doctor_interview"),
 
 

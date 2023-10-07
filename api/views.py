@@ -1,6 +1,3 @@
-from celery import group
-from requests import api
-from django.shortcuts import render
 from django.contrib.auth import logout
 from django.http import Http404, HttpResponse
 from django.core.cache import cache
@@ -50,14 +47,17 @@ class LikeViewSet(viewsets.ModelViewSet):
 class NoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = NoteSerializer
+class NoteViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = NoteSerializer
 
     def get_queryset(self):
-        data = cache.get_or_set("notes", get_notes())
+        notes = cache.get_or_set("notes", get_notes())
         if not self.request.user.is_staff:
-            data = data.filter(user=self.request.user)
-            logger.debug(self.request.path)
-            return data
-        return data
+            notes = notes.filter(user=self.request.user)
+        logger.debug(self.request.path)
+        return notes
+
 
 class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
@@ -65,33 +65,26 @@ class NewsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         logger.debug(self.request)
         if self.action == 'list':
-            data = cache.get_or_set("news", get_news())
+            news = cache.get_or_set("news", get_news())
             user = self.request.user
             if user.is_staff:
                 logger.info("Admin request")
-                return data
+                return news
             if user.is_authenticated:
-                try:
-                    center_news = data.filter(center__in=user.center.all())
-                    disease_news = data.filter(disease__in=user.disease.all())
-                    data = center_news.union(disease_news)
-                    logger.debug(self.request.path)
-                    return data
-                except:
-                    logger.warning(self.request.path)
-                    logger.info("Center or disease not specified!")
-                    raise serializers.ValidationError(
-                        "To access the news, you must specify the center or disease!")
-
+                center_news = news.filter(center__in=user.center.all())
+                disease_news = news.filter(disease__in=user.disease.all())
+                news = center_news.union(disease_news)
+                logger.debug(self.request.path)
+                return news
             else:
                 logger.warning("Not authorized")
-                return data[:3]
+                return news[:3]
         return get_news()
 
 
-### SEARCH ###
+
 class SearchView(APIView):
-   # permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):
@@ -121,8 +114,9 @@ class DoctorsListView(APIView):
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class CountryListView(APIView):
-    
+
     @swagger_auto_schema(operation_summary="Получение стран")
     def get(self, request):
         countries = cache.get_or_set("countries", get_countries())

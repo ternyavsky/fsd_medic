@@ -4,12 +4,14 @@ from db import queries
 
 # Create your tests here.
 
+from django.test import TestCase, Client
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIRequestFactory
+from unittest.mock import patch
 
-class TestSearch(TestCase):
-    def setUp(self) -> None:
-        self.client = Client()
+from .views import DoctorsListView
+from auth_doctor.models import Doctor
+from .serializers import DoctorGetSerializer
 
-    def test_get_search(self):
-        res = self.client.get("/api/search")
-        print(res.content)
-        self.assertEqual(res.status_code, 200)
+

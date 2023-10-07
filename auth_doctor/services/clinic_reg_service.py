@@ -14,11 +14,12 @@ def clinic_create(clinic_hash: str, datetime_obj):
         supported_diseases = clinic_data.pop("supported_diseases")
         clinic_country = clinic_data.pop("country")
         clinic_city = clinic_data.pop("city")
-        clinic = Clinic.objects.create(**clinic_data)
+        clinic = Clinic(**clinic_data)
         clinic.review_date = datetime_obj
         clinic.review_passed = False
         clinic.country = Country.objects.get(name=clinic_country)
         clinic.city = City.objects.get(name=clinic_city)
+        clinic.save()
         for i in supported_diseases:
             clinic.supported_diseases.add(i)
         clinic.save()

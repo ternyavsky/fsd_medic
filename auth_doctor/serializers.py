@@ -23,7 +23,6 @@ class ClinicCreateSerializer(serializers.ModelSerializer):
             'description',
             'number',
             'email',
-            'supported_diseases',
             'country',
             'city',
             'address',

@@ -3,208 +3,101 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from django.urls import reverse
-from api.models import Country, Center, Disease, Clinic
+from api.models import Country, Center, Disease, Clinic, City
 from .models import Doctor
 from .services.all_service import get_code_cache_name
 
+from django.test import TestCase, Client
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIRequestFactory, APIClient
+from unittest.mock import patch
 
-class TestClinicReg(APITestCase):
+from .views import ClinicDataPast
+from .models import LinkToInterview
+from .serializers import ClinicCreateSerializer, DoctorDataResponseSerializer
+
+
+class ClinicDataPastTestCase(TestCase):
     def setUp(self):
-        Country.objects.create(name="Russia")
-        Center.objects.create(name="Center_1")
-        Disease.objects.create(name="Disease_1")
-        Disease.objects.create(name="Disease_2")
-
-    def test_clinic_create_1(self):
-        # все норм
-        url = reverse('clinic_create')
-        req_data = {
-            'name': "test_name",
-            'description': "test_description",
-            'number': "89856478963",
-            'email': "test@yandex.ru",
-            'employees_number': 18,
-            'supported_diseases': [1,2],
-            'country': 1,
-            'city': "Moscow",
-            'address': "test address",
-            'center': 1
+        self.client = Client()
+        self.factory = APIRequestFactory()
+        self.clinic_data = {
+            "name": "Test Clinic",
+            "address": "123 Main St",
+            "number": "555-555-5555",
+            "email": "test@example.com",
+            "country": "Russia",
+            "city": "Moscow",
         }
-        response = self.client.post(url, format='json', data=req_data)
-        data = response.data
-        print(data)
-        self.assertEqual(200, response.status_code)
-        user_hash = data.get("user_hash")
-        url = reverse('create_send_code', kwargs={"user_hash": user_hash})
-        response = self.client.get(url)
-        print(response.data)
-        self.assertEqual(200, response.status_code)
-        url = reverse('clinic_verification_code')
-        response = self.client.post(url, data={"user_hash": user_hash,
-                                               "verification_code": cache.get(get_code_cache_name(user_hash))})
-        self.assertEqual(201, response.status_code)
-        clinic = Clinic.objects.get(id=1)
-        self.assertEqual(req_data["name"], clinic.name)
-        self.assertEqual(req_data["description"], clinic.description)
-        self.assertEqual(req_data["number"], clinic.number)
-        self.assertEqual(req_data["employees_number"], clinic.employees_number)
-        cure_diseades = list(clinic.supported_diseases.all())
-        self.assertEqual(req_data["supported_diseases"][0], cure_diseades[0].id)
-        self.assertEqual(req_data["supported_diseases"][1], cure_diseades[1].id)
-        self.assertEqual(req_data["country"], clinic.country.id)
-        self.assertEqual(req_data["city"], clinic.city)
-        self.assertEqual(req_data["address"], clinic.address)
-        self.assertEqual(req_data["center"], clinic.center.id)
 
 
-class TestDoctorReg(APITestCase):
+    def test_post_clinic_data_past(self):
+        serializer = ClinicCreateSerializer(data=self.clinic_data)
+        if not serializer.is_valid():
+            print(serializer.errors)
+        self.assertTrue(serializer.is_valid())
+        request = self.factory.post(reverse('clinic_create'), data=self.clinic_data)
+        response = ClinicDataPast.as_view()(request)
+        obj = cache.get(response.data["clinic_hash"])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"],
+                         f"Код для регистрации клиники отправлен на номер {self.clinic_data['number']}")
+        self.assertTrue(LinkToInterview.objects.filter(link=response.data["clinic_hash"]).exists())
+        self.assertEqual(LinkToInterview.objects.get(link=response.data["clinic_hash"]).used, False)
+        self.assertEqual(LinkToInterview.objects.get(link=response.data["clinic_hash"]).link,
+                         response.data["clinic_hash"])
+        self.assertEqual(obj["name"], self.clinic_data["name"])
+        self.assertEqual(obj["address"], self.clinic_data["address"])
+        self.assertEqual(obj["email"], self.clinic_data["email"])
+        self.assertEqual(obj["city"], self.clinic_data["city"])
+        self.assertEqual(obj["country"], self.clinic_data["country"])
+        self.assertEqual(obj["number"], self.clinic_data["number"])
+
+
+class ClinicInterviewCreateTestCase(TestCase):
     def setUp(self):
+        Disease.objects.create(name="Name")
         Country.objects.create(name="Russia")
-        Center.objects.create(name="Center_1")
-
-    def test_doctor_create_1(self):
-        # все норм
-        url = reverse('doctor_create')
-        req_data = {
-            "first_name": "qwer",
-            'middle_name': "qwer",
-            "last_name": "qwer",
-            "number": "89743251489",
+        City.objects.create(name="Moscow")
+        self.clinic_data = {
+            "name": "Test Clinic",
+            "address": "123 Main St",
+            "number": "555-555-5555",
+            "email": "test@example.com",
+            "country": "Russia",
             "city": "Moscow",
-            "country": 1,
-            "center": 1,
-            "address": "qwer",
-            "specialization": "sadasdas",
-            "work_experience": 3.5
+            "supported_diseases": [1]
         }
-        response = self.client.post(url, format='json', data=req_data)
-        data = response.data
-        self.assertEqual(200, response.status_code)
-        user_hash = data.get("user_hash")
-        url = reverse('create_send_code', kwargs={"user_hash": user_hash})
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-        url = reverse('doctor_verification_code')
-        response = self.client.post(url, data={"user_hash": user_hash,
-                                               "verification_code": cache.get(get_code_cache_name(user_hash))})
-        self.assertEqual(201, response.status_code)
-        doctor = Doctor.objects.get(id=1)
-        self.assertEqual(req_data["first_name"], doctor.first_name)
-        self.assertEqual(req_data["middle_name"], doctor.middle_name)
-        self.assertEqual(req_data["last_name"], doctor.last_name)
-        self.assertEqual(req_data["number"], doctor.number)
-        self.assertEqual(req_data["city"], doctor.city)
-        self.assertEqual(req_data["country"], doctor.country.id)
-        self.assertEqual(req_data["center"], doctor.center.id)
-        self.assertEqual(req_data["address"], doctor.address)
-        self.assertEqual(req_data["specialization"], doctor.specialization)
-        self.assertEqual(req_data["work_experience"], doctor.work_experience)
+        self.client = APIClient()
+        self.clinic_hash = "1234567890"
+        cache.set(self.clinic_hash, self.clinic_data)
+        self.datetime = "2022-01-01T12:00:00Z"
+        self.data = {"datetime": self.datetime}
+        self.link = LinkToInterview.objects.create(link=self.clinic_hash)
 
-    def test_doctor_create_2(self):
-        # Неправильный код
-        url = reverse('doctor_create')
-        req_data = {
-            "first_name": "qwer",
-            'middle_name': "qwer",
-            "last_name": "qwer",
-            "number": "89743251489",
-            "city": "Moscow",
-            "country": 1,
-            "center": 1,
-            "address": "qwer",
-            "specialization": "sadasdas",
-            "work_experience": 3.5
-        }
-        response = self.client.post(url, format='json', data=req_data)
-        data = response.data
-        self.assertEqual(200, response.status_code)
-        user_hash = data.get("user_hash")
-        url = reverse('create_send_code', kwargs={"user_hash": user_hash})
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-        url = reverse('doctor_verification_code')
-        response = self.client.post(url, data={"user_hash": user_hash,
-                                               "verification_code": "12"})
-        self.assertEqual(400, response.status_code)
-        self.assertEqual(0, Doctor.objects.all().count())
+    def test_post_success(self):
+        url = reverse("clinic_interview", args=[self.clinic_hash])
+        response = self.client.post(url, self.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["message"], "Успешно создан")
+        self.link.refresh_from_db()
+        self.assertTrue(self.link.used)
 
-    def test_doctor_valid_2(self):
-        # невалидный телефон
-        url = reverse('doctor_create')
-        req_data = {
-            "first_name": "qwer",
-            'middle_name': "qwer",
-            "last_name": "qwer",
-            "number": "546841",
-            "city": "Moscow",
-            "country": 1,
-            "center": 1,
-            "address": "qwer",
-            "specialization": "sadasdas",
-            "work_experience": 3.5
-        }
-        response = self.client.post(url, format='json', data=req_data)
-        data = response.data
-        self.assertEqual(400, response.status_code)
-        self.assertEqual(True, "number" in data)
+    def test_post_failure_already_used(self):
+        self.link.used = True
+        self.link.save()
+        url = reverse("clinic_interview", args=[self.clinic_hash])
+        response = self.client.post(url, self.data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error"], "Ссылка уже использовалась")
+        self.link.refresh_from_db()
+        self.assertTrue(self.link.used)
 
-    def test_doctor_valid_3(self):
-        # нет страны и центра
-        url = reverse('doctor_create')
-        req_data = {
-            "first_name": "qwer",
-            'middle_name': "qwer",
-            "last_name": "qwer",
-            "number": "546841",
-            "city": "Moscow",
-            "country": 2,
-            "center": 2,
-            "address": "qwer",
-            "specialization": "sadasdas",
-            "work_experience": 3.5
-        }
-        response = self.client.post(url, format='json', data=req_data)
-        data = response.data
-        self.assertEqual(400, response.status_code)
-        self.assertEqual(True, "country" in data)
-        self.assertEqual(True, "center" in data)
-
-    def test_doctor_valid_4(self):
-        # Много цифр в опыте
-        url = reverse('doctor_create')
-        req_data = {
-            "first_name": "qwer",
-            'middle_name': "qwer",
-            "last_name": "qwer",
-            "number": "546841",
-            "city": "Moscow",
-            "country": 1,
-            "center": 1,
-            "address": "qwer",
-            "specialization": "sadasdas",
-            "work_experience": 3.5344
-        }
-        response = self.client.post(url, format='json', data=req_data)
-        data = response.data
-        self.assertEqual(400, response.status_code)
-        self.assertEqual(True, "work_experience" in data)
-
-    def test_doctor_valid_5(self):
-        # Много цифр в опыте
-        url = reverse('doctor_create')
-        req_data = {
-            "first_name": "qwer",
-            'middle_name': "qwer",
-            "last_name": "qwer",
-            "number": "+998 71 444-44-44",
-            "city": "Moscow",
-            "country": 1,
-            "center": 1,
-            "address": "qwer",
-            "specialization": "sadasdas",
-            "work_experience": 3.5
-        }
-        response = self.client.post(url, format='json', data=req_data)
-        data = response.data
-        print(data)
-        self.assertEqual(200, response.status_code)
+    def test_post_failure_cache_miss(self):
+        cache.delete(self.clinic_hash)
+        url = reverse("clinic_interview", args=[self.clinic_hash])
+        response = self.client.post(url, self.data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["message"], "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново")
+        self.link.refresh_from_db()

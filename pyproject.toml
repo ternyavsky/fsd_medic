@@ -84,6 +84,7 @@ django-loki = "^0.1.4"
 pycodestyle = "^2.11.0"
 flake8 = "^6.1.0"
 autopep8 = "^2.0.4"
+django-stubs = "^4.2.4"
 
 
 

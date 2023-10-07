@@ -242,7 +242,7 @@ class Center(models.Model):
         'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
     observed = models.IntegerField(verbose_name=_("Наблюдается"), default=100)
     observed_after = models.IntegerField(verbose_name=_("Наблюдалось"), default=100)
-    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None)
+    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
     lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6,  decimal_places=4, default=0)
     lat = models.DecimalField(verbose_name=_("Широта"), max_digits=6, decimal_places=4, default=0)

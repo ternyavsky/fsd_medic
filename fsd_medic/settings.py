@@ -167,6 +167,9 @@ DATABASES = {
         'OPTIONS': {
             'sql_mode': os.getenv('DB_SQL_MODE')
         },
+        'TEST': {
+            'NAME': 'test_db'
+        }
     }
 
 
