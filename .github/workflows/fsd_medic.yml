@@ -24,6 +24,5 @@ jobs:
           
       - name: Run tests
         run: |
-          memcached
           python manage.py test --keepdb
 
