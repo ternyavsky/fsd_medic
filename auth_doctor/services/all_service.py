@@ -1,11 +1,8 @@
-from django.core.cache import cache
 import random
-import re
 
 
 def get_code_cache_name(user_hash):
     return f"{user_hash}_ver_code"
-
 
 
 def generate_random_digits_string(number):
@@ -13,5 +10,3 @@ def generate_random_digits_string(number):
     random_digits = [str(random.randint(0, 9)) for _ in range(number)]
     random_digits_string = ''.join(random_digits)
     return random_digits_string
-
-

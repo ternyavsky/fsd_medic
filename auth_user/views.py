@@ -1,28 +1,23 @@
-
-from api import permissions
-from django.utils.autoreload import raise_last_exception
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.db import transaction
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 from django.core.cache import cache
+from django.db import transaction
+import logging
+
+from django.db import transaction
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from api.permissions import IsAdminOrReadOnly, OnlyCreate
-from rest_framework import generics, viewsets
-from db.queries import *
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
-from .serializers import CustomTokenObtainPairSerializer
-from rest_framework import status
-from rest_framework.decorators import action
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from api.models import User
+from api.permissions import OnlyCreate
 from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializer, AccessSerializer
+from auth_user.serializers import *
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
-from auth_user.serializers import *
-from api.models import User
-import logging
+from db.queries import *
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +54,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserGetSerializer
     permission_classes = [IsAuthenticated]
+
     def get_object(self):
         data = cache.get_or_set("users", get_users())
         data = data.filter(id=self.request.user.id).first()
@@ -76,6 +72,7 @@ class GetDiseasesView(APIView):
         logger.debug(serializer.data)
         logger.debug(self.request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # sms-code block ##
 
@@ -327,6 +324,7 @@ class CenterRegistrationView(APIView):
 
 class AccessViewSet(APIView):
     serializer_class = AccessSerializer
+
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

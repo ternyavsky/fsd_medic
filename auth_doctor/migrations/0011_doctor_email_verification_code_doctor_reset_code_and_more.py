@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('auth_doctor', '0010_doctor_first_name_doctor_last_name'),
     ]

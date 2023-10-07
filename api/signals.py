@@ -1,13 +1,11 @@
-from celery import shared_task
-from celery import Celery
 from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
-from auth_user.service import start_time_reminder
-from .models import Center, Clinic, Disease, Like, News, Note, User, Saved, City, Country
-from social.models import Chat, Message, Notification
 from auth_doctor.models import Doctor, Interview
+from auth_user.service import start_time_reminder
+from social.models import Chat, Message, Notification
+from .models import Center, Clinic, Disease, Like, News, Note, User, Saved, City, Country
 
 
 # CACHE SIGNALS
@@ -21,6 +19,7 @@ def disease_post_delete_handler(sender, **kwargs):
 def disease_post_save_handler(sender, **kwargs):
     cache.delete('countries')
 
+
 @receiver(post_delete, sender=City, dispatch_uid="cities_deleted")
 def disease_post_delete_handler(sender, **kwargs):
     cache.delete('cities')
@@ -29,6 +28,7 @@ def disease_post_delete_handler(sender, **kwargs):
 @receiver(post_save, sender=City, dispatch_uid='cities_updated')
 def disease_post_save_handler(sender, **kwargs):
     cache.delete('cities')
+
 
 @receiver(post_delete, sender=Message, dispatch_uid="messages_deleted")
 def disease_post_delete_handler(sender, **kwargs):
@@ -128,6 +128,7 @@ def user_post_delete_handler(sender, **kwargs):
 @receiver(post_save, sender=User, dispatch_uid='users_updated')
 def user_post_save_handler(sender, **kwargs):
     cache.delete('users')
+
 
 @receiver(post_delete, sender=Doctor, dispatch_uid="doctors_deleted")
 def user_post_delete_handler(sender, **kwargs):

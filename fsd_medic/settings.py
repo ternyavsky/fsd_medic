@@ -1,10 +1,8 @@
-import os
-from pathlib import Path
-from dotenv import load_dotenv
 import os.path
-import sys
 from datetime import timedelta
-from api.middleware import open_access_middleware
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 AUTH_USER_MODEL = 'api.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -172,13 +170,11 @@ DATABASES = {
         }
     }
 
-
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
 }
-
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")

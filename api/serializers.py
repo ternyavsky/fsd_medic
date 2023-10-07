@@ -1,12 +1,8 @@
-import json
-import re
-import random
 from rest_framework import serializers
 
-from db.queries import get_users
-from .models import News, User, NumberCode, Center, Clinic, Disease, Note, Saved, Like, Country, Access
-from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 from auth_doctor.models import Doctor
+from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access
+
 
 class CountrySerializer(serializers.ModelSerializer):
     """Страны"""
@@ -18,6 +14,7 @@ class CountrySerializer(serializers.ModelSerializer):
 
 class CenterSerializer(serializers.ModelSerializer):
     """Клиники"""
+
     class Meta:
         model = Center
         fields = '__all__'
@@ -26,6 +23,7 @@ class CenterSerializer(serializers.ModelSerializer):
 
 class DiseaseSerializer(serializers.ModelSerializer):
     """Болезни"""
+
     class Meta:
         model = Disease
         fields = '__all__'
@@ -40,11 +38,9 @@ class UserGetSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-
 class AccessSerializer(serializers.ModelSerializer):
-
     """Доступ"""
+
     class Meta:
         model = Access
         fields = '__all__'
@@ -55,6 +51,7 @@ class NewsPreviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = ['image', 'title', 'created_at']
+
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,7 +75,6 @@ class NewsSerializer(serializers.ModelSerializer):
 
 
 class NoteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Note
         fields = '__all__'
@@ -102,12 +98,10 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class ClinicSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Clinic
         fields = '__all__'
         depth = 1
-
 
 
 class DoctorGetSerializer(serializers.ModelSerializer):
@@ -122,8 +116,10 @@ class SearchSerializer(serializers.Serializer):
     clinics = ClinicSerializer(read_only=True, many=True)
     centers = CenterSerializer(read_only=True, many=True)
 
+
 class SavedSerializer(serializers.ModelSerializer):
     ''' get serialier for saved model'''
+
     class Meta:
         model = Saved
         fields = '__all__'
@@ -133,10 +129,8 @@ class SavedSerializer(serializers.ModelSerializer):
 # like too up
 class LikeSerializer(serializers.ModelSerializer):
     ''' get serializer for saved model'''
+
     class Meta:
         model = Like
         fields = '__all__'
         depth = 1
-
-
-

@@ -1,19 +1,20 @@
 import re
+
+from django.contrib.auth import authenticate
+from django.utils.translation import gettext_lazy as _
+from loguru import logger
+from rest_framework import exceptions
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
 
 from api.models import Disease, Center, User
 from social.models import Chat
 
-from rest_framework import status, exceptions
-from django.contrib.auth import authenticate
-from django.utils.translation import gettext_lazy as _
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
-
-from loguru import logger
 logger.add("logs/auth_user.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
 
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
-  
+
     # Overiding validate function in the TokenObtainSerializer  
     def validate(self, attrs):
         authenticate_kwargs = {
@@ -28,25 +29,23 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
 
         try:
             user = User.objects.get(number=authenticate_kwargs['number'])
-        
-            if user: 
+
+            if user:
                 auth = authenticate(**authenticate_kwargs)
                 if auth is None:
-                        self.error_messages['no_active_account']=_(
-                    'Incorrect password'
-                )
+                    self.error_messages['no_active_account'] = _(
+                        'Incorrect password'
+                    )
                 logger.info("Incorrect password")
         except User.DoesNotExist:
-            self.error_messages['no_active_account'] =_(
-              'Account does not exist')
+            self.error_messages['no_active_account'] = _(
+                'Account does not exist')
             raise exceptions.AuthenticationFailed(
-              self.error_messages['no_active_account'],
-              'no_active_account',
-          )                
-        
+                self.error_messages['no_active_account'],
+                'no_active_account',
+            )
+
         return super().validate(attrs)
-
-
 
 
 class CreateUserSerializer(serializers.Serializer):
@@ -91,18 +90,18 @@ class CreateUserSerializer(serializers.Serializer):
             center = None
             user = User.objects.get(number=validated_data['number'])
             if "main_center" not in validated_data:
-                user.main_center = None 
+                user.main_center = None
             else:
                 center = validated_data["main_center"]
                 user.main_center = validated_data["main_center"]
                 chat = Chat.objects.create(
-                to_user=user,
-                from_center=user.main_center
+                    to_user=user,
+                    from_center=user.main_center
                 )
-                
+
                 chat.save()
-                        
-            user.country = center.country 
+
+            user.country = center.country
             if "disease_id" in validated_data:
                 for i in validated_data['disease_id']:
                     user.disease.add(i)
@@ -110,7 +109,6 @@ class CreateUserSerializer(serializers.Serializer):
                     if user.disease.count() >= 5:
                         raise serializers.ValidationError('You cannot specify more than 5 diseases')
 
-            
             user.stage = stage
             validated_data['stage'] = stage
             user.save()
@@ -171,11 +169,11 @@ class CreateUserSerializer(serializers.Serializer):
             elif data['password2'] is None:
                 raise serializers.ValidationError('Confirm the password')
 
-
     def update_validate(self, data):
         if data['email'] is not None:
             if User.objects.filter(email=data['email']).exists():
                 raise serializers.ValidationError('Email already in use')
+
 
 # sms code block ##
 class VerifyCodeSerializer(serializers.Serializer):
@@ -183,9 +181,11 @@ class VerifyCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
     verification_code = serializers.IntegerField()
 
+
 class ResendCodeSerializer(serializers.Serializer):
     """Переотправка смс кода в разделе 'отправить код снова'. Регистрация."""
     number = serializers.CharField()
+
 
 # password-reset block#
 class PasswordResetSerializer(serializers.Serializer):
@@ -195,7 +195,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         number = self.context['request'].data.get('number')
-        #email validate pydantic class
+        # email validate pydantic class
         email = self.context['request'].data.get('email')
         user = None
         if number:
@@ -210,11 +210,13 @@ class PasswordResetSerializer(serializers.Serializer):
                 raise serializers.ValidationError('User does not have an email')
         return user
 
+
 class VerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     reset_code = serializers.IntegerField()
+
 
 class NewPasswordSerializer(serializers.Serializer):
     """Устанавливаем новый пароль в разделе 'забыли пароль' """
@@ -228,6 +230,7 @@ class NewPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("Passwords do not match.")
         return data
 
+
 ## email block
 class EmailBindingSerializer(serializers.Serializer):
     """Привязка email к аккаунту. Шаг 1 - отправка письма"""
@@ -237,6 +240,7 @@ class EmailBindingSerializer(serializers.Serializer):
         if User.objects.filter(email=data['email']).exists():
             raise serializers.ValidationError({"email": 'Email already in use'})
         return data
+
 
 class VerifyEmailCodeSerializer(serializers.Serializer):
     email = serializers.CharField()

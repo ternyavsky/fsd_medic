@@ -1,12 +1,9 @@
-import random
-from re import VERBOSE
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from rest_framework import serializers
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
-from abc import ABC, abstractmethod
-from django.core.validators import MaxValueValidator, MinValueValidator
+
 from .choices import NOTE_CHOICES, PROCESS
 
 
@@ -92,15 +89,17 @@ class User(AbstractBaseUser):
     sex = models.CharField(_("Пол"), max_length=255, default=None, null=True)
     main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True,
                                     blank=True, related_name="main_center")
-    clinic = models.ForeignKey("Clinic", on_delete=models.PROTECT, verbose_name=_("Клиника"), null=True, related_name="user_clinic")
-    centers = models.ManyToManyField('Center', verbose_name=_('Центр'),  blank=True)
+    clinic = models.ForeignKey("Clinic", on_delete=models.PROTECT, verbose_name=_("Клиника"), null=True,
+                               related_name="user_clinic")
+    centers = models.ManyToManyField('Center', verbose_name=_('Центр'), blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'), blank=True)
     number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
     surname = models.CharField(verbose_name=_('Отчество'), max_length=40, null=True, blank=True)
-    interest = models.ForeignKey("Disease", verbose_name=_('Интерес к заболеванию'), null=True, blank=True, on_delete=models.CASCADE, related_name="interest")
+    interest = models.ForeignKey("Disease", verbose_name=_('Интерес к заболеванию'), null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="interest")
     birthday = models.DateField(verbose_name=_('Дата рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='users_photos/AccauntPreview.png')
@@ -244,13 +243,14 @@ class Center(models.Model):
     observed_after = models.IntegerField(verbose_name=_("Наблюдалось"), default=100)
     city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None, null=True)
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
-    lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6,  decimal_places=4, default=0)
+    lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6, decimal_places=4, default=0)
     lat = models.DecimalField(verbose_name=_("Широта"), max_digits=6, decimal_places=4, default=0)
     created_at = models.DateTimeField(verbose_name=_('Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_('Дата Изменения'), auto_now=True, null=True)
     review_date = models.DateTimeField(
         null=True, verbose_name=_("Предполагаемая дата и время интервью"))
     review_passed = models.BooleanField(_("Собеседование пройдено"), null=True)
+
     def __str__(self):
         return self.name
 
@@ -262,7 +262,8 @@ class Center(models.Model):
 class Clinic(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100)
-    admin = models.ForeignKey("User", on_delete=models.CASCADE, verbose_name=_("Администартор"), null=True, related_name="admin_clinic")
+    admin = models.ForeignKey("User", on_delete=models.CASCADE, verbose_name=_("Администартор"), null=True,
+                              related_name="admin_clinic")
     is_required = models.BooleanField(
         verbose_name=_('Статус подтверждения'), default=False)
     rating = models.FloatField(verbose_name=_('Рейтинг клиники'), default=5,
@@ -350,17 +351,17 @@ class Country(models.Model):
         verbose_name_plural = 'Страны'
         verbose_name = 'Страна'
 
+
 class City(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_("Название страны"), max_length=255, unique=True)
 
     def __str__(self):
-        return self.name 
+        return self.name
 
     class Meta:
         verbose_name_plural = 'Города'
         verbose_name = 'Город'
-
 
 
 class News(models.Model):

@@ -1,16 +1,15 @@
+from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from api.models import Country, Center, Clinic, City
-
-from django.contrib.auth.models import AbstractBaseUser
 
 
 # Create your models here.
 class Doctor(AbstractBaseUser):
     id = models.BigAutoField(db_index=True, primary_key=True)
     # Любой сотрудник центра
-    first_name = models.CharField(verbose_name=_("Имя"), max_length=50,null=True)
+    first_name = models.CharField(verbose_name=_("Имя"), max_length=50, null=True)
     last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50, null=True)
     number = models.CharField(verbose_name=_("Номер телефона"), max_length=30)
     email = models.CharField(verbose_name=_("Почта"), max_length=220, null=True)
@@ -40,6 +39,7 @@ class Doctor(AbstractBaseUser):
         _('Код для сброса пароля'), default=1)
     email_verification_code = models.PositiveIntegerField(
         _('Код для привязки почты к аккаунту'), default=0)
+
     class Meta:
         verbose_name = "Врач"
         verbose_name_plural = "Врачи"
@@ -53,7 +53,6 @@ class LinkToInterview(models.Model):
     link = models.CharField(verbose_name=_(
         "Ссылка на интервью"), max_length=220, unique=True)
     used = models.BooleanField(_("Использована"), default=False)
-
 
     class Meta:
         verbose_name = "Интервью"
@@ -69,7 +68,6 @@ class Interview(models.Model):
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, null=True, verbose_name=_("Клиника"))
     center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, verbose_name=_("Центр"))
     link = models.ForeignKey(LinkToInterview, on_delete=models.CASCADE, null=True)
-
 
     def __str__(self):
         return f"{self.doctor | self.clinic | self.center}"

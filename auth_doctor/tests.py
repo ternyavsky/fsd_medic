@@ -1,21 +1,13 @@
 from django.core.cache import cache
-from django.test import TestCase
-from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
-from django.urls import reverse
-from api.models import Country, Center, Disease, Clinic, City
-from .models import Doctor
-from .services.all_service import get_code_cache_name
-
 from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, APIClient
-from unittest.mock import patch
 
-from .views import ClinicDataPast
+from api.models import Country, Disease, City
 from .models import LinkToInterview
-from .serializers import ClinicCreateSerializer, DoctorDataResponseSerializer
+from .serializers import ClinicCreateSerializer
+from .views import ClinicDataPast
 
 
 class ClinicDataPastTestCase(TestCase):
@@ -30,7 +22,6 @@ class ClinicDataPastTestCase(TestCase):
             "country": "Russia",
             "city": "Moscow",
         }
-
 
     def test_post_clinic_data_past(self):
         serializer = ClinicCreateSerializer(data=self.clinic_data)
@@ -99,5 +90,6 @@ class ClinicInterviewCreateTestCase(TestCase):
         url = reverse("clinic_interview", args=[self.clinic_hash])
         response = self.client.post(url, self.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["message"], "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново")
+        self.assertEqual(response.data["message"],
+                         "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново")
         self.link.refresh_from_db()

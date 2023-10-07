@@ -1,32 +1,31 @@
 import json
+import logging
+
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer, StopConsumer
 from django.contrib.auth import get_user_model
+from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.observer import model_observer
-from djangochannelsrestframework.decorators import action
-from api.serializers import UserGetSerializer, CenterSerializer, NewsSerializer
-from api.models import Center, News
+
+from api.serializers import UserGetSerializer
 from .models import Chat, Message, Notification
-from .serializers import MessageSerializer, ChatSerializer, NotificationSerializer 
-import logging
+from .serializers import MessageSerializer, NotificationSerializer
 
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
 
+
 class NotifyConsumer(GenericAsyncAPIConsumer):
     queryset = User.objects.all()
     serializer_class = UserGetSerializer
-
 
     @action()
     async def subscribe_to_notify_activity(self, request_id, **kwargs):
         user_id = self.scope["url_route"]["kwargs"]["user_id"]
         user = await database_sync_to_async(User.objects.get)(id=user_id)
         await self.notify_activity.subscribe(user=user_id)
-
-
 
     @model_observer(Notification)
     async def notify_activity(self, message, observer=None, **kwargs):
@@ -42,7 +41,6 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
     def notify_activity(self, user, **kwargs):
         yield f'user__{user}'
 
-
     @notify_activity.serializer
     def notify_activity(self, instance, action, **kwargs):
         data = NotificationSerializer(instance).data
@@ -53,11 +51,8 @@ class NotifyConsumer(GenericAsyncAPIConsumer):
         print(message)
         raise StopConsumer()
 
-    
-        
 
 class MyConsumer(AsyncWebsocketConsumer):
-
     queryset = Message.objects.all()
     serializer = MessageSerializer
 
@@ -82,7 +77,6 @@ class MyConsumer(AsyncWebsocketConsumer):
         self.active_users.append(UserGetSerializer(user).data)
 
         logger.debug("Active users {self.active_users}")
-        
 
         await self.channel_layer.group_send(
             self.group_name,
@@ -176,10 +170,10 @@ class MyConsumer(AsyncWebsocketConsumer):
             case 'update_message':
                 upd = await self.update_message_db(data["pk"], data["text"])
                 logger.debug(upd)
-                message = dict(data=self.serializer(instance=upd). data)
+                message = dict(data=self.serializer(instance=upd).data)
                 logger.debug(message)
                 action_type = "update_message"
-            
+
         await self.channel_layer.group_send(
             self.group_name,
             {
@@ -188,7 +182,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 "message": message
             }
         )
-            ### ACTION WITH CALLED WHEN SEND MESSAGE ###
+        ### ACTION WITH CALLED WHEN SEND MESSAGE ###
 
     async def update_message(self, event):
         await self.send(
@@ -227,7 +221,6 @@ class MyConsumer(AsyncWebsocketConsumer):
     # Receive message from room group.
     #####  UTILS FOR DATABASE ####
 
-
     @database_sync_to_async
     def update_message_db(self, id, text):
         Message.objects.filter(id=id).update(text=text)
@@ -243,6 +236,3 @@ class MyConsumer(AsyncWebsocketConsumer):
     def get_message_db(self, id):
         message = Message.objects.get(id=id)
         return message
-
-
-

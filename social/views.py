@@ -1,24 +1,18 @@
 import logging
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from api.permissions import IsAdminOrReadOnly
 
-# REST IMPORTS
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser, AllowAny
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import permission_classes, action, api_view
-from drf_yasg.utils import swagger_auto_schema
-from db.queries import get_messages, get_chats
-from .models import *
-from .serializers import *
 from django.core.cache import cache
 from drf_yasg.utils import swagger_auto_schema
-from .serializers import ChatCreateSerializer,MessageCreateSerializer, ChatSerializer
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+# REST IMPORTS
+from rest_framework.views import APIView
+
+from db.queries import get_messages, get_chats
+from .serializers import *
+from .serializers import ChatCreateSerializer, ChatSerializer
 from .services.chat_services import chat_create
-from .services.message_service import get_message_data
+
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +38,6 @@ class ChatCreate(APIView):
             return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class MessageView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -58,7 +51,7 @@ class MessageView(APIView):
 
 
 class ChatView(APIView):
-    #permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Получение чатов по конкретному пользователю")
     def get(self, request, user_id):

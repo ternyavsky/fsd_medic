@@ -1,10 +1,16 @@
 import logging
+
+from django.core.cache import cache
 from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework import views
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from api.serializers import CenterSerializer
+from auth_user.service import set_new_password
 from db.queries import *
 from .models import LinkToInterview
 from .serializers import *
@@ -35,7 +41,7 @@ class ClinicDataPast(views.APIView):
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         serializer = ClinicCreateSerializer(data=request.data)
-        if serializer.is_valid():   
+        if serializer.is_valid():
             validated_data = serializer.validated_data
             clinic_hash: str = clinic_data_pass(validated_data)
             try:
@@ -46,7 +52,7 @@ class ClinicDataPast(views.APIView):
                 number = validated_data["number"]
                 send_verification_code_clinic(clinic_hash, number)
                 return Response({"message": f"Код для регистрации клиники отправлен на номер {number}",
-                                "clinic_hash": clinic_hash}, status=status.HTTP_200_OK)
+                                 "clinic_hash": clinic_hash}, status=status.HTTP_200_OK)
             except:
                 return Response({"error": "Запрос с такими данными уже существует"}, status.HTTP_400_BAD_REQUEST)
         else:
@@ -79,7 +85,7 @@ class DoctorDataPast(views.APIView):
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         serializer = DoctorCreateSerializer(data=request.data)
-        if serializer.is_valid():   
+        if serializer.is_valid():
             validated_data = serializer.validated_data
             doctor_hash: str = doctor_data_pass(validated_data)
             try:
@@ -90,12 +96,14 @@ class DoctorDataPast(views.APIView):
                 number = validated_data["number"]
                 send_verification_code_doctor(doctor_hash, number)
                 return Response({"message": f"Код для регистрации врача отправлен на номер {number}",
-                                "doctor_hash": doctor_hash}, status=status.HTTP_200_OK)
+                                 "doctor_hash": doctor_hash}, status=status.HTTP_200_OK)
             except:
-                return Response({"message": "Запрос с такими данными уже существует, повторите попытку позже"}, status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Запрос с такими данными уже существует, повторите попытку позже"},
+                                status.HTTP_400_BAD_REQUEST)
         else:
             # Если данные не прошли валидацию, верните ошибки
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class DoctorInterviewCreate(views.APIView):
     def post(self, request, doctor_hash):
@@ -109,6 +117,7 @@ class DoctorInterviewCreate(views.APIView):
             print(cache.get(doctor_hash))
             result, status = doctor_create(doctor_hash, request.data["datetime"])
             return Response(result, status=status)
+
 
 class DoctorPasswordResetView(APIView):
     """Сброс пароля. Этап отправки"""
@@ -296,7 +305,7 @@ class ClinicSetNewPasswordView(APIView):
                 return Response({'error': 'Clinic not found'}, status=status.HTTP_404_NOT_FOUND)
 
             if password1 == password2:
-                set_new_password(doctor, password2)
+                set_new_password(clinic, password2)
                 logger.debug("Password changed successfully")
                 logger.debug(request.path)
                 return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
@@ -308,8 +317,6 @@ class ClinicSetNewPasswordView(APIView):
             logger.warning(serializer.errors)
             logger.warning(request.path)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class InterviewView(generics.ListCreateAPIView):  # как бы это не называлось

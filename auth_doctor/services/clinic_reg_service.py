@@ -1,11 +1,8 @@
 import hashlib
+
 from django.core.cache import cache
+
 from api.models import Clinic, Country, City
-from rest_framework.response import Response
-from rest_framework import status
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.exceptions import ValidationError
-from api.models import Disease
 
 
 def clinic_create(clinic_hash: str, datetime_obj):
@@ -28,11 +25,9 @@ def clinic_create(clinic_hash: str, datetime_obj):
         return {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}, 400
 
 
-def send_verification_code_clinic(clinic_hash,number_to):
+def send_verification_code_clinic(clinic_hash, number_to):
     print("Хэш для вставки(Фронт)", clinic_hash)
     print("http://127.0.0.1:8000/api/create_clinic/{}".format(clinic_hash))
-
-
 
 
 def clinic_data_pass(validated_data: dict):

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('auth_doctor', '0006_alter_linktointerview_link'),
     ]

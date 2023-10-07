@@ -1,22 +1,19 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework import viewsets
-from django.core.cache import cache
-from .serializers import *
-from db.queries import *
-from django.db.models import Count, Q, OrderBy, Subquery, OuterRef, Sum, F
 from datetime import date
+
+from django.db.models import Count, Q, Subquery, F
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from db.queries import *
+from .serializers import *
+
+
 # Create your views here.
-
-
-
-
-
-
 
 
 class UserProfileViewset(viewsets.ViewSet):
@@ -47,6 +44,7 @@ class UserProfileViewset(viewsets.ViewSet):
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class ClinicProfileViewset(viewsets.ModelViewSet):
     serializer_class = ClinicProfileSerializer
 
@@ -60,7 +58,7 @@ class ClinicProfileViewset(viewsets.ModelViewSet):
             visit_offline=Count("note", filter=Q(note__online=False, note__time_start__day=date.today().day))
         )
         return clinics
-    
+
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -69,17 +67,20 @@ class ClinicProfileViewset(viewsets.ModelViewSet):
     def retrieve(self, request, pk):
         return super().retrieve(request, pk)
 
+
 class CenterProfileViewset(viewsets.ModelViewSet):
     serializer_class = CenterProfileSerializer
-    
+
     def get_queryset(self):
         centers = cache.get_or_set("centers", get_centers())
         centers = centers.annotate(
             total_notes=Count("note"),
             reject_notes=Count("note", distinct=True, filter=Q(note__status="Rejected")),
             pass_notes=Count("note", distinct=True, filter=Q(note__status="Passed")),
-            visit_online=Count("note", distinct=True, filter=Q(note__online=True, note__time_start__day=date.today().day)),
-            visit_offline=Count("note", distinct=True, filter=Q(note__online=False, note__time_start__day=date.today().day))
+            visit_online=Count("note", distinct=True,
+                               filter=Q(note__online=True, note__time_start__day=date.today().day)),
+            visit_offline=Count("note", distinct=True,
+                                filter=Q(note__online=False, note__time_start__day=date.today().day))
         )
         return centers
 
@@ -92,14 +93,13 @@ class CenterProfileViewset(viewsets.ModelViewSet):
         return super().retrieve(request, pk)
 
 
-
 class MainPage(APIView):
-    
-    #@method_decorator(cache_page(60 * 60))
+
+    # @method_decorator(cache_page(60 * 60))
     def get(self, request):
         diseases = cache.get_or_set("disease", get_disease())
         diseases = diseases.annotate(
-            most_count = Count("user")
+            most_count=Count("user")
         )
         diseases = diseases.order_by("-most_count")
 
@@ -108,7 +108,6 @@ class MainPage(APIView):
         }
         serializer = MainPageSerializer(data)
         return Response(serializer.data, status.HTTP_200_OK)
-    
 
 
 class CityProfileViewset(viewsets.ModelViewSet):
@@ -135,11 +134,11 @@ class CityProfileViewset(viewsets.ModelViewSet):
     def retrieve(self, request, name):
         return super().retrieve(request, name)
 
-        
 
 class CountryProfileViewset(viewsets.ModelViewSet):
     serializer_class = CountryCitySerializer
     lookup_field = "name"
+
     def get_queryset(self, name=None):
         cities = cache.get_or_set("cities", get_cities())
         cities = cities.filter(country__name=name) if name else cities
@@ -173,8 +172,7 @@ class CountryProfileViewset(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
+
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, name):
         queryset = self.get_queryset(name)

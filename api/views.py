@@ -1,23 +1,16 @@
-from django.contrib.auth import logout
-from django.http import Http404, HttpResponse
-from django.core.cache import cache
-from django.db.models import Prefetch
-from db.queries import *
-from api.permissions import *
-from .models import Url_Params, Group
-from .models import User, Like
-from .permissions import IsAdminOrReadOnly
-from .serializers import *
-# REST IMPORTS
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework.views import APIView
-from rest_framework import generics, viewsets
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
-from rest_framework import status
 import logging
 
-from api import permissions
+from django.core.cache import cache
+# REST IMPORTS
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from db.queries import *
+from .serializers import *
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +37,6 @@ class LikeViewSet(viewsets.ModelViewSet):
         return data
 
 
-class NoteViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    serializer_class = NoteSerializer
 class NoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = NoteSerializer
@@ -80,7 +70,6 @@ class NewsViewSet(viewsets.ModelViewSet):
                 logger.warning("Not authorized")
                 return news[:3]
         return get_news()
-
 
 
 class SearchView(APIView):

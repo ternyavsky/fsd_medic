@@ -17,14 +17,12 @@ class UserAdmin(admin.ModelAdmin):
     fields = ['id', 'number', 'email', 'first_name', 'last_name', 'birthday', 'group', 'centers', 'disease', 'country',
               'city', 'is_staff',
               'is_required', 'created_at', 'updated_at', 'verification_code', 'reset_code', 'email_verification_code']
-    readonly_fields = ['id', 'number',  'first_name', 'last_name', 'birthday', 'group', 'is_staff',
-                       'created_at', 'updated_at', 'country', 'city',]
+    readonly_fields = ['id', 'number', 'first_name', 'last_name', 'birthday', 'group', 'is_staff',
+                       'created_at', 'updated_at', 'country', 'city', ]
 
 
 class GroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'number_of_people']
-
-
 
 
 # class CenterAdmin(admin.ModelAdmin):

@@ -1,10 +1,10 @@
-from django.core.cache import cache
-from django.test import TestCase
 from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
 from django.urls import reverse
-from api.models import Country, Center, Disease, Clinic, User, Group, News
-from social.models import Chat, Message
+from rest_framework.test import APITestCase
+
+from api.models import Country, Center, Disease, User, Group, News
+from social.models import Chat
+
 
 class TestChatCreate(APITestCase):
     def setUp(self):
@@ -19,11 +19,11 @@ class TestChatCreate(APITestCase):
 
     def test_clinic_create_1(self):
         # все норм
-    
+
         url = reverse('chat_create')
 
         req_data = {
-            'user_ids': [1,2],
+            'user_ids': [1, 2],
             'center_ids': [1],
         }
         response = self.client.post(url, format='json', data=req_data)
@@ -37,11 +37,11 @@ class TestChatCreate(APITestCase):
 
     def test_clinic_create_2(self):
         # все норм
-    
+
         url = reverse('chat_create')
 
         req_data = {
-            'user_ids': [1,2],
+            'user_ids': [1, 2],
             'center_ids': [],
         }
         response = self.client.post(url, format='json', data=req_data)
@@ -51,7 +51,7 @@ class TestChatCreate(APITestCase):
 
     def test_clinic_create_3(self):
         # все норм
-    
+
         url = reverse('chat_create')
 
         req_data = {

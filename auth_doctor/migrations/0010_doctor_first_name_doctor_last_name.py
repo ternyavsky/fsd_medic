@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('auth_doctor', '0009_alter_doctor_managers_remove_doctor_date_joined_and_more'),
     ]

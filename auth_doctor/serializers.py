@@ -1,21 +1,14 @@
 from rest_framework import serializers
 
-from api.models import Clinic, Country, City
-from .models import Interview
-from social.models import Chat
-from api.serializers import CenterSerializer, CountrySerializer
-from rest_framework import status, exceptions
-from django.contrib.auth import authenticate
-from django.utils.translation import gettext_lazy as _
+from api.models import Clinic
 from .models import Doctor
-
-
-
+from .models import Interview
 
 
 class ClinicCreateSerializer(serializers.ModelSerializer):
     city = serializers.CharField()
     country = serializers.CharField()
+
     class Meta:
         model = Clinic
         fields = [
@@ -28,9 +21,6 @@ class ClinicCreateSerializer(serializers.ModelSerializer):
             'address',
             'center'
         ]
-
-
-
 
 
 class DateTimeUpdateSerializer(serializers.Serializer):
@@ -72,6 +62,7 @@ class InterviewSerializer(serializers.ModelSerializer):
 class DoctorCreateSerializer(serializers.ModelSerializer):
     city = serializers.CharField()
     country = serializers.CharField()
+
     class Meta:
         model = Doctor
         fields = [
@@ -95,7 +86,7 @@ class DoctorPasswordResetSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         number = self.context['request'].data.get('number')
-        #email validate pydantic class
+        # email validate pydantic class
         email = self.context['request'].data.get('email')
         doctor = None
         if number:
@@ -110,11 +101,13 @@ class DoctorPasswordResetSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Doctor does not have an email')
         return doctor
 
+
 class DoctorVerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     reset_code = serializers.IntegerField()
+
 
 class DoctorNewPasswordSerializer(serializers.Serializer):
     """Устанавливаем новый пароль в разделе 'забыли пароль' """
@@ -136,7 +129,7 @@ class ClinicPasswordResetSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         number = self.context['request'].data.get('number')
-        #email validate pydantic class
+        # email validate pydantic class
         email = self.context['request'].data.get('email')
         clinic = None
         if number:
@@ -151,11 +144,13 @@ class ClinicPasswordResetSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Clinic does not have an email')
         return clinic
 
+
 class ClinicVerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     reset_code = serializers.IntegerField()
+
 
 class ClinicNewPasswordSerializer(serializers.Serializer):
     """Устанавливаем новый пароль в разделе 'забыли пароль' """

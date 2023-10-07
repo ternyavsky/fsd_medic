@@ -1,30 +1,25 @@
+import os
+import random
+
+import requests
+from celery import Celery
+from celery import shared_task
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from dotenv import load_dotenv
-import os
-from rest_framework.response import Response
-from rest_framework import status
-import random
-import requests
+
 from fsd_medic.settings import BASE_DIR
-import random
-from celery import shared_task
-from celery import Celery
-import social
-from social import consumers
 from social.models import Notification
 
 User = get_user_model()
 
 app = Celery('tasks', broker="amqp://localhost")
 
-
 load_dotenv(BASE_DIR / ".env")
 
 
 @shared_task
 def send_reset_sms(number, code):
-
     key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
     url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+,+ваш+код+доступа+-+{code}&sign=SMSAero'
@@ -101,6 +96,5 @@ def start_time_reminder(user, data):
 
 
 def set_new_password(user, new_password):
-
     user.set_password(new_password)
     user.save()
