@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-python@v1
+      - uses: actions-memcached@v7
         with:
           python-version: 3.11
           architecture: 'x64'
@@ -22,5 +23,7 @@ jobs:
           poetry install
           
       - name: Run tests
-        run: python manage.py test --keepdb
+        run: |
+          memcached
+          python manage.py test --keepdb
 
