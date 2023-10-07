@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-python@v1
-      - uses: actions-memcached@v7
+      - uses: niden/actions-memcached@v7
         with:
           python-version: 3.11
           architecture: 'x64'
