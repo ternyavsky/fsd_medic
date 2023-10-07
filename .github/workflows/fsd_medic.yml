@@ -39,6 +39,6 @@ jobs:
       - name: Build image
         run: docker build -t ${{ secrets.DOCKER_LOGIN }}/${{secrets.DOCKER_NAME }} .
       - name: Push image
-        run: docker push {{ secrets.DOCKER_LOGIN }}/${{secrets.DOCKER_NAME }}
+        run: docker push $LOGIN/$NAME
         
 
