@@ -8,7 +8,7 @@ from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.observer import model_observer
 
-from api.serializers import UserGetSerializer
+from api.serializers import UserSerializer
 from .models import Chat, Message, Notification
 from .serializers import MessageSerializer, NotificationSerializer
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class NotifyConsumer(GenericAsyncAPIConsumer):
     queryset = User.objects.all()
-    serializer_class = UserGetSerializer
+    serializer_class = UserSerializer
 
     @action()
     async def subscribe_to_notify_activity(self, request_id, **kwargs):
@@ -74,7 +74,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         logger.debug(self.chat_uuid)
         logger.debug(user)
 
-        self.active_users.append(UserGetSerializer(user).data)
+        self.active_users.append(UserSerializer(user).data)
 
         logger.debug("Active users {self.active_users}")
 
@@ -118,7 +118,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         user_id = self.scope['url_route']["kwargs"]["user_id"]
         user = User.objects.get(id=user_id)
 
-        self.active_users.remove(UserGetSerializer(user).data)
+        self.active_users.remove(UserSerializer(user).data)
 
         logger.debug("Active users {self.active_users}")
 

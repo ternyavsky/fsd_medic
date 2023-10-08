@@ -70,11 +70,12 @@ def get_disease(**kwargs):
 
 def get_centers(**kwargs):
     """Получение центров"""
-    return (Center.objects.filter(**kwargs)
+    return (Center.objects
             .select_related("country", "admin", "city")
             .prefetch_related("supported_diseases", "employees", "admin__centers", "admin__disease",
                               "country__cities"
                               )
+            .filter(**kwargs)
 
             )
 
@@ -92,7 +93,8 @@ def get_users(**kwargs):
 
 def get_doctors(**kwargs):
     return (Doctor.objects.filter(**kwargs)
-            .select_related("country", "center", "clinic")
+            .select_related("country", "center", "clinic", "city")
+            .prefetch_related("center__employees", "center__supported_diseases")
             )
 
 

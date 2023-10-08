@@ -1,16 +1,17 @@
+import logging
 import re
 
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
-from loguru import logger
 from rest_framework import exceptions
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
-
+from django.core.cache import cache
+from db.queries import get_users
 from api.models import Disease, Center, User
 from social.models import Chat
 
-logger.add("logs/auth_user.log", format="{time} {level} {message}", level="DEBUG", rotation="12:00", compression="zip")
+logger = logging.getLogger(__name__)
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
@@ -194,18 +195,18 @@ class PasswordResetSerializer(serializers.Serializer):
     email = serializers.CharField(allow_null=True, required=False)
 
     def create(self, validated_data):
-        number = self.context['request'].data.get('number')
-        # email validate pydantic class
-        email = self.context['request'].data.get('email')
+        number = validated_data.get('number')
+        email = validated_data.get('email')
+        users = cache.get_or_set("users", get_users())
         user = None
         if number:
             try:
-                user = User.objects.get(number=validated_data['number'])
+                user = users.filter(number=validated_data['number']).first()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not have a number')
         if email:
             try:
-                user = User.objects.get(email=validated_data['email'])
+                user = users.filter(email=validated_data['email'])
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not have an email')
         return user
@@ -297,16 +298,16 @@ class AdminSerializer(serializers.Serializer):
         if not name_pattern.match(data['last_name']):
             raise serializers.ValidationError('Фамилия может состоять только из букв кирилицы')
         if len(data['last_name']) < 3:
-            raise serializers.ValidationError('Фамилия не может быть кароче 3 символов')
+            raise serializers.ValidationError('Фамилия не может быть короче 3 символов')
         if len(data['last_name']) > 30:
-            raise serializers.ValidationError('Фамилия не может быть длинее 30 символов')
+            raise serializers.ValidationError('Фамилия не может быть длиннее 30 символов')
         # Проверка паролей
         if not password_pattern.match(data['password1']):
             raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
         if len(data['password1']) < 8:
-            raise serializers.ValidationError('Пароль не может быть кароче 8 символов')
+            raise serializers.ValidationError('Пароль не может быть короче 8 символов')
         if data['password1'] != data['password2']:
-            raise serializers.ValidationError('Пароли должны совподвать')
+            raise serializers.ValidationError('Пароли должны совпадать')
 
     def update_validate(self, data):
         pass

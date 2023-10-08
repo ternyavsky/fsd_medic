@@ -45,7 +45,6 @@ class Chat(models.Model):
         verbose_name = 'Чат'
         verbose_name_plural = 'Чаты'
 
-
 class Message(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)

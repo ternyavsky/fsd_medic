@@ -10,6 +10,7 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = '__all__'
+        depth = 1
 
 
 class CenterSerializer(serializers.ModelSerializer):
@@ -29,7 +30,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserGetSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""
 
     class Meta:

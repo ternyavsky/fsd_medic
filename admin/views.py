@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from datetime import date
-
+from django.core.cache import cache
 from django.db.models import Count, Q, Subquery, F
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page

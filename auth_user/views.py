@@ -13,10 +13,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api.models import User
 from api.permissions import OnlyCreate
-from api.serializers import UserGetSerializer, CenterSerializer, DiseaseSerializer, AccessSerializer
+from api.serializers import UserSerializer, CenterSerializer, DiseaseSerializer, AccessSerializer
 from auth_user.serializers import *
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
+from auth_user.services.access_services import add_access_service, accept_access_service, delete_access_service
+from auth_user.services.create_user_services import create_user_service, verify_code_service, resend_sms_service, \
+    password_reset_service, verify_reset_code_service, set_new_password_service
+from auth_user.services.email_bind_services import email_bind_service, verify_email_bind_service
 from db.queries import *
 
 logger = logging.getLogger(__name__)
@@ -28,31 +32,20 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class UserView(generics.ListCreateAPIView):
+    """Список пользователей"""
     permission_classes = [OnlyCreate]
-    """Список пользоватлей"""
-    serializer_class = UserGetSerializer
+    serializer_class = UserSerializer
 
     def get_queryset(self):
         return cache.get_or_set("users", get_users())
 
     def post(self, request):
-
-        code = generate_verification_code()
-        serializer = CreateUserSerializer(
-            data=request.data, context={'request': request})
-        if serializer.is_valid():
-            user = serializer.save()
-            if int(request.data['stage']) == 3:
-                send_sms.delay(user.number, code)
-                user.verification_code = code
-                user.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return create_user_service(data=request.data, context={'request': request})
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
-    serializer_class = UserGetSerializer
+    serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
@@ -64,6 +57,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class GetDiseasesView(APIView):
+    permission_classes = [AllowAny]
     """Получение всех заболеваний во время этапа регистрации"""
 
     def get(self, request):
@@ -76,228 +70,73 @@ class GetDiseasesView(APIView):
 
 # sms-code block ##
 
-
 class VerifyCodeView(APIView):
+    permission_classes = [AllowAny]
     """Проверка кода во время регистрации"""
 
     def post(self, request):
-        serializer = VerifyCodeSerializer(data=request.data)
-        if serializer.is_valid():
-            number = serializer.validated_data['number']
-            verification_code = serializer.validated_data['verification_code']
-            # print(verification_code, ' current code from serializer')
-            logger.debug(serializer.validated_data)
-            try:
-                user = User.objects.get(number=number)
-
-            except User.DoesNotExist:
-                logger.warning("User does not exist")
-                logger.warning(request.path)
-                return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
-
-            if verification_code == user.verification_code:
-                user.is_required = True
-                user.save()
-                return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
+        return verify_code_service(request)
 
 
 class ResendSmsView(APIView):
+    permission_classes = [AllowAny]
     """Переотправка смс, в разделе 'получить смс снова'. Регистрация """
 
     def post(self, request):
-        serializer = ResendCodeSerializer(data=request.data)
-        if serializer.is_valid():
-            number = serializer.validated_data['number']
-
-            try:
-                user = User.objects.get(number=number)
-            except User.DoesNotExist:
-                logger.warning("User not found")
-                logger.warning(request.path)
-                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-            code = generate_verification_code()
-            logger.debug(code)
-            send_sms(user.number, code)
-            user.verification_code = code
-            user.save()
-            logger.debug(request.path)
-            return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
-        logger.warning(serializer.errors)
-        logger.warning(request.path)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return resend_sms_service(request)
 
 
 # password-reset block#
 class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
     """Сброс пароля. Этап отправки"""
 
     def post(self, request):
-        serializer = PasswordResetSerializer(
-            data=request.data, context={'request': request})
-        if serializer.is_valid():
-            user = serializer.save()
-
-            if 'number' in request.data:
-                code = generate_verification_code()
-                num = request.data['number']
-                send_reset_sms(num, code)
-                user.reset_code = code
-                logger.debug(code)
-                user.save()
-
-            if 'email' in request.data:
-                code = generate_verification_code()
-                email = request.data['email']
-                send_reset_email(email, code)
-                user.reset_code = code
-                logger.debug(code)
-                user.save()
-
-            logger.info(serializer.data)
-            logger.debug(request.path)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        logger.warning(serializer.errors)
-        logger.warning(request.path)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return password_reset_service(request.data)
 
 
 class VerifyResetCodeView(APIView):
+    permission_classes = [AllowAny]
     """Проверка кода для сброса пароля"""
 
     def post(self, request):
-        serializer = VerifyResetCodeSerializer(data=request.data)
-        if serializer.is_valid():
-            reset_code = serializer.validated_data['reset_code']
-            if 'email' in serializer.validated_data:
-                user = User.objects.get(
-                    email=serializer.validated_data['email'])
-            else:
-                user = User.objects.get(
-                    number=serializer.validated_data["number"])
-            if reset_code == user.reset_code:
-                user.save()
-                logger.debug("User got the access to his account")
-                logger.debug(request.path)
-                return Response({"message": "User got the access to his account"}, status=status.HTTP_200_OK)
-
-            else:
-                logger.warning("User didnt get the access to his account")
-                logger.warning(request.path)
-                return Response({"message": "User didnt get the access to his account"},
-                                status=status.HTTP_404_NOT_FOUND)
-        else:
-            logger.warning(serializer.errors)
-            logger.warning(request.path)
-            return Response(serializer.errors)
+        return verify_reset_code_service(request)
 
 
 class SetNewPasswordView(APIView):
     """Установка нового пароля"""
 
     def post(self, request):
-        serializer = NewPasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            password1 = serializer.validated_data['password1']
-            password2 = serializer.validated_data['password2']
-
-            if "email" in serializer.validated_data:
-                user = User.objects.get(
-                    email=serializer.validated_data["email"])
-
-            if "number" in serializer.validated_data:
-                user = User.objects.get(
-                    number=serializer.validated_data["number"])
-
-            else:
-                logger.warning("User not found")
-                logger.warning(request.path)
-                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-            if password1 == password2:
-                set_new_password(user, password2)
-                logger.debug("Password changed successfully")
-                logger.debug(request.path)
-                return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
-            else:
-                logger.warning("Password do not match")
-                logger.warning(request.path)
-                return Response({"error": "Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            logger.warning(serializer.errors)
-            logger.warning(request.path)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return set_new_password_service(request)
 
 
 # email block
 class EmailBindingView(APIView):
+    permission_classes = [IsAuthenticated]
     """Привязка почты к аккаунту. Шаг 1 - отправка письма"""
 
     def post(self, request):
-        serializer = EmailBindingSerializer(data=request.data)
-
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-
-            user = request.user
-            email_code = generate_verification_code()
-            send_verification_email(email_code=email_code, user_email=email)
-            logger.debug(email_code)
-            user.email_verification_code = email_code
-            user.save()
-
-            logger.debug("email has sent successfully")
-            logger.debug(request.path)
-            return Response({'message': 'email has sent successfully'}, status=status.HTTP_200_OK)
-
-        logger.warning(serializer.errors)
-        logger.warning(request.path)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return email_bind_service(request)
 
 
 class VerifyEmailCodeView(APIView):
+    permission_classes = [IsAuthenticated]
     """Проверка кода из email , для привязки почты"""
 
     def post(self, request):
-        serializer = VerifyEmailCodeSerializer(data=request.data)
-
-        if serializer.is_valid():
-            email_code = serializer.validated_data['email_verification_code']
-            email = serializer.validated_data["email"]
-            logger.debug(email_code)
-            user = request.user
-            if email_code == user.email_verification_code:
-                user.email = email
-                user.save()
-                logger.debug("User verified successfully")
-                logger.debug(request.path)
-                return Response({"message": "User verified successfully"}, status=status.HTTP_200_OK)
-            else:
-                user.email = None
-                user.save()
-
-                logger.warning("Invalid verification code")
-                logger.warning(request.path)
-                return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
-
-        logger.warning(serializer.errors)
-        logger.warning(request.path)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return verify_email_bind_service(request)
 
 
-class CreateAdminView(generics.ListCreateAPIView):
+class CreateAdminView(generics.CreateAPIView):
     """Создание админа"""
     permission_classes = [AllowAny]
-    queryset = get_users()
+    queryset = cache.get_or_set("users", get_users())
     serializer_class = AdminSerializer
 
     def post(self, request):
         serializer = AdminSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-
             logger.debug(serializer.data)
             logger.debug(request.path)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -328,11 +167,13 @@ class AccessViewSet(APIView):
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        users = cache.get_or_set("users", get_users())
         queryset = cache.get_or_set("access", get_access())
         if self.request.user.is_staff:
             return queryset
         else:
-            return queryset.filter(user=get_users(id=self.request.user.id).first())
+            user = users.filter(id=self.request.user.id).first()
+            return queryset.filter(user=user)
 
     @swagger_auto_schema(operation_summary="Получение доступа пользователя")
     def get(self, request):
@@ -350,15 +191,7 @@ class AccessViewSet(APIView):
     @transaction.atomic
     def post(self, request):
         """ JSON {"id": 22} """
-        users = cache.get_or_set("users", get_users())
-        user_to_access, uta_created = Access.objects.get_or_create(
-            user=users.filter(id=request.data["id"]).first())
-        user, user_created = Access.objects.get_or_create(
-            user=users.filter(id=request.user.id).first())
-        user.access_unaccept.add(user_to_access.user)
-        user_to_access.access_unaccept.add(user.user)
-        Notification.objects.create(
-            user=user_to_access.user, text="Вам отправлен запрос на доступ от", add=UserGetSerializer(user.user).data)
+        add_access_service(request)
         return Response({"message": "created"}, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -374,17 +207,7 @@ class AccessViewSet(APIView):
     @transaction.atomic
     def delete(self, request):
         """ JSON {"id": 22, "access": "accept/unaccept"} """
-        users = cache.get_or_set("users", get_users())
-        user_to_delete_access = get_access(
-            user=users.filter(id=request.data["id"]).first()).first()
-        user = get_access(user=users.filter(
-            id=request.user.id).first()).first()
-        if request.data["access"] == "accept":
-            user.access_accept.remove(user_to_delete_access.user)
-            user_to_delete_access.access_accept.remove(user.user)
-        else:
-            user.access_unaccept.remove(user_to_delete_access.user)
-            user_to_delete_access.access_unaccept.remove(user.user)
+        delete_access_service(request)
         return Response({"message": "deleted"}, status=status.HTTP_202_ACCEPTED)
 
     @swagger_auto_schema(
@@ -399,15 +222,8 @@ class AccessViewSet(APIView):
     @transaction.atomic
     def put(self, request):
         """ JSON {"id": 22} """
-        users = cache.get_or_set("users", get_users())
-        user = get_access(user=users.filter(
-            id=request.data["id"]).first()).first()
-        user_to_accept_access = get_access(
-            user=users.filter(id=request.user.id).first()).first()
-        user.access_unaccept.remove(user_to_accept_access.user)
-        user_to_accept_access.access_unaccept.remove(user.user)
-        user.access_accept.add(user_to_accept_access.user)
-        user_to_accept_access.access_accept.add(user.user)
-        Chat.objects.create(from_user=user.user,
-                            to_center=user_to_accept_access.user.main_center)
+        accept_access_service(request)
         return Response({"message": "accepted"}, status=status.HTTP_200_OK)
+
+
+

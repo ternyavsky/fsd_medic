@@ -1,9 +1,9 @@
 from datetime import date
 
-from django.core import cache
+from django.core.cache import cache
 from rest_framework import serializers
 
-from api.serializers import UserGetSerializer, NoteSerializer
+from api.serializers import UserSerializer, NoteSerializer
 from db.queries import *
 
 
@@ -109,7 +109,7 @@ class MainPageSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.Serializer):
-    users = UserGetSerializer(many=True, read_only=True)
+    users = UserSerializer(many=True, read_only=True)
     curr_notes = NoteSerializer(many=True, read_only=True)
     process_notes = NoteSerializer(many=True, read_only=True)
 
@@ -132,7 +132,7 @@ class CenterProfileSerializer(serializers.ModelSerializer):
         users_mainc = users.filter(main_center__id=obj.id)
         users_centers = users.filter(centers__id=obj.id)
         result = users_mainc.union(users_centers)
-        return UserGetSerializer(result, many=True).data
+        return UserSerializer(result, many=True).data
 
     def get_total_notes(self, obj):
         return obj.total_notes
@@ -166,7 +166,7 @@ class ClinicProfileSerializer(serializers.ModelSerializer):
     def get_pacients(self, obj):
         users = cache.get_or_set("users", get_users())
         result = users.filter(clinic=obj)
-        return UserGetSerializer(result, many=True).data
+        return UserSerializer(result, many=True).data
 
     def get_total_notes(self, obj):
         return obj.total_notes

@@ -2,13 +2,12 @@ import os
 import random
 
 import requests
-from celery import Celery
+from celery import Celery, shared_task
 from django.core.mail import send_mail
 from dotenv import load_dotenv
 
 from fsd_medic.settings import BASE_DIR
 
-app = Celery('tasks', broker="amqp://localhost")
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -23,7 +22,7 @@ def generate_verification_code():
     return str(code)
 
 
-@app.task
+@shared_task
 def send_reset_sms(number, code):
     key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
@@ -37,7 +36,7 @@ def send_reset_sms(number, code):
         return False
 
 
-@app.task
+@shared_task
 def send_reset_email(email, code):
     print(code)
     send_mail(
