@@ -1,5 +1,4 @@
 import logging
-
 from django.core.cache import cache
 # REST IMPORTS
 from drf_yasg.utils import swagger_auto_schema
@@ -8,12 +7,10 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from db.queries import *
 from .serializers import *
 
 logger = logging.getLogger(__name__)
-
 
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -35,7 +32,7 @@ class LikeViewSet(viewsets.ModelViewSet):
         data = cache.get_or_set("likes", get_likes())
         data.filter(user=self.request.user)
         return data
-
+    
 
 class NoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]

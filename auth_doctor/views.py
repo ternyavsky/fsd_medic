@@ -336,6 +336,9 @@ class InterviewView(generics.ListCreateAPIView):  # как бы это не на
 class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(
+        operation_summary="Получение центров по городу(при регистрации)"
+    )
     def get(self, request, city):
         data = cache.get_or_set("centers", get_centers(city=city))
         centers = data.filter(city=city)

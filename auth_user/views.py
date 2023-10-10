@@ -60,6 +60,9 @@ class GetDiseasesView(APIView):
     permission_classes = [AllowAny]
     """Получение всех заболеваний во время этапа регистрации"""
 
+    @swagger_auto_schema(
+        operation_summary="Получение всех заболеваний"
+    )
     def get(self, request):
         diseases = cache.get_or_set(get_disease())
         serializer = DiseaseSerializer(diseases, many=True)
@@ -74,6 +77,9 @@ class VerifyCodeView(APIView):
     permission_classes = [AllowAny]
     """Проверка кода во время регистрации"""
 
+    @swagger_auto_schema(
+        operation_summary="Проверка кода во время регистрации"
+    )
     def post(self, request):
         return verify_code_service(request)
 
@@ -81,7 +87,7 @@ class VerifyCodeView(APIView):
 class ResendSmsView(APIView):
     permission_classes = [AllowAny]
     """Переотправка смс, в разделе 'получить смс снова'. Регистрация """
-
+    @swagger_auto_schema
     def post(self, request):
         return resend_sms_service(request)
 
@@ -222,6 +228,7 @@ class AccessViewSet(APIView):
     @transaction.atomic
     def put(self, request):
         """ JSON {"id": 22} """
+        #при доступе добавлять в ведущий чат того, кому отправили. Посты индексировать
         accept_access_service(request)
         return Response({"message": "accepted"}, status=status.HTTP_200_OK)
 

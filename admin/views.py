@@ -8,11 +8,10 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_yasg.utils import swagger_auto_schema
 
 from db.queries import *
 from .serializers import *
-
-
 # Create your views here.
 
 
@@ -32,12 +31,18 @@ class UserProfileViewset(viewsets.ViewSet):
         }
         return result
 
+    @swagger_auto_schema(
+        operation_summary="Все пользователи/Админка"
+    )
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_summary="Конкретный пользователь/Админка"
+    )
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk=None):
         queryset = self.get_queryset(pk)
@@ -59,10 +64,16 @@ class ClinicProfileViewset(viewsets.ModelViewSet):
         )
         return clinics
 
+    @swagger_auto_schema(
+        operation_summary="Все клиники/Админка"
+    )
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
+    @swagger_auto_schema(
+        operation_summary="Конкретная клиники/Админка"
+    )
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk):
         return super().retrieve(request, pk)
@@ -84,10 +95,16 @@ class CenterProfileViewset(viewsets.ModelViewSet):
         )
         return centers
 
+    @swagger_auto_schema(
+        operation_summary="Все центры/Админка"
+    )
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-
+    
+    @swagger_auto_schema(
+        operation_summary="Конкретная клиника/Админка"
+    )
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk):
         return super().retrieve(request, pk)
