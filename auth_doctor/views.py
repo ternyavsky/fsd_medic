@@ -222,6 +222,9 @@ class DoctorSetNewPasswordView(APIView):
 class ClinicPasswordResetView(APIView):
     """Сброс пароля. Этап отправки"""
 
+    @swagger_auto_schema(
+        operation_summary="Сброс пароля(Клиника)"
+    )
     def post(self, request):
         serializer = ClinicPasswordResetSerializer(
             data=request.data, context={'request': request})
@@ -230,7 +233,7 @@ class ClinicPasswordResetView(APIView):
             if 'number' in request.data:
                 code = generate_verification_code()
                 num = request.data['number']
-                send_reset_sms(num, code)
+                send_reset_sms.delay(num, code)
                 clinic.reset_code = code
                 logger.debug(code)
                 clinic.save()
@@ -238,7 +241,7 @@ class ClinicPasswordResetView(APIView):
             if 'email' in request.data:
                 code = generate_verification_code()
                 email = request.data['email']
-                send_reset_email(email, code)
+                send_reset_email.delay(email, code)
                 clinic.reset_code = code
                 logger.debug(code)
                 clinic.save()

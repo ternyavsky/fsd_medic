@@ -182,7 +182,7 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "localhost:11211",
+        "LOCATION": "fsd_medic.memcached",
     }
 }
 

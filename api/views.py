@@ -27,6 +27,7 @@ class LikeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
 
+    #Индексировать новости по лайкам
     def get_queryset(self):
         logger.debug(self.request.path)
         data = cache.get_or_set("likes", get_likes())
