@@ -127,7 +127,7 @@ class User(AbstractBaseUser):
         return self.number
 
     def delete(self, using=None, keep_parents=False):
-        group = Groups.objects.get(id=self.group_id)
+        group = Group.objects.get(id=self.group_id)
         group.number_of_people -= 1
         group.save(update_fields=['number_of_people'])
 

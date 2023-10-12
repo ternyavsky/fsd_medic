@@ -103,7 +103,7 @@ class CenterProfileViewset(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
     
     @swagger_auto_schema(
-        operation_summary="Конкретная клиника/Админка"
+        operation_summary="Конкретный центр/Админка"
     )
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk):

@@ -13,5 +13,9 @@ COPY . /app
 RUN poetry install 
 RUN poetry run python manage.py collectstatic
 
-
+#cmd setting
 EXPOSE 8000
+
+CMD [ "gunicorn", "fsd_medic.asgi:application", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker" ]
+
+# CMD [ "poetry", "run", "python", "manage.py", "runserver" ]

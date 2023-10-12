@@ -188,28 +188,6 @@ class ResendCodeSerializer(serializers.Serializer):
     number = serializers.CharField()
 
 
-# password-reset block#
-class PasswordResetSerializer(serializers.Serializer):
-    """Сброс пароля. Этап отправки сообщения """
-    number = serializers.CharField(allow_null=True, required=False)
-    email = serializers.CharField(allow_null=True, required=False)
-
-    def create(self, validated_data):
-        number = validated_data.get('number')
-        email = validated_data.get('email')
-        users = cache.get_or_set("users", get_users())
-        user = None
-        if number:
-            try:
-                user = users.filter(number=validated_data['number']).first()
-            except User.DoesNotExist:
-                raise serializers.ValidationError('User does not have a number')
-        if email:
-            try:
-                user = users.filter(email=validated_data['email'])
-            except User.DoesNotExist:
-                raise serializers.ValidationError('User does not have an email')
-        return user
 
 
 class VerifyResetCodeSerializer(serializers.Serializer):

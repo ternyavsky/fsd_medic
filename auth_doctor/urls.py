@@ -12,10 +12,11 @@ urlpatterns = [
     path('api/reset-password-doctor/', DoctorPasswordResetView.as_view(), name='reset-password-doctor'),
     path('api/verify-reset-password-doctor/', DoctorVerifyResetCodeView.as_view(), name='verify-reset-password-doctor'),
     path('api/change-password-doctor/', DoctorSetNewPasswordView.as_view(), name='change-password-doctor'),
+    path('api/resend-sms-doctor/', DoctorResendSmsView.as_view(), name="resend-sms-doctor"),
 
     path('api/reset-password-clinic/', ClinicPasswordResetView.as_view(), name='reset-password-clinic'),
     path('api/verify-reset-password-clinic/', ClinicVerifyResetCodeView.as_view(), name='verify-reset-password-clinic'),
     path('api/change-password-clinic/', ClinicSetNewPasswordView.as_view(), name='change-password-clinic'),
-
+    path('api/resend-sms-clinic/', ClinicResendSmsView.as_view(), name="resend-sms-clinic"),
     # Сохранение данных в кэше
 ]

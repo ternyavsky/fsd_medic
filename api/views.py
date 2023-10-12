@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models import Count, Q, Subquery, F
 from db.queries import *
 from .serializers import *
 
@@ -27,7 +28,7 @@ class LikeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
 
-    #Индексировать новости по лайкам
+
     def get_queryset(self):
         logger.debug(self.request.path)
         data = cache.get_or_set("likes", get_likes())
@@ -59,8 +60,14 @@ class NewsViewSet(viewsets.ModelViewSet):
                 logger.info("Admin request")
                 return news
             if user.is_authenticated:
-                center_news = news.filter(center__in=user.center.all())
+                center_news = news.filter(center__in=user.centers.all())
                 disease_news = news.filter(disease__in=user.disease.all())
+                disease_news = disease_news.annotate(
+                    quant_likes=Count("like", distinct=True)
+                ).order_by("quant_likes")
+                center_news = center_news.annotate(
+                    quant_likes=Count("like", distinct=True)
+                ).order_by("quant_likes")
                 news = center_news.union(disease_news)
                 logger.debug(self.request.path)
                 return news

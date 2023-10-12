@@ -79,29 +79,6 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
         ]
 
 
-class DoctorPasswordResetSerializer(serializers.Serializer):
-    """Сброс пароля. Этап отправки сообщения """
-    number = serializers.CharField(allow_null=True, required=False)
-    email = serializers.CharField(allow_null=True, required=False)
-
-    def create(self, validated_data):
-        number = self.context['request'].data.get('number')
-        # email validate pydantic class
-        email = self.context['request'].data.get('email')
-        doctor = None
-        if number:
-            try:
-                doctor = Doctor.objects.get(number=validated_data['number'])
-            except Doctor.DoesNotExist:
-                raise serializers.ValidationError('Doctor does not have a number')
-        if email:
-            try:
-                doctor = Doctor.objects.get(email=validated_data['email'])
-            except Doctor.DoesNotExist:
-                raise serializers.ValidationError('Doctor does not have an email')
-        return doctor
-
-
 class DoctorVerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
     email = serializers.CharField(allow_null=True, required=False)
@@ -121,28 +98,6 @@ class DoctorNewPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("Passwords do not match.")
         return data
 
-
-class ClinicPasswordResetSerializer(serializers.Serializer):
-    """Сброс пароля. Этап отправки сообщения """
-    number = serializers.CharField(allow_null=True, required=False)
-    email = serializers.CharField(allow_null=True, required=False)
-
-    def create(self, validated_data):
-        number = self.context['request'].data.get('number')
-        # email validate pydantic class
-        email = self.context['request'].data.get('email')
-        clinic = None
-        if number:
-            try:
-                clinic = Clinic.objects.get(number=validated_data['number'])
-            except Clinic.DoesNotExist:
-                raise serializers.ValidationError('Clinic does not have a number')
-        if email:
-            try:
-                Clinic = Clinic.objects.get(email=validated_data['email'])
-            except Clinic.DoesNotExist:
-                raise serializers.ValidationError('Clinic does not have an email')
-        return clinic
 
 
 class ClinicVerifyResetCodeSerializer(serializers.Serializer):

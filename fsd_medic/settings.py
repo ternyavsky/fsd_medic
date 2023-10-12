@@ -80,7 +80,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=23),
+    "ACCESS_TOKEN_LIFETIME": timedelta(),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
     "TOKEN_OBTAIN_SERIALIZER": "auth_user.serializers.CustomTokenObtainPairSerializer"
 }
@@ -141,9 +141,6 @@ LOGGING = {
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
-        },
         'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
@@ -182,7 +179,7 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "fsd_medic.memcached",
+        "LOCATION": "172.17.0.1:11211",
     }
 }
 
