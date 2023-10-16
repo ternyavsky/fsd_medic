@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>Chat Room</title>
 </head>
+
 <body>
     <div class="" id="app">
         <h5>{{ user.password }}</h5>
-       <h5> {{ user.username }}</h5>
+        <h5> {{ user.username }}</h5>
 
         <ol>
             <li v-for="message in messages">
@@ -23,6 +25,7 @@
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     <input id="delete_message" type="button" value="Удалить">
+    <input id="exit" type="button" value="Close">
     <input id="update_message" type="button" value="Обновить">
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script>
@@ -37,78 +40,108 @@
                 };
             },
             methods: {
-                reverse: function(){
+                reverse: function () {
                     this.message = this.message.split('').reverse().join('')
                 }
             },
 
         })
         const user_id = 1
-        const chat_uuid = 'ed74c13f-86d0-4cd2-9a85-85f38d1b0b1b'
+        const chat_uuid = '1f46a5ca-6557-4675-9955-6afa451b51fe'
         const user = '{{ user }}'
         console.log(user_id)
         const request_id = new Date().getTime()
-        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid}/${user_id}/`);
-        ws.onmessage = function(e) {
+        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid}/`);
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+                "action": "connect_entity",
+                "type": "user",
+                "id": 1
+            }))
+        }
+
+        ws.onclose = () => {
+            ws.send(JSON.stringify({
+                "action": "disconnect_entity",
+                "type": "user",
+                "id": 1
+            }))
+        }
+
+
+        ws.onmessage = (e) => {
             const data = JSON.parse(e.data);
             console.log(data)
-                if(data.action === 'send'){
-                    document.querySelector('#chat-log').value += `user connect ${data.connect}`
-                }
-
-                if(data.action === 'send_message'){
-                    console.log(data.message.data)
-                    app.$data.messages.push(data.message.data);
-                }
-                if(data.action === 'list_message'){
-                    app.$data.messages = data.messages.data;
-
-                    app.$forceUpdate();
-
-                }if (data.action === 'delete_message'){
-                    const messageToDelete = data.message.data
-                    console.log(messageToDelete)
-                    app.$data.messages.filter((message) => message !== messageToDelete);
-
-                };
+            if (data.action === 'send') {
+                document.querySelector('#chat-log').value += `user connect ${data.connect}`
+            }
+            if (data.action === 'connect') {
+                console.log(data)
             }
 
-
-
-
-
-        document.querySelector('#delete_message').onclick = function(e) {
-                ws.send(JSON.stringify({
-                    action: 'delete_message',
-                    pk: 9,
-                }))
+            if (data.action === 'send_message') {
+                console.log(data.message.data)
+                app.$data.messages.push(data.message.data);
             }
+            if (data.action === 'list_message') {
+                app.$data.messages = data.messages.data;
 
-        document.querySelector("#update_message").onclick = function(e){
-              ws.send(JSON.stringify({
+                app.$forceUpdate();
+
+            } if (data.action === 'delete_message') {
+                const messageToDelete = data.message.data
+                console.log(messageToDelete)
+                app.$data.messages.filter((message) => message !== messageToDelete);
+
+            };
+        }
+
+
+
+
+
+        document.querySelector('#delete_message').onclick = function (e) {
+            ws.send(JSON.stringify({
+                action: 'delete_message',
+                pk: 9,
+            }))
+        }
+
+        document.querySelector("#update_message").onclick = function (e) {
+            ws.send(JSON.stringify({
                 action: "update_message",
-                pk:8,
+                pk: 8,
                 text: "hello bro"
-              }
-        ))
-      }
+            }
+            ))
+        }
+        document.querySelector("#exit").onclick = (e) => {
+            ws.send(JSON.stringify({
+                action: "disconnect_entity",
+                type: "user",
+                id: 1
+            }))
+        }
 
         document.querySelector('#chat-message-input').focus();
-        document.querySelector('#chat-message-input').onkeyup = function(e) {
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
             if (e.keyCode === 13) {  // enter, return
                 document.querySelector('#chat-message-submit').click();
             }
         };
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
+        document.querySelector('#chat-message-submit').onclick = function (e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
 
             ws.send(JSON.stringify({
                 action: 'send_message',
                 chat_uuid: chat_uuid,
-                text:  message,
+                text: message,
                 user_id: user_id,
+                //note_id: note_id,
+                //doctor_id: doctor_id,
+                //center_id: center_id
             }));
             messageInputDom.value = ''
         };
@@ -117,4 +150,5 @@
 
     </script>
 </body>
+
 </html>

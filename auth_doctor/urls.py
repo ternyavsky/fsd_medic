@@ -18,5 +18,8 @@ urlpatterns = [
     path('api/verify-reset-password-clinic/', ClinicVerifyResetCodeView.as_view(), name='verify-reset-password-clinic'),
     path('api/change-password-clinic/', ClinicSetNewPasswordView.as_view(), name='change-password-clinic'),
     path('api/resend-sms-clinic/', ClinicResendSmsView.as_view(), name="resend-sms-clinic"),
+
+
+    path('api/inter/', InterviewView.as_view(), name='test')
     # Сохранение данных в кэше
 ]

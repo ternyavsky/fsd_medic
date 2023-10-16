@@ -28,8 +28,6 @@ class ChatCreate(APIView):
         }
     )
     def post(self, request):
-        print("SKJSAHASKJSHASAKJDAHJKJKHKJH")
-        print(request.data)
         serializer = ChatCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             chat = chat_create(serializer.validated_data)

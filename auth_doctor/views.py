@@ -4,9 +4,11 @@ from django.core.cache import cache
 from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from .authentication import DoctorJWTAuth
 from rest_framework import generics, status
 from rest_framework import views
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from auth_user.serializers import ResendCodeSerializer
@@ -223,9 +225,15 @@ class ClinicSetNewPasswordView(APIView):
 
 class InterviewView(generics.ListCreateAPIView):  # как бы это не называлось
     permission_classes = [AllowAny]
+    authentication_classes = [DoctorJWTAuth]
+
     """Работа с сотрудниками"""
     serializer_class = InterviewSerializer
     queryset = Interview.objects.all()
+
+
+    def get(self, request):
+        return super().get(self, request)
 
     def post(self, request):
         serializer = InterviewSerializer(data=request.data)
@@ -235,9 +243,10 @@ class InterviewView(generics.ListCreateAPIView):  # как бы это не на
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = [DoctorJWTAuth]
     @swagger_auto_schema(
         operation_summary="Получение центров по городу(при регистрации)"
     )
