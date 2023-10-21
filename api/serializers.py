@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.fields import empty
 
 from auth_doctor.models import Doctor
 from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access
@@ -31,10 +32,14 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Получаем пользователя(аккаунт и т.п)"""
+    """Получаем пользователя(аккаунт и т.п)"""  
+
+    def __init__(self, *args, **kwargs):
+        self.depth = kwargs.pop("depth", 1)
+        self.Meta.depth = self.depth
+        super(UserSerializer, self).__init__(*args, **kwargs)
 
     class Meta:
-        depth = 1
         model = User
         fields = '__all__'
 

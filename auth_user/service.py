@@ -24,6 +24,7 @@ def send_reset_sms(number, code):
     res = requests.get(url)
     if res.status_code == 200:
         print('отправилось')
+        print(code)
         return True
     else:
         print(res)
@@ -60,8 +61,10 @@ def send_sms(number, code):
     res = requests.get(url)
     if res.status_code == 200:
         print('отправилось')
+        print(code)
         return True
     else:
+        print(res.content)
         print("не отправилось")
         return False
 

@@ -43,7 +43,7 @@ class UserView(generics.ListCreateAPIView):
         operation_summary="Создание пользователя"
     )
     def post(self, request):
-        return create_user_service(data=request.data, context={'request': request})
+        return create_user_service(request, context={'request': request})
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):

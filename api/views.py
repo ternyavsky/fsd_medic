@@ -50,6 +50,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 
 class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         logger.debug(self.request)
@@ -64,10 +65,10 @@ class NewsViewSet(viewsets.ModelViewSet):
                 disease_news = news.filter(disease__in=user.disease.all())
                 disease_news = disease_news.annotate(
                     quant_likes=Count("like", distinct=True)
-                ).order_by("quant_likes")
+                ).order_by("-quant_likes")
                 center_news = center_news.annotate(
                     quant_likes=Count("like", distinct=True)
-                ).order_by("quant_likes")
+                ).order_by("-quant_likes")
                 news = center_news.union(disease_news)
                 logger.debug(self.request.path)
                 return news
@@ -78,7 +79,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
 
 class SearchView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):

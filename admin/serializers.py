@@ -3,7 +3,7 @@ from datetime import date
 from django.core.cache import cache
 from rest_framework import serializers
 
-from api.serializers import UserSerializer, NoteSerializer
+from api.serializers import UserSerializer, NoteSerializer, AccessSerializer
 from db.queries import *
 
 
@@ -15,10 +15,6 @@ class CityProfileSerializer(serializers.ModelSerializer):
     quant_users = serializers.SerializerMethodField()
     quant_users_today = serializers.SerializerMethodField()
 
-    # quant_interview = serializers.SerializerMethodField()
-    # quant_interview_today = serializers.SerializerMethodField()
-    # quant_lid = serializers.SerializerMethodField()
-    # quant_lid_today = serializers.SerializerMethodField()
 
     class Meta:
         model = City
@@ -97,51 +93,48 @@ class DiseasePacientSerializer(serializers.ModelSerializer):
 
     def get_count(self, obj):
         return obj.most_count
-
+    
+    
+class AgeSerializer(serializers.Serializer):
+    man = serializers.IntegerField()
+    woman = serializers.IntegerField()
 
 class MainPageSerializer(serializers.Serializer):
+    _10_20 = AgeSerializer(many=True, read_only=True)
+    _20_30 = AgeSerializer(many=True, read_only=True)
+    _30_40 = AgeSerializer(many=True, read_only=True)
+    _40_50 = AgeSerializer(many=True, read_only=True)
+    _50_60 = AgeSerializer(many=True, read_only=True)
+    _60_70 = AgeSerializer(many=True, read_only=True)
     diseases = DiseasePacientSerializer(read_only=True, many=True)
-    ucreated_today = serializers.SerializerMethodField()
-
-    def get_ucreated_today(self, obj):
-        users = cache.get_or_set("users", get_users())
-        return users.filter(created_at__date=date.today()).count()
+    created_today = serializers.IntegerField()
 
 
 class UserProfileSerializer(serializers.Serializer):
-    users = UserSerializer(many=True, read_only=True)
+    user = UserSerializer(many=True, read_only=True, depth=0)
     curr_notes = NoteSerializer(many=True, read_only=True)
     process_notes = NoteSerializer(many=True, read_only=True)
+    miss_notes = NoteSerializer(many=True, read_only=True)
+    access = AccessSerializer(many=True, read_only=True)
 
 
 class CenterProfileSerializer(serializers.ModelSerializer):
-    pacients = serializers.SerializerMethodField()
-    total_notes = serializers.SerializerMethodField()
-    reject_notes = serializers.SerializerMethodField()
-    pass_notes = serializers.SerializerMethodField()
+    online_notes = serializers.SerializerMethodField()
+    offline_notes = serializers.SerializerMethodField()
     visit_online = serializers.SerializerMethodField()
     visit_offline = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Center
         fields = "__all__"
         depth = 1
 
-    def get_pacients(self, obj):
-        users = cache.get_or_set("users", get_users())
-        users_mainc = users.filter(main_center__id=obj.id)
-        users_centers = users.filter(centers__id=obj.id)
-        result = users_mainc.union(users_centers)
-        return UserSerializer(result, many=True).data
+    def get_online_notes(self, obj):
+        return obj.online_notes
 
-    def get_total_notes(self, obj):
-        return obj.total_notes
-
-    def get_reject_notes(self, obj):
-        return obj.reject_notes
-
-    def get_pass_notes(self, obj):
-        return obj.pass_notes
+    def get_offline_notes(self, obj):
+        return obj.offline_notes
 
     def get_visit_online(self, obj):
         return obj.visit_online
@@ -150,11 +143,13 @@ class CenterProfileSerializer(serializers.ModelSerializer):
         return obj.visit_offline
 
 
+class CenterUserProfileSerializer(serializers.Serializer):
+    center = CenterProfileSerializer(many=True, read_only=True)
+    pacients = UserSerializer(many=True, read_only=True)
+
 class ClinicProfileSerializer(serializers.ModelSerializer):
-    pacients = serializers.SerializerMethodField()
-    total_notes = serializers.SerializerMethodField()
-    reject_notes = serializers.SerializerMethodField()
-    pass_notes = serializers.SerializerMethodField()
+    online_notes = serializers.SerializerMethodField()
+    offline_notes = serializers.SerializerMethodField()
     visit_online = serializers.SerializerMethodField()
     visit_offline = serializers.SerializerMethodField()
 
@@ -163,22 +158,20 @@ class ClinicProfileSerializer(serializers.ModelSerializer):
         fields = "__all__"
         depth = 1
 
-    def get_pacients(self, obj):
-        users = cache.get_or_set("users", get_users())
-        result = users.filter(clinic=obj)
-        return UserSerializer(result, many=True).data
 
-    def get_total_notes(self, obj):
-        return obj.total_notes
+    def get_online_notes(self, obj):
+        return obj.online_notes
 
-    def get_reject_notes(self, obj):
-        return obj.reject_notes
-
-    def get_pass_notes(self, obj):
-        return obj.pass_notes
+    def get_offline_notes(self, obj):
+        return obj.offline_notes
 
     def get_visit_online(self, obj):
         return obj.visit_online
 
     def get_visit_offline(self, obj):
         return obj.visit_offline
+
+
+class ClinicUserProfileSerializer(serializers.Serializer):
+    clinic = ClinicProfileSerializer(many=True, read_only=True)
+    pacients = UserSerializer(many=True, read_only=True)

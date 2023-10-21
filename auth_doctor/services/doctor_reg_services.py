@@ -10,6 +10,7 @@ from ..models import Doctor, LinkToInterview
 from rest_framework.response import Response
 from rest_framework import status
 from ..service import *
+from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +143,7 @@ def doctor_datapast_service(request):
                 link=doctor_hash
             )
             number = validated_data["number"]
-            send_verification_code_doctor(doctor_hash, number)
+            send_verification_code_doctor.delay(doctor_hash, number)
             return Response({"message": f"Код для регистрации врача отправлен на номер {number}",
                                 "doctor_hash": doctor_hash}, status=status.HTTP_200_OK)
         except:
@@ -169,8 +170,14 @@ def doctor_create(doctor_hash: str, datetime_obj):
 
 
 
-
+@shared_task
 def send_verification_code_doctor(doctor_hash, number_to):
+    key = os.getenv('API_KEY')
+    email = os.getenv('EMAIL')
+    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number_to}&text=Ссылка+для+собедования+http://127.0.0.1:8000/api/create_doctor/{doctor_hash}&sign=SMSAero'
+    res = requests.get(url)
+    if res.status_code == 200:
+        print('отправилось')
     print("Хэш для вставки(Фронт)", doctor_hash)
     print("http://127.0.0.1:8000/api/create_doctor/{}".format(doctor_hash))
 

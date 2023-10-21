@@ -13,12 +13,12 @@ from db.queries import get_users
 logger = logging.getLogger(__name__)
 
 
-def create_user_service(data, context):
+def create_user_service(request, context):
     code = generate_verification_code()
-    serializer = CreateUserSerializer(data, context["request"])
+    serializer = CreateUserSerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         user = serializer.save()
-        if int(data['stage']) == 3:
+        if int(request.data['stage']) == 3:
             send_sms.delay(user.number, code)
             user.verification_code = code
             user.save()

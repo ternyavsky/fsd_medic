@@ -73,7 +73,7 @@ class DoctorInterviewCreate(views.APIView):
         operation_summary="Назначение даты интервью (Доктор)",
     )
     def post(self, request, doctor_hash):
-        return doctor_create_interview_service
+        return doctor_create_interview_service(request, doctor_hash)
 
 
 

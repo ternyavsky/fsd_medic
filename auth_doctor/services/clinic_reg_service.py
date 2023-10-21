@@ -11,6 +11,7 @@ from rest_framework import status
 from django.db import transaction
 from db.queries import get_clinics
 from ..service import *
+from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
@@ -133,20 +134,23 @@ def clinic_datapast_service(request):
     serializer = ClinicCreateSerializer(data=request.data)
     if serializer.is_valid():
         validated_data = serializer.validated_data
-        clinic_hash: str = clinic_data_pass(validated_data)
+        clinic_hash = clinic_data_pass(validated_data)
         try:
             LinkToInterview.objects.create(
                 used=False,
                 link=clinic_hash
             )
             number = validated_data["number"]
-            send_verification_code_clinic(clinic_hash, number)
-            return Response({"message": f"Код для регистрации клиники отправлен на номер {number}",
-                                "clinic_hash": clinic_hash}, status=status.HTTP_200_OK)
-        except:
-            return Response({"error": "Запрос с такими данными уже существует"}, status.HTTP_400_BAD_REQUEST)
+            send_verification_code_clinic.delay(clinic_hash, number)
+            response_data = {
+                "message": f"Код для регистрации клиники отправлен на номер {number}",
+                "clinic_hash": clinic_hash
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"error": "Запрос с такими данными уже существует"}, status=status.HTTP_400_BAD_REQUEST)
     else:
-        # Если данные не прошли валидацию, верните ошибки
+        # If the data did not pass validation, return the errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -157,21 +161,27 @@ def clinic_create(clinic_hash: str, datetime_obj):
         supported_diseases = clinic_data.pop("supported_diseases")
         clinic_country = clinic_data.pop("country")
         clinic_city = clinic_data.pop("city")
-        clinic = Clinic(**clinic_data)
+        
+        clinic = Clinic.objects.create(**clinic_data)
         clinic.review_date = datetime_obj
         clinic.review_passed = False
         clinic.country = Country.objects.get(name=clinic_country)
         clinic.city = City.objects.get(name=clinic_city)
         clinic.save()
-        for i in supported_diseases:
-            clinic.supported_diseases.add(i)
-        clinic.save()
-        return {"message": "Успешно создан", "id": clinic.id}, 201
+        
+        clinic.supported_diseases.set(supported_diseases)
+        return {"message": "Успешно создан", "id": clinic.id}, status.HTTP_201_CREATED
     else:
         return {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}, 400
 
-
+@shared_task
 def send_verification_code_clinic(clinic_hash, number_to):
+    key = os.getenv('API_KEY')
+    email = os.getenv('EMAIL')
+    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number_to}&text=Ссылка+для+собедования+http://127.0.0.1:8000/api/create_clinic/{clinic_hash}&sign=SMSAero'
+    res = requests.get(url)
+    if res.status_code == 200:
+        print('отправилось')
     print("Хэш для вставки(Фронт)", clinic_hash)
     print("http://127.0.0.1:8000/api/create_clinic/{}".format(clinic_hash))
 

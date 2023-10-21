@@ -102,7 +102,9 @@ def get_access(**kwargs):
     """Получение доступа"""
     return (Access.objects.filter(**kwargs)
             .select_related("user")
-            .prefetch_related("access_accept", "access_unaccept")
+            .prefetch_related("access_accept", "access_unaccept", "access_accept__centers", "access_unaccept__centers", 
+                            "access_accept__disease", "access_unaccept__disease", "user__disease"
+                              )
             )
 
 

@@ -7,7 +7,7 @@ from rest_framework import exceptions
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
 from django.core.cache import cache
-from db.queries import get_users
+from db.queries import get_users, get_centers
 from api.models import Disease, Center, User
 from social.models import Chat
 
@@ -95,12 +95,13 @@ class CreateUserSerializer(serializers.Serializer):
             else:
                 center = validated_data["main_center"]
                 user.main_center = validated_data["main_center"]
-                chat = Chat.objects.create(
-                    to_user=user,
-                    from_center=user.main_center
-                )
-
+                center = get_centers(id=user.main_center.id).first()
+                chat = Chat()
                 chat.save()
+                chat.users.add(user)
+                chat.centers.add(center)
+                chat.save()
+                
 
             user.country = center.country
             if "disease_id" in validated_data:
