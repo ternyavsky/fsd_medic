@@ -87,7 +87,7 @@
                 app.$data.messages = data.messages.data;
 
                 app.$forceUpdate();
-
+-
             } if (data.action === 'delete_message') {
                 const messageToDelete = data.message.data
                 console.log(messageToDelete)
@@ -111,7 +111,7 @@
             ws.send(JSON.stringify({
                 action: "update_message",
                 pk: 8,
-                text: "hello bro"
+                text: "hello timur blya"
             }
             ))
         }

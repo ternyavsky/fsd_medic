@@ -8,7 +8,7 @@ from rest_framework.response import Response
 # REST IMPORTS
 from rest_framework.views import APIView
 
-from db.queries import get_messages, get_chats
+from db.queries import get_messages, get_chats, get_notifications
 from .serializers import *
 from .serializers import ChatCreateSerializer, ChatSerializer
 from .services.chat_services import chat_create
@@ -17,6 +17,22 @@ logger = logging.getLogger(__name__)
 
 
 # Create your views here.
+
+class NotifyView(APIView):
+    #permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Список уведомлений по user_id"
+    )
+    def get(self, request, user_id):
+        notifications = cache.get_or_set("notifications", get_notifications())
+        notifications = notifications.filter(user=user_id)
+        serializer = NotificationSerializer(notifications, many=True)
+        logger.debug(serializer.data)
+        logger.debug(request.path)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 class ChatCreate(APIView):
     @swagger_auto_schema(

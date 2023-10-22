@@ -113,6 +113,12 @@ def get_groups(**kwargs):
     return Group.objects.filter(**kwargs)
 
 
+def get_notifications(**kwargs):
+    return (
+        Notification.objects.filter(**kwargs)
+        .select_related("user")
+        )
+
 ##
 
 

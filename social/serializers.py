@@ -28,6 +28,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = "__all__"
+        depth = 1
 
 
 class ChatSerializer(serializers.ModelSerializer):

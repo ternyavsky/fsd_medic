@@ -11,42 +11,42 @@ from .models import Center, Clinic, Disease, Like, News, Note, User, Saved, City
 # CACHE SIGNALS
 
 @receiver(post_delete, sender=Country, dispatch_uid="countries_deleted")
-def disease_post_delete_handler(sender, **kwargs):
+def country_post_delete_handler(sender, **kwargs):
     cache.delete('countries')
 
 
 @receiver(post_save, sender=Country, dispatch_uid='countries_updated')
-def disease_post_save_handler(sender, **kwargs):
+def country_post_save_handler(sender, **kwargs):
     cache.delete('countries')
 
 
 @receiver(post_delete, sender=City, dispatch_uid="cities_deleted")
-def disease_post_delete_handler(sender, **kwargs):
+def city_post_delete_handler(sender, **kwargs):
     cache.delete('cities')
 
 
 @receiver(post_save, sender=City, dispatch_uid='cities_updated')
-def disease_post_save_handler(sender, **kwargs):
+def city_post_save_handler(sender, **kwargs):
     cache.delete('cities')
 
 
 @receiver(post_delete, sender=Message, dispatch_uid="messages_deleted")
-def disease_post_delete_handler(sender, **kwargs):
+def message_post_delete_handler(sender, **kwargs):
     cache.delete('messages')
 
 
 @receiver(post_save, sender=Message, dispatch_uid='messagess_updated')
-def disease_post_save_handler(sender, **kwargs):
+def message_post_save_handler(sender, **kwargs):
     cache.delete('messages')
 
 
 @receiver(post_delete, sender=Chat, dispatch_uid="chats_deleted")
-def disease_post_delete_handler(sender, **kwargs):
+def chat_post_delete_handler(sender, **kwargs):
     cache.delete('chats')
 
 
 @receiver(post_save, sender=Chat, dispatch_uid='chats_deleted')
-def disease_post_save_handler(sender, **kwargs):
+def chat_post_save_handler(sender, **kwargs):
     cache.delete('chats')
 
 
@@ -131,12 +131,12 @@ def user_post_save_handler(sender, **kwargs):
 
 
 @receiver(post_delete, sender=Doctor, dispatch_uid="doctors_deleted")
-def user_post_delete_handler(sender, **kwargs):
+def doctor_post_delete_handler(sender, **kwargs):
     cache.delete('doctors')
 
 
 @receiver(post_save, sender=Doctor, dispatch_uid='doctors_updated')
-def user_post_save_handler(sender, **kwargs):
+def doctor_post_save_handler(sender, **kwargs):
     cache.delete('doctors')
 
 
@@ -148,6 +148,15 @@ def clinic_post_delete_handler(sender, **kwargs):
 @receiver(post_save, sender=Clinic, dispatch_uid='clinics_updated')
 def clinic_post_save_handler(sender, **kwargs):
     cache.delete('clinics')
+
+@receiver(post_delete, sender=Notification, dispatch_uid="notify_deleted")
+def notification_post_delete_handler(sender, **kwargs):
+    cache.delete('notifications')
+
+
+@receiver(post_save, sender=Clinic, dispatch_uid='notify_updated')
+def clinic_post_save_handler(sender, **kwargs):
+    cache.delete('notifications')
 
 
 # NOTIFY SIGNALS
