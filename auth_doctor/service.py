@@ -39,11 +39,11 @@ def send_reset_sms(number, code):
     email = os.getenv('EMAIL')
     url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+,+ваш+код+доступа+-+{code}&sign=SMSAero'
     res = requests.get(url)
+    print(code)
     if res.status_code == 200:
-        print('отправилось', code)
+        print('отправилось')
         return True
     else:
-        print(res)
         return False
 
 
@@ -75,11 +75,11 @@ def send_sms(number, code):
     email = os.getenv('EMAIL')
     url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Регистрация+была+успешно+пройдена,+ваш+код+подтверждения+{code}&sign=SMSAero'
     res = requests.get(url)
+    print(code)
     if res.status_code == 200:
         print('отправилось')
         return True
     else:
-        print("не отправилось")
         return False
 
 

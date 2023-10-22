@@ -6,7 +6,7 @@ urlpatterns = [
     path('api/create_clinic/<str:clinic_hash>/', ClinicInterviewCreate.as_view(), name="clinic_interview"),
     path('api/create_doctor/<str:doctor_hash>/', DoctorInterviewCreate.as_view(), name="doctor_interview"),
 
-    path('api/clinic/create/', ClinicDataPast.as_view(), name='clinic_create'),
+    path('api/clinic/create/', ClinicDataPast.as_view(), name='clinic_create'), 
     path('api/doctor/create/', DoctorDataPast.as_view(), name='doctor_create'),  # Сохранение данных в кэше
 
     path('api/reset-password-doctor/', DoctorPasswordResetView.as_view(), name='reset-password-doctor'),

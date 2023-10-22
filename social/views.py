@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class ChatCreate(APIView):
     @swagger_auto_schema(
-        operation_summary="Сохраняет данные клиники в кэш",
+        operation_summary="Создание чата при первом сообщении",
         query_serializer=ChatCreateSerializer,
         responses={
             status.HTTP_200_OK: ChatSerializer,

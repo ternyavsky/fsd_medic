@@ -9,13 +9,13 @@ from .choices import NOTE_CHOICES, PROCESS
 
 class UserManager(BaseUserManager):
     def create_user(self, number, password, group=None, center_id=None, email=None, first_name=None, last_name=None,
-                    disease_id=None, *args, **kwargs):
+                    disease_id=None, birthday=None, *args, **kwargs):
         user = self.model(number=number)
         user_group = Group.objects.get(name='Пользователи')
         user_group.number_of_people += 1
         user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
-
+        user.birthday = birthday
         user.set_password(password)
 
         if group == 'Пользователи':
