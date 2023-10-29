@@ -69,7 +69,6 @@ class CreateUserSerializer(serializers.Serializer):
     )
     stage = serializers.IntegerField(read_only=True)
     group = serializers.CharField()
-
     def create(self, validated_data):
         self.create_validate(validated_data)
         stage = self.context['request'].data.get('stage')
@@ -89,7 +88,7 @@ class CreateUserSerializer(serializers.Serializer):
 
         if stage == 2:
             center = None
-            user = User.objects.get(number=validated_data['number'])
+            user = get_users(number=validated_data['number']).first()
             if "main_center" not in validated_data:
                 user.main_center = None
             else:
@@ -147,7 +146,7 @@ class CreateUserSerializer(serializers.Serializer):
 
         if stage == '1':
             # Проверка Номера
-            if User.objects.filter(number=data['number']).exists():
+            if get_users(number=data['number']).exists():
                 raise serializers.ValidationError('Number already in use')
 
             password1 = data.get('password1')
@@ -248,7 +247,6 @@ class AdminSerializer(serializers.Serializer):
         email_pattern = re.compile('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
         name_pattern = re.compile('^[а-яА-Я]+$')
         password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
-
         if data['email'] is None:
             raise serializers.ValidationError('Enter email')
         if data['first_name'] is None:

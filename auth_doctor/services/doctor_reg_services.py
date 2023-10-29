@@ -161,7 +161,7 @@ def doctor_create(doctor_hash: str, datetime_obj):
         doctor = Doctor.objects.create(**doctor_data)
         doctor.review_date = datetime_obj
         doctor.review_passed = False
-        #   doctor.country = Country.objects.get(name=doctor_country)
+        #   doctor.country = Country.objects.your_function_nameget(name=doctor_country)
         doctor.city = City.objects.get(name=doctor_city)
         doctor.save()
         return {"message": "Успешно создан", "id": doctor.id}, 201

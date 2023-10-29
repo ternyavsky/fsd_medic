@@ -165,11 +165,10 @@ def clinic_create(clinic_hash: str, datetime_obj):
         clinic = Clinic.objects.create(**clinic_data)
         clinic.review_date = datetime_obj
         clinic.review_passed = False
-        clinic.country = Country.objects.get(name=clinic_country)
+        clinic.country = clinic_country
         clinic.city = City.objects.get(name=clinic_city)
-        clinic.save()
-        
         clinic.supported_diseases.set(supported_diseases)
+        clinic.save()
         return {"message": "Успешно создан", "id": clinic.id}, status.HTTP_201_CREATED
     else:
         return {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}, 400
