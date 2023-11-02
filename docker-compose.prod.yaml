@@ -37,6 +37,13 @@ services:
     image: grafana/grafana
     ports: 
       - "3000:3000"
+
+  loki:
+    container_name: fsd_medic.loki
+    image: grafana/loki
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
   celery:
     build: .
     container_name: fsd_medic.celery
