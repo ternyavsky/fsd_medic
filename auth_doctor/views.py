@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from auth_user.serializers import ResendCodeSerializer
 from api.serializers import CenterSerializer
 from auth_user.service import set_new_password
-from api.backends import doctor_authenticate
+from api.backends import *
 from db.queries import *
 from .models import LinkToInterview
 from .serializers import *
@@ -251,7 +251,8 @@ class LoginDoctor(APIView):
         if doctor != None:
             doctor_jwt = jwt.encode(
                 {
-                    "doctor": doctor.number,
+                    "number": doctor.number,
+                    "type": "doctor",
                     "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
                 },
                 "Bearer",
@@ -260,6 +261,38 @@ class LoginDoctor(APIView):
         return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
+class LoginCenter(APIView):
+    def post(self, request):
+        number, password = request.data["number"], request.data["password"]
+        center = center_authenticate(number, password)
+        if center != None:
+            center_jwt = jwt.encode(
+                {
+                    "number": center.number,
+                    "type": "center",
+                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                },
+                "Bearer",
+                algorithm="HS256")
+            return Response({"access_token": center_jwt}, status=status.HTTP_200_OK)
+        return Response({"error": "Center not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LoginClinic(APIView):
+    def post(self, request):
+        number, password = request.data["number"], request.data["password"]
+        clinic = clinic_authenticate(number, password)
+        if clinic != None:
+            clinic_jwt = jwt.encode(
+                {
+                    "number": clinic.number,
+                    "type": "clinic",
+                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                },
+                "Bearer",
+                algorithm="HS256")
+            return Response({"access_token": center_jwt}, status=status.HTTP_200_OK)
+        return Response({"error": "Clinic not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 

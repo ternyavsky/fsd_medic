@@ -20,6 +20,11 @@ urlpatterns = [
     path('api/resend-sms-clinic/', ClinicResendSmsView.as_view(), name="resend-sms-clinic"),
 
 
+    # LOGIN INSTANCES
+    path('api/doctor_token/', LoginDoctor.as_view(), name='token-doctor'),
+    path('api/center_token/', LoginCenter.as_view(), name='token-center'),
+    path('api/clinic_token/', LoginClinic.as_view(), name='token-clinic'),
+
     path('api/inter/', InterviewView.as_view(), name='test')
     # Сохранение данных в кэше
 ]

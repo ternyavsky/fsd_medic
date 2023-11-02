@@ -216,7 +216,8 @@ class Note(models.Model):
         verbose_name = 'Запись'
 
 
-class Center(models.Model):
+class Center(AbstractBaseUser):
+    USERNAME_FIELD = 'number'
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_(
         'Название центра'), max_length=255, null=True)
@@ -266,7 +267,8 @@ class Center(models.Model):
         verbose_name = 'Центр'
 
 
-class Clinic(models.Model):
+class Clinic(AbstractBaseUser):
+    USERNAME_FIELD = 'number'
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100)
     password = models.CharField(_("password"), max_length=128, null=True)
@@ -315,7 +317,7 @@ class Clinic(models.Model):
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
         self._password = raw_password
-        
+
     class Meta:
         verbose_name_plural = 'Клиники'
         verbose_name = 'Клиника'
