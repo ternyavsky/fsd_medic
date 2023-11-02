@@ -83,12 +83,7 @@ def get_centers(**kwargs):
 # user
 def get_users(**kwargs):
     """Получение пользователей"""
-    return (User.objects.filter(**kwargs)
-            .select_related("group", "main_center", "country", "city", "interest")
-            .prefetch_related("centers", "disease", "main_center__employees", "centers__employees",
-                              "main_center__supported_diseases",
-                              "centers__supported_diseases", "country__cities")
-            )
+    return (User.objects.all())
 
 
 def get_doctors(**kwargs):

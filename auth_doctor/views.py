@@ -1,10 +1,10 @@
 import logging
-
+import jwt
+import datetime
 from django.core.cache import cache
 from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .authentication import DoctorJWTAuth
 from rest_framework import generics, status
 from rest_framework import views
 from rest_framework.permissions import AllowAny
@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from auth_user.serializers import ResendCodeSerializer
 from api.serializers import CenterSerializer
 from auth_user.service import set_new_password
+from api.backends import doctor_authenticate
 from db.queries import *
 from .models import LinkToInterview
 from .serializers import *
@@ -225,7 +226,6 @@ class ClinicSetNewPasswordView(APIView):
 
 class InterviewView(generics.ListCreateAPIView):  # как бы это не называлось
     permission_classes = [AllowAny]
-    authentication_classes = [DoctorJWTAuth]
 
     """Работа с сотрудниками"""
     serializer_class = InterviewSerializer
@@ -244,17 +244,23 @@ class InterviewView(generics.ListCreateAPIView):  # как бы это не на
 
 
 
-class CenterRegistrationView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = [DoctorJWTAuth]
-    @swagger_auto_schema(
-        operation_summary="Получение центров по городу(при регистрации)"
-    )
-    def get(self, request, city):
-        data = cache.get_or_set("centers", get_centers(city=city))
-        centers = data.filter(city=city)
-        logger.debug(centers)
-        data = CenterSerializer(centers, many=True).data
-        logger.debug(data)
-        logger.debug(request.path)
-        return Response(data, status=status.HTTP_200_OK)
+class LoginDoctor(APIView):
+    def post(self, request):
+        number, password = request.data["number"], request.data["password"]
+        doctor = doctor_authenticate(number, password)
+        if doctor != None:
+            doctor_jwt = jwt.encode(
+                {
+                    "doctor": doctor.number,
+                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                },
+                "Bearer",
+                algorithm="HS256")
+            return Response({"access_token": doctor_jwt}, status=status.HTTP_200_OK)
+        return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+

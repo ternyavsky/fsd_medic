@@ -80,7 +80,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
     "TOKEN_OBTAIN_SERIALIZER": "auth_user.serializers.CustomTokenObtainPairSerializer"
 }

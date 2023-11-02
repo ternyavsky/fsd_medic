@@ -48,6 +48,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
 
         return super().validate(attrs)
 
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["number"] = user.number 
+        token["huy"] = "asd"
+        return token
+
 
 class CreateUserSerializer(serializers.Serializer):
     """Создание пользователей. Регистрация"""
@@ -88,7 +95,8 @@ class CreateUserSerializer(serializers.Serializer):
 
         if stage == 2:
             center = None
-            user = get_users(number=validated_data['number']).first()
+            user = User.objects.get(number=validated_data["number"])
+            print(user)
             if "main_center" not in validated_data:
                 user.main_center = None
             else:

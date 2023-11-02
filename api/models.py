@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.hashers import make_password
 
 from .choices import NOTE_CHOICES, PROCESS
 
@@ -219,6 +220,8 @@ class Center(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_(
         'Название центра'), max_length=255, null=True)
+    password = models.CharField(_("Пароль"), max_length=128, null=True)
+    last_login = models.DateTimeField(_("Последний вход"), blank=True, null=True)
     image = models.ImageField(verbose_name=_('Фото центра'), upload_to='centers_photos/', blank=True,
                               default='centers_photos/center_photo.jpg')
     rating = models.FloatField(verbose_name=_('Рейтинг центра'), max_length=5, default=5,
@@ -254,6 +257,10 @@ class Center(models.Model):
     def __str__(self):
         return self.name
 
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self._password = raw_password
+
     class Meta:
         verbose_name_plural = 'Центры'
         verbose_name = 'Центр'
@@ -262,6 +269,8 @@ class Center(models.Model):
 class Clinic(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_('Название Клиники'), max_length=100)
+    password = models.CharField(_("password"), max_length=128, null=True)
+    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
     admin = models.ForeignKey("User", on_delete=models.CASCADE, verbose_name=_("Администартор"), null=True,
                               related_name="admin_clinic")
     is_required = models.BooleanField(
@@ -302,6 +311,11 @@ class Clinic(models.Model):
     def __str__(self):
         return self.name
 
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self._password = raw_password
+        
     class Meta:
         verbose_name_plural = 'Клиники'
         verbose_name = 'Клиника'

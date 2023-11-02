@@ -37,7 +37,7 @@ class UserView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        return cache.get_or_set("users", get_users())
+        return User.objects.all()
 
     @swagger_auto_schema(
         operation_summary="Создание пользователя"
@@ -215,13 +215,14 @@ class CreateAdminView(generics.CreateAPIView):
 
 class CenterRegistrationView(APIView):
     permission_classes = [AllowAny]
+    lookup_field = "city"
 
     @swagger_auto_schema(
         operation_summary="Получение центров(при регистрации)",
     )
     def get(self, request, city):
         center = cache.get_or_set("centers", get_centers())
-        centers = center.filter(city=city)
+        centers = center.filter(city__name=city)
         logger.debug(centers)
         data = CenterSerializer(centers, many=True).data
         logger.debug(data)

@@ -83,7 +83,6 @@ class SearchView(APIView):
 
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):
-        print(request.admin)
         clinics = cache.get_or_set("clinics", get_clinics())
         centers = cache.get_or_set("centers", get_centers())
         doctors = cache.get_or_set("doctors", get_doctors())
