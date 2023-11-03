@@ -83,6 +83,8 @@ django-loki = "^0.1.4"
 pycodestyle = "^2.11.0"
 flake8 = "^6.1.0"
 django-stubs = "^4.2.4"
+django-storages = "^1.14.2"
+boto3 = "^1.28.76"
 
 
 

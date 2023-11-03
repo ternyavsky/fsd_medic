@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_prometheus',
     'django_loki',
+    'storages',
 
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     'api.middleware.open_access_middleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -75,7 +77,6 @@ INTERNAL_IPS = [
     # ...
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -106,38 +107,39 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fsd_medic.wsgi.application'
 ASGI_APPLICATION = 'fsd_medic.asgi.application'
 
-LOGGING = {
-    'version': 1,
-    'formatters': {
-        'loki': {
-            'class': 'django_loki.LokiFormatter',  # required
-            # optional, default is logging.BASIC_FORMAT
-            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] [%(funcName)s] %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S',  # optional, default is '%Y-%m-%d %H:%M:%S'
-        },
-    },
-    'handlers': {
-        'loki': {
-            'level': 'DEBUG',  # required
-            'class': 'django_loki.LokiHttpHandler',  # required
-            'host': 'localhost',  # required, your grafana/Loki server host, e.g:192.168.57.242
-            'formatter': 'loki',  # required, loki formatter,
-            'port': 3100,  # optional, your grafana/Loki server port, default is 3100
-            'timeout': 0.5,  # optional, request Loki-server by http or https time out, default is 0.5
-            'protocol': 'http',  # optional, Loki-server protocol, default is http
-            'source': 'Loki',  # optional, label name for Loki, default is Loki
-            'src_host': 'localhost',  # optional, label name for Loki, default is localhost
-            'tz': 'UTC',  # optional, timezone for formatting timestamp, default is UTC, e.g:Asia/Shanghai
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['loki'],
-            'level': 'INFO',
-            'propagate': False,
-        }
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'formatters': {
+#         'loki': {
+#             'class': 'django_loki.LokiFormatter',  # required
+#             # optional, default is logging.BASIC_FORMAT
+#             'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] [%(funcName)s] %(message)s',
+#             'datefmt': '%Y-%m-%d %H:%M:%S',  # optional, default is '%Y-%m-%d %H:%M:%S'
+#         },
+#     },
+#     'handlers': {
+#         'loki': {
+#             'level': 'DEBUG',  # required
+#             'class': 'django_loki.LokiHttpHandler',  # required
+#             'host': 'localhost',  # required, your grafana/Loki server host, e.g:192.168.57.242
+#             'formatter': 'loki',  # required, loki formatter,
+#             'port': 3100,  # optional, your grafana/Loki server port, default is 3100
+#             'timeout': 0.5,  # optional, request Loki-server by http or https time out, default is 0.5
+#             'protocol': 'http',  # optional, Loki-server protocol, default is http
+#             'source': 'Loki',  # optional, label name for Loki, default is Loki
+#             'src_host': 'localhost',  # optional, label name for Loki, default is localhost
+#             'tz': 'UTC',  # optional, timezone for formatting timestamp, default is UTC, e.g:Asia/Shanghai
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['loki'],
+#             'level': 'INFO',
+#             'propagate': False,
+#         }
+#     },
+# }
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -235,9 +237,25 @@ EMAIL_HOST_USER = os.getenv('EM_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EM_HOST_PASSWORD')
 EMAIL_PORT = os.getenv('EM_PORT')
 
+# AWS_ACCESS_KEY_ID = "cu97797"
+# AWS_SECRET_ACCESS_KEY = "30b065b1210d928e8835b70cc98bb835"
+# AWS_STORAGE_BUCKET_NAME = "3fecfc85-2ec85f2d-962a-4ec4-881f-3ff2659bc361"
+# AWS_S3_CUSTOM_DOMAIN = "s3.timeweb.com"
+# AWS_LOCATION = 'static'
+# AWS_DEFAULT_ACL = None
+# print(AWS_STORAGE_BUCKET_NAME)
+# print(AWS_ACCESS_KEY_ID)
+# print(AWS_SECRET_ACCESS_KEY)
+# print(AWS_S3_CUSTOM_DOMAIN)
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'fsd_medic/static')    
+# ]
+# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+# print(STATIC_URL)
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'static/'
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 

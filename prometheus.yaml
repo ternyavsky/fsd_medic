@@ -4,5 +4,5 @@ global:
 scrape_configs:
   - job_name: "fsd_medic"
     static_configs:
-      - targets: 
-        -  host.docker.internal:8000 
+      - targets:
+          - 89.223.125.74:8000

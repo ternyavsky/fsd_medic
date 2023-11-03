@@ -30,7 +30,7 @@ def clinic_set_password_service(request):
             logger.warning("Clinic not found")
             logger.warning(request.path)
             return Response({'error': 'Clinic not found'}, status=status.HTTP_404_NOT_FOUND)
-
+            
         
         clinic_set_new_password(clinic, serializer.validated_data["password2"])
         logger.debug("Password changed successfully")

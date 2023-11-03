@@ -10,7 +10,6 @@ RUN python3 -m pip install --no-cache-dir --no-warn-script-location --upgrade pi
 COPY . /app
 
 RUN poetry install 
-RUN poetry run python manage.py collectstatic
 
 #cmd setting
 EXPOSE 8000
