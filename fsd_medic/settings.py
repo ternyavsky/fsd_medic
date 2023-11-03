@@ -237,27 +237,20 @@ EMAIL_HOST_USER = os.getenv('EM_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EM_HOST_PASSWORD')
 EMAIL_PORT = os.getenv('EM_PORT')
 
-# AWS_ACCESS_KEY_ID = "cu97797"
-# AWS_SECRET_ACCESS_KEY = "30b065b1210d928e8835b70cc98bb835"
-# AWS_STORAGE_BUCKET_NAME = "3fecfc85-2ec85f2d-962a-4ec4-881f-3ff2659bc361"
-# AWS_S3_CUSTOM_DOMAIN = "s3.timeweb.com"
-# AWS_LOCATION = 'static'
-# AWS_DEFAULT_ACL = None
-# print(AWS_STORAGE_BUCKET_NAME)
-# print(AWS_ACCESS_KEY_ID)
-# print(AWS_SECRET_ACCESS_KEY)
-# print(AWS_S3_CUSTOM_DOMAIN)
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'fsd_medic/static')    
-# ]
-# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-# print(STATIC_URL)
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# S3 BUCKET
+AWS_ACCESS_KEY_ID = os.getenv('S3_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('S3_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = f'https://{os.getenv("S3_DOMAIN")}'
+AWS_S3_REGION_NAME = os.getenv('S3_REGION')
+AWS_LOCATION = 'static'
+AWS_DEFAULT_ACL = os.getenv('S3_ACL')
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = 'static/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_LOCATION)
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+DEFAULT_FILE_STORAGE = 'fsd_medic.storage_backends.MediaStorage'
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geoip/')
 PHONE_VERIFICATION = {
