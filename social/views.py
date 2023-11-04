@@ -19,14 +19,14 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 
 class NotifyView(APIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_summary="Список уведомлений по user_id"
+        operation_summary="Список уведомлений"
     )
-    def get(self, request, user_id):
+    def get(self, request):
         notifications = cache.get_or_set("notifications", get_notifications())
-        notifications = notifications.filter(user=user_id)
+        notifications = notifications.filter(user=request.user)
         serializer = NotificationSerializer(notifications, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
