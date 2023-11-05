@@ -81,7 +81,13 @@ class VerifyCodeView(APIView):
     """Проверка кода во время регистрации"""
 
     @swagger_auto_schema(
-        operation_summary="Проверка кода во время регистрации (Пользователь)"
+        operation_summary="Проверка кода во время регистрации (Пользователь)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "number": openapi.Schema(type=openapi.TYPE_STRING),
+                "verification_code": openapi.Schema(type=openapi.TYPE_INTEGER)
+            }),
     )
     def post(self, request):
         return verify_code_service(request)
