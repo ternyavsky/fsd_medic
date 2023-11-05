@@ -94,6 +94,8 @@ class SearchView(APIView):
         serializer = SearchSerializer(search_results)
         logger.debug(serializer.data)
         logger.debug(request.path)
+        request.session["test"] = serializer.data
+        request.session.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

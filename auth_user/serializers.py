@@ -10,6 +10,7 @@ from django.core.cache import cache
 from db.queries import get_users, get_centers
 from api.models import Disease, Center, User
 from social.models import Chat
+from api.serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -58,10 +59,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
 
 class CreateUserSerializer(serializers.Serializer):
     """Создание пользователей. Регистрация"""
-    number = serializers.CharField()
-    password1 = serializers.CharField(write_only=True)
-    password2 = serializers.CharField(write_only=True)
-    birthday = serializers.DateField()
+    number = serializers.CharField(required=False)
+    password1 = serializers.CharField(write_only=True, required=False)
+    password2 = serializers.CharField(write_only=True, required=False)
+    birthday = serializers.DateField(required=False)
     main_center = serializers.PrimaryKeyRelatedField(
         queryset=Center.objects.all(),
         allow_null=True,
@@ -75,9 +76,11 @@ class CreateUserSerializer(serializers.Serializer):
         many=True
     )
     stage = serializers.IntegerField(read_only=True)
-    group = serializers.CharField()
+    group = serializers.CharField(required=False)
     def create(self, validated_data):
         self.create_validate(validated_data)
+        request = self.context['request']
+        session = request.session
         stage = self.context['request'].data.get('stage')
         stage = int(stage)
 
@@ -92,10 +95,11 @@ class CreateUserSerializer(serializers.Serializer):
             )
             user.stage = stage
             validated_data['stage'] = stage
-
+            session["user"] = UserSerializer(user).data
+        print(request.session["user"])
         if stage == 2:
             center = None
-            user = User.objects.get(number=validated_data["number"])
+            user = User.objects.get(number=session["user"]["number"])
             print(user)
             if "main_center" not in validated_data:
                 user.main_center = None
@@ -108,28 +112,32 @@ class CreateUserSerializer(serializers.Serializer):
                 chat.users.add(user)
                 chat.centers.add(center)
                 chat.save()
-                
+           
 
-            user.country = center.country
+            if center:
+                user.country = center.country
+            else:
+                user.country = None
             if "disease_id" in validated_data:
                 for i in validated_data['disease_id']:
                     user.disease.add(i)
 
                     if user.disease.count() >= 5:
                         raise serializers.ValidationError('You cannot specify more than 5 diseases')
-
+            
             user.stage = stage
             validated_data['stage'] = stage
             user.save()
-
+            session["user"] = UserSerializer(user).data
+        print(request.session["user"])
         if stage == 3:
             try:
-                user = User.objects.get(number=validated_data['number'])
+                user = User.objects.get(number=session["user"]["number"])
                 validated_data['stage'] = stage
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
-
+            session.clear()
         return user
 
     def to_representation(self, instance):
