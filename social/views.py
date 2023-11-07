@@ -22,7 +22,10 @@ class NotifyView(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_summary="Список уведомлений"
+        operation_summary="Список уведомлений",
+        responses={
+            status.HTTP_200_OK: NotificationSerializer,
+        }
     )
     def get(self, request):
         notifications = cache.get_or_set("notifications", get_notifications())
