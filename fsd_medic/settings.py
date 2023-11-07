@@ -244,13 +244,14 @@ AWS_SECRET_ACCESS_KEY = os.getenv('S3_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = f'https://{os.getenv("S3_DOMAIN")}'
 AWS_S3_REGION_NAME = os.getenv('S3_REGION')
-AWS_LOCATION = 'static'
+AWS_LOCATION_STATIC = 'static'
+AWS_LOCATION_MEDIA = 'media'
 AWS_DEFAULT_ACL = os.getenv('S3_ACL')
 
 
-STATIC_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_LOCATION)
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_LOCATION_STATIC)
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
+MEDIA_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_LOCATION_MEDIA)
 DEFAULT_FILE_STORAGE = 'fsd_medic.storage_backends.MediaStorage'
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geoip/')
