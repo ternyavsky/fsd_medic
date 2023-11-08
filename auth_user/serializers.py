@@ -269,16 +269,10 @@ class AdminSerializer(serializers.Serializer):
             raise serializers.ValidationError('Enter firstname')
         if data['last_name'] is None:
             raise serializers.ValidationError('Enter lastname')
-        if data['password1'] is None:
-            raise serializers.ValidationError('Enter password')
-        elif data['password2'] is None:
-            raise serializers.ValidationError('Confirm password')
         # Проверка Почты
         if not email_pattern.match(data['email']):
             raise serializers.ValidationError('The email entered is incorrect')
-        # Проверка Имени
-        if not name_pattern.match(data['first_name']):
-            raise serializers.ValidationError('The firstname can only consist of Cyrillic letters')
+
         if len(data['first_name']) < 2:
             raise serializers.ValidationError('firstname cannot be shorter than 2 characters')
         if len(data['first_name']) > 20:
@@ -287,16 +281,11 @@ class AdminSerializer(serializers.Serializer):
         # Проверка телефона
         if User.objects.filter(number=data['number']).exists():
             raise serializers.ValidationError('Номер уже используется')
-
-        if not name_pattern.match(data['last_name']):
-            raise serializers.ValidationError('Фамилия может состоять только из букв кирилицы')
         if len(data['last_name']) < 3:
             raise serializers.ValidationError('Фамилия не может быть короче 3 символов')
         if len(data['last_name']) > 30:
             raise serializers.ValidationError('Фамилия не может быть длиннее 30 символов')
         # Проверка паролей
-        if not password_pattern.match(data['password1']):
-            raise serializers.ValidationError('Пароль должен состоять из цифр и букв обоих регистров')
         if len(data['password1']) < 8:
             raise serializers.ValidationError('Пароль не может быть короче 8 символов')
         if data['password1'] != data['password2']:
