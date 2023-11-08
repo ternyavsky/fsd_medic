@@ -80,7 +80,6 @@ class CreateUserSerializer(serializers.Serializer):
     def create(self, validated_data):
         self.create_validate(validated_data)
         request = self.context['request']
-        session = request.session
         stage = self.context['request'].data.get('stage')
         stage = int(stage)
 
@@ -95,7 +94,7 @@ class CreateUserSerializer(serializers.Serializer):
             )
             user.stage = stage
             validated_data['stage'] = stage
-            session["user"] = UserSerializer(user).data
+            request.session["user"] = UserSerializer(user).data
         print(request.session["user"])
         if stage == 2:
             center = None
@@ -128,7 +127,7 @@ class CreateUserSerializer(serializers.Serializer):
             user.stage = stage
             validated_data['stage'] = stage
             user.save()
-            session["user"] = UserSerializer(user).data
+            request.session["user"] = UserSerializer(user).data
         print(request.session["user"])
         if stage == 3:
             try:

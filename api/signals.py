@@ -195,7 +195,6 @@ def notify_verify(sender, instance, created, **kwargs):
             Notification.objects.create(
                 user=instance, text="Ваш аккаунт был успешно защищен эл.почтой или телефоном")
 
-
 # SEND REMINDER FOR NOTE
 
 @receiver(post_save, sender=Note)

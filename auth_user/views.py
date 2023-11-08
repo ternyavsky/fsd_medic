@@ -50,7 +50,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-
+    
     def get_object(self):
         data = cache.get_or_set("users", get_users())
         data = data.filter(id=self.request.user.id).first()
