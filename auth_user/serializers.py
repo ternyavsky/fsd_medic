@@ -7,7 +7,7 @@ from rest_framework import exceptions
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
 from django.core.cache import cache
-from db.queries import get_users, get_centers
+from db.queries import get_users, get_centers, get_cities
 from api.models import Disease, Center, User
 from social.models import Chat
 from api.serializers import UserSerializer
@@ -63,6 +63,7 @@ class CreateUserSerializer(serializers.Serializer):
     password1 = serializers.CharField(write_only=True, required=False)
     password2 = serializers.CharField(write_only=True, required=False)
     birthday = serializers.DateField(required=False)
+    city = serializers.CharField(required=False)
     main_center = serializers.PrimaryKeyRelatedField(
         queryset=Center.objects.all(),
         allow_null=True,
@@ -97,8 +98,8 @@ class CreateUserSerializer(serializers.Serializer):
             request.session["user"] = UserSerializer(user).data
         print(request.session["user"])
         if stage == 2:
-            center = None
-            user = User.objects.get(number=session["user"]["number"])
+            center, city = None, None
+            user = User.objects.get(number=request.session["user"]["number"])
             print(user)
             if "main_center" not in validated_data:
                 user.main_center = None
@@ -111,7 +112,16 @@ class CreateUserSerializer(serializers.Serializer):
                 chat.users.add(user)
                 chat.centers.add(center)
                 chat.save()
-           
+            print(validated_data)
+            if "city" not in validated_data:
+                print("err")
+                raise serializers.ValidationError('Enter city')
+            else:
+                print(validated_data)
+                city = validated_data["city"]
+                print(city)
+                user.city = get_cities(name=city).first()
+
 
             if center:
                 user.country = center.country
@@ -131,7 +141,7 @@ class CreateUserSerializer(serializers.Serializer):
         print(request.session["user"])
         if stage == 3:
             try:
-                user = User.objects.get(number=session["user"]["number"])
+                user = User.objects.get(number=request.session["user"]["number"])
                 validated_data['stage'] = stage
                 user.save()
             except User.DoesNotExist:
