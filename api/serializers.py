@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.fields import empty
 
 from auth_doctor.models import Doctor
-from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access
+from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access, City
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -14,6 +14,13 @@ class CountrySerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class CitySerializer(serializers.ModelSerializer):
+    """Города"""
+
+    class Meta:
+        model = City
+        fields = '__all__'
+        depth = 1
 class CenterSerializer(serializers.ModelSerializer):
     """Клиники"""
 

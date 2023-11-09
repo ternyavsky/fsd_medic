@@ -122,3 +122,13 @@ class CountryListView(APIView):
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CityListView(APIView):
+
+    @swagger_auto_schema(operation_summary="Получение городов")
+    def get(self, request):
+        cities = cache.get_or_set("cities", get_cities())
+        serializer = CitySerializer(cities, many=True)
+        logger.debug(serializer.data)
+        logger.debug(request.path)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/search/', SearchView.as_view(), name='search_view_url'),
     path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path('api/countries', CountryListView.as_view(), name="get_countries_url"),
+    path('api/cities', CityListView.as_view(), name="get_cities_url"),
     path('chat/create', ChatCreate.as_view(), name='chat_create')
 ]
 urlpatterns += router.urls
