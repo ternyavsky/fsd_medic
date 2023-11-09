@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count
+from api.authentication import CustomAuthentication
 from db.queries import *
 from .serializers import *
 
@@ -124,7 +125,7 @@ class CountryListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CityListView(APIView):
-
+    authentication_classes = [CustomAuthentication]
     @swagger_auto_schema(operation_summary="Получение городов")
     def get(self, request):
         cities = cache.get_or_set("cities", get_cities())

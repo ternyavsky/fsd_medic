@@ -1,9 +1,9 @@
 import logging
 import hashlib
-
+import os
 from django.core.cache import cache
-
-from api.models import City
+import requests
+from api.models import City, Country
 from auth_doctor.serializers import DoctorCreateSerializer, DoctorVerifyResetCodeSerializer, DoctorNewPasswordSerializer
 from db.queries import get_doctors
 from ..models import Doctor, LinkToInterview
@@ -146,7 +146,7 @@ def doctor_datapast_service(request):
             send_verification_code_doctor.delay(doctor_hash, number)
             return Response({"message": f"Код для регистрации врача отправлен на номер {number}",
                                 "doctor_hash": doctor_hash}, status=status.HTTP_200_OK)
-        except:
+        except:  # noqa: E722
             return Response({"message": "Запрос с такими данными уже существует, повторите попытку позже"},
                             status.HTTP_400_BAD_REQUEST)
     else:
@@ -161,7 +161,7 @@ def doctor_create(doctor_hash: str, datetime_obj):
         doctor = Doctor.objects.create(**doctor_data)
         doctor.review_date = datetime_obj
         doctor.review_passed = False
-        #   doctor.country = Country.objects.your_function_nameget(name=doctor_country)
+        doctor.country = Country.objects.get(name=doctor_country)
         doctor.city = City.objects.get(name=doctor_city)
         doctor.save()
         return {"message": "Успешно создан", "id": doctor.id}, 201
@@ -172,7 +172,7 @@ def doctor_create(doctor_hash: str, datetime_obj):
 
 @shared_task
 def send_verification_code_doctor(doctor_hash, number_to):
-    key = os.getenv('API_KEY')
+    key = os.getenv('API_KEY')  
     email = os.getenv('EMAIL')
     url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number_to}&text=Ссылка+для+собедования+http://127.0.0.1:8000/api/create_doctor/{doctor_hash}&sign=SMSAero'
     res = requests.get(url)

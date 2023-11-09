@@ -84,11 +84,3 @@ def send_sms(number, code):
 
 
 
-def doctor_set_new_password(doctor, new_password):
-    doctor.set_password(new_password)
-    doctor.save()
-
-
-def clinic_set_new_password(clinic, new_password):
-    clinic.set_password(new_password)
-    clinic.save()

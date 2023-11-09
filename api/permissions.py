@@ -18,7 +18,7 @@ class OnlyCreate(BasePermission):
     def has_permission(self, request, view):
         if request.method == "POST":
             return True
-        return bool(request.user and request.user.is_staff)
+        return bool(request.user.is_staff)
 
 
 class IsAdminOrReadOnly(BasePermission):

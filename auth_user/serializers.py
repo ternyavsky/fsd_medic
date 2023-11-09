@@ -52,8 +52,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token["number"] = user.number 
-        token["huy"] = "asd"
+        token["number"] = user.number
         return token
 
 
@@ -83,7 +82,6 @@ class CreateUserSerializer(serializers.Serializer):
         request = self.context['request']
         stage = self.context['request'].data.get('stage')
         stage = int(stage)
-
         user = None
 
         if stage == 1:
@@ -96,11 +94,10 @@ class CreateUserSerializer(serializers.Serializer):
             user.stage = stage
             validated_data['stage'] = stage
             request.session["user"] = UserSerializer(user).data
-        print(request.session["user"])
         if stage == 2:
             center, city = None, None
+            print(request.session["user"])
             user = User.objects.get(number=request.session["user"]["number"])
-            print(user)
             if "main_center" not in validated_data:
                 user.main_center = None
             else:
@@ -112,16 +109,11 @@ class CreateUserSerializer(serializers.Serializer):
                 chat.users.add(user)
                 chat.centers.add(center)
                 chat.save()
-            print(validated_data)
             if "city" not in validated_data:
-                print("err")
                 raise serializers.ValidationError('Enter city')
             else:
-                print(validated_data)
                 city = validated_data["city"]
-                print(city)
                 user.city = get_cities(name=city).first()
-
 
             if center:
                 user.country = center.country
@@ -138,7 +130,7 @@ class CreateUserSerializer(serializers.Serializer):
             validated_data['stage'] = stage
             user.save()
             request.session["user"] = UserSerializer(user).data
-        print(request.session["user"])
+
         if stage == 3:
             try:
                 user = User.objects.get(number=request.session["user"]["number"])
@@ -146,7 +138,7 @@ class CreateUserSerializer(serializers.Serializer):
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
-            session.clear()
+            request.session.clear()
         return user
 
     def to_representation(self, instance):
@@ -171,9 +163,8 @@ class CreateUserSerializer(serializers.Serializer):
 
         if stage == '1':
             # Проверка Номера
-            if get_users(number=data['number']).exists():
+            if User.objects.get(number=data['number']).exists():
                 raise serializers.ValidationError('Number already in use')
-
             password1 = data.get('password1')
             password2 = data.get('password2')
             if password1 != password2:
@@ -184,16 +175,6 @@ class CreateUserSerializer(serializers.Serializer):
 
             if len(password1) < 8:
                 raise serializers.ValidationError({'password': 'Password must be at least 8 characters'})
-
-        if stage == '2':
-
-            # Проверка присувствия данных
-            if data['number'] is None:
-                raise serializers.ValidationError('Enter number')
-            if data['password1'] is None:
-                raise serializers.ValidationError('Enter password')
-            elif data['password2'] is None:
-                raise serializers.ValidationError('Confirm the password')
 
     def update_validate(self, data):
         if data['email'] is not None:
@@ -264,8 +245,6 @@ class AdminSerializer(serializers.Serializer):
                                              last_name=validated_data['last_name'],
                                              password=validated_data['password1'])
 
-    def update(self, validated_data):
-        pass
 
     def create_validate(self, data):
         number_pattern = re.compile('^[+]+[0-9]+$')

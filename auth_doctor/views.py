@@ -1,6 +1,7 @@
 import logging
 import jwt
 import datetime
+from datetime import UTC, time, time, date, date, timezone
 from django.core.cache import cache
 from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
@@ -145,6 +146,7 @@ class DoctorSetNewPasswordView(APIView):
                 "password1":openapi.Schema(type=openapi.TYPE_STRING),
                 "password2":openapi.Schema(type=openapi.TYPE_STRING),
             }),
+
     )
     def post(self, request):
         return doctor_set_newpassword_service(request)
@@ -225,11 +227,12 @@ class ClinicSetNewPasswordView(APIView):
 
 
 class InterviewView(generics.ListCreateAPIView):  # как бы это не называлось
-    permission_classes = [AllowAny]
+    permission_classess = [AllowAny]
 
     """Работа с сотрудниками"""
     serializer_class = InterviewSerializer
     queryset = Interview.objects.all()
+
 
 
     def get(self, request):
@@ -253,7 +256,14 @@ class LoginDoctor(APIView):
                 {
                     "number": doctor.number,
                     "type": "doctor",
-                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                    "exp": datetime.datetime.now(
+    time,
+    time,
+    time,
+    time,
+    date,
+    date,
+    date,tz=timezone.utc) + datetime.timedelta(days=30),
                 },
                 "Bearer",
                 algorithm="HS256")
@@ -270,7 +280,7 @@ class LoginCenter(APIView):
                 {
                     "number": center.number,
                     "type": "center",
-                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                    "exp": datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
                 },
                 "Bearer",
                 algorithm="HS256")
@@ -287,11 +297,11 @@ class LoginClinic(APIView):
                 {
                     "number": clinic.number,
                     "type": "clinic",
-                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                    "exp": datetime.datetime.now(tz=timezone.utc),
                 },
                 "Bearer",
                 algorithm="HS256")
-            return Response({"access_token": center_jwt}, status=status.HTTP_200_OK)
+            return Response({"access_token": clinic_jwt}, status=status.HTTP_200_OK)
         return Response({"error": "Clinic not found"}, status=status.HTTP_404_NOT_FOUND)
 
 

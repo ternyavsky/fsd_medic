@@ -23,7 +23,7 @@ def clinic_authenticate(number=None, password=None):
     try:
         clinics = cache.get_or_set("clinics", get_clinics())
         clinic = clinics.filter(number=number).first()
-        if check_password(password, clinic.password):
+        if password == clinic.password:
             return clinic 
         else:
             return None
@@ -35,7 +35,7 @@ def center_authenticate(number=None, password=None):
     try:
         centers = cache.get_or_set("centers", get_centers())
         center = centers.filter(number=number).first()
-        if check_password(password, center.password):
+        if password == center.password:
             return center 
         else:
             return None
