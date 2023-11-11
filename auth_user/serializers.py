@@ -94,7 +94,11 @@ class CreateUserSerializer(serializers.Serializer):
             user.stage = stage
             validated_data['stage'] = stage
             request.session["user"] = UserSerializer(user).data
+            print(request)
+            print(request.headers)
         if stage == 2:
+            print("HEADERS", request.headers)
+            print(request.session["user"])
             center, city = None, None
             print(request.session["user"])
             user = User.objects.get(number=request.session["user"]["number"])

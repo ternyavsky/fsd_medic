@@ -67,6 +67,8 @@ class GetDiseasesView(APIView):
         operation_summary="Получение всех заболеваний"
     )
     def get(self, request):
+        print(request)
+        print(request.headers)
         diseases = cache.get_or_set("diseases", get_disease())
         serializer = DiseaseSerializer(diseases, many=True)
         logger.debug(serializer.data)

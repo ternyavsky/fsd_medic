@@ -9,6 +9,8 @@ from auth_user.serializers import CreateUserSerializer, VerifyCodeSerializer, Re
       VerifyResetCodeSerializer, NewPasswordSerializer
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password
 from db.queries import get_users
+from corsheaders.defaults import default_headers
+
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,9 @@ def create_user_service(request, context):
             send_sms.delay(user.number, code)
             user.verification_code = code
             user.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response = Response(serializer.data, status=status.HTTP_201_CREATED)
+        response.headers["Access-Control-Allow-Headers"] = default_headers, "access-control-allow-methods"
+        return response
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

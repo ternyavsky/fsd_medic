@@ -1,6 +1,7 @@
 import os.path
 from datetime import timedelta
 from pathlib import Path
+from corsheaders.defaults import default_headers
 
 
 from dotenv import load_dotenv
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     'django_prometheus',
     'django_loki',
     'storages',
-
+    'corsheaders',
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'auth_user.apps.AuthUserConfig',
@@ -63,6 +64,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    # 'api.middleware.open_access_middleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -79,8 +82,15 @@ INTERNAL_IPS = [
 ]
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3001',  
+]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:3001',
+    "http://192.168.0.14:3001",
+    "http://172.17.0.1:3001"
+)
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
