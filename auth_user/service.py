@@ -15,6 +15,8 @@ User = get_user_model()
 
 load_dotenv(BASE_DIR / ".env")
 
+key = os.getenv('API_KEY')
+email = os.getenv('EMAIL')
 
 @shared_task
 def send_reset_sms(number, code):

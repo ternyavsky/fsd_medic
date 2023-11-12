@@ -138,7 +138,6 @@ class CreateUserSerializer(serializers.Serializer):
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
-            cache.delete(f"{request.scheme}")
         return user
 
     def to_representation(self, instance):
@@ -249,8 +248,6 @@ class AdminSerializer(serializers.Serializer):
     def create_validate(self, data):
         number_pattern = re.compile('^[+]+[0-9]+$')
         email_pattern = re.compile('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-        name_pattern = re.compile('^[а-яА-Я]+$')
-        password_pattern = re.compile('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
         if data['email'] is None:
             raise serializers.ValidationError('Enter email')
         if data['first_name'] is None:
@@ -261,23 +258,23 @@ class AdminSerializer(serializers.Serializer):
         if not email_pattern.match(data['email']):
             raise serializers.ValidationError('The email entered is incorrect')
 
-        if len(data['first_name']) < 2:
-            raise serializers.ValidationError('firstname cannot be shorter than 2 characters')
+        if len(data['first_name']) < 1:
+            raise serializers.ValidationError('firstname cannot be shorter than 1 characters')
         if len(data['first_name']) > 20:
             raise serializers.ValidationError('firstname cannot be longer than 20 characters')
         # Проверка Фамилии
         # Проверка телефона
         if User.objects.filter(number=data['number']).exists():
-            raise serializers.ValidationError('Номер уже используется')
-        if len(data['last_name']) < 3:
-            raise serializers.ValidationError('Фамилия не может быть короче 3 символов')
+            raise serializers.ValidationError('Number already in use')
+        if len(data['last_name']) < 1:
+            raise serializers.ValidationError('Lastname cannot be shorter than 1 char')
         if len(data['last_name']) > 30:
-            raise serializers.ValidationError('Фамилия не может быть длиннее 30 символов')
+            raise serializers.ValidationError('Lastname cannot be longer than 30 char')
         # Проверка паролей
         if len(data['password1']) < 8:
-            raise serializers.ValidationError('Пароль не может быть короче 8 символов')
+            raise serializers.ValidationError('Password cannot be shorter than 8 char')
         if data['password1'] != data['password2']:
-            raise serializers.ValidationError('Пароли должны совпадать')
+            raise serializers.ValidationError('Password must match')
 
     def update_validate(self, data):
         pass

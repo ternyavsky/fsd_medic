@@ -241,7 +241,7 @@ class InterviewView(generics.ListCreateAPIView):  # как бы это не на
     def post(self, request):
         serializer = InterviewSerializer(data=request.data)
         if serializer.is_valid():
-            interview = serializer.save()
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -256,14 +256,7 @@ class LoginDoctor(APIView):
                 {
                     "number": doctor.number,
                     "type": "doctor",
-                    "exp": datetime.datetime.now(
-    time,
-    time,
-    time,
-    time,
-    date,
-    date,
-    date,tz=timezone.utc) + datetime.timedelta(days=30),
+                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
                 },
                 "Bearer",
                 algorithm="HS256")

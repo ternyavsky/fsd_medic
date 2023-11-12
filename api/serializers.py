@@ -40,7 +40,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""  
-
+    password = serializers.CharField(required=False)
     def __init__(self, *args, **kwargs):
         self.depth = kwargs.pop("depth", 1)
         self.Meta.depth = self.depth

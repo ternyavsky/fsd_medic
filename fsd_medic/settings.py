@@ -93,7 +93,6 @@ CORS_ORIGIN_WHITELIST = (
     "http://172.17.0.1:3001",
     "http://localhost:3001"
 )
-SESSION_COOKIE_HTTPONLY = False
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
