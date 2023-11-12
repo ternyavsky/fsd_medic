@@ -13,6 +13,11 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+class ClinicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clinic
+        fields = '__all__'
+        depth = 1
 
 class CitySerializer(serializers.ModelSerializer):
     """Города"""
@@ -41,6 +46,25 @@ class DiseaseSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""  
     password = serializers.CharField(required=False)
+    disease = serializers.PrimaryKeyRelatedField(
+        queryset=Disease.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True
+    )
+    main_center = serializers.PrimaryKeyRelatedField(
+        queryset=Center.objects.all(),
+        allow_null=True,
+        required=False,
+        many=False
+    )
+    clinic = serializers.PrimaryKeyRelatedField(
+        queryset=Clinic.objects.all(),
+        allow_null=True,
+        required=False,
+        many=False
+    )
+    
     def __init__(self, *args, **kwargs):
         self.depth = kwargs.pop("depth", 1)
         self.Meta.depth = self.depth
@@ -110,11 +134,7 @@ class NoteSerializer(serializers.ModelSerializer):
             return serializers.ValidationError("Center not specified")
 
 
-class ClinicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Clinic
-        fields = '__all__'
-        depth = 1
+
 
 
 class DoctorGetSerializer(serializers.ModelSerializer):
