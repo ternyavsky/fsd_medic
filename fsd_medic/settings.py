@@ -83,14 +83,17 @@ INTERNAL_IPS = [
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3001',  
+    'http://127.0.0.1:3001',  
+    "http://localhost:3001"
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:3001',
     "http://192.168.0.14:3001",
-    "http://172.17.0.1:3001"
+    "http://172.17.0.1:3001",
+    "http://localhost:3001"
 )
+SESSION_COOKIE_HTTPONLY = False
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),

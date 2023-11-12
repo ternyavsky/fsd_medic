@@ -62,7 +62,7 @@ class CreateUserSerializer(serializers.Serializer):
     password1 = serializers.CharField(write_only=True, required=False)
     password2 = serializers.CharField(write_only=True, required=False)
     birthday = serializers.DateField(required=False)
-    city = serializers.CharField(required=False)
+#    city = serializers.CharField(required=False)
     main_center = serializers.PrimaryKeyRelatedField(
         queryset=Center.objects.all(),
         allow_null=True,
@@ -93,15 +93,12 @@ class CreateUserSerializer(serializers.Serializer):
             )
             user.stage = stage
             validated_data['stage'] = stage
-            request.session["user"] = UserSerializer(user).data
-            print(request)
-            print(request.headers)
+            cache.set(f"{request.scheme}", UserSerializer(user).data, 5 * 60)
         if stage == 2:
             print("HEADERS", request.headers)
-            print(request.session["user"])
+            print(request.session.items())
             center, city = None, None
-            print(request.session["user"])
-            user = User.objects.get(number=request.session["user"]["number"])
+            user = User.objects.get(number=cache.get(request.scheme, None)["number"])
             if "main_center" not in validated_data:
                 user.main_center = None
             else:
@@ -133,16 +130,16 @@ class CreateUserSerializer(serializers.Serializer):
             user.stage = stage
             validated_data['stage'] = stage
             user.save()
-            request.session["user"] = UserSerializer(user).data
+            cache.set(f"{request.scheme}", UserSerializer(user).data, 5 * 60)
 
         if stage == 3:
             try:
-                user = User.objects.get(number=request.session["user"]["number"])
+                user = User.objects.get(number=cache.get(request.scheme, None)["number"])
                 validated_data['stage'] = stage
                 user.save()
             except User.DoesNotExist:
                 raise serializers.ValidationError('User does not exist for stage 3')
-            request.session.clear()
+            cache.delete(f"{request.scheme}")
         return user
 
     def to_representation(self, instance):
