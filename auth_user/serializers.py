@@ -62,7 +62,7 @@ class CreateUserSerializer(serializers.Serializer):
     password1 = serializers.CharField(write_only=True, required=False)
     password2 = serializers.CharField(write_only=True, required=False)
     birthday = serializers.DateField(required=False)
-#    city = serializers.CharField(required=False)
+    city = serializers.CharField(required=False)
     main_center = serializers.PrimaryKeyRelatedField(
         queryset=Center.objects.all(),
         allow_null=True,
@@ -81,7 +81,6 @@ class CreateUserSerializer(serializers.Serializer):
         self.create_validate(validated_data)
         request = self.context['request']
         stage = self.context['request'].data.get('stage')
-        stage = int(stage)
         user = None
 
         if stage == 1:
