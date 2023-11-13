@@ -3,7 +3,7 @@ from rest_framework.fields import empty
 
 from auth_doctor.models import Doctor
 from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access, City
-
+from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 
 class CountrySerializer(serializers.ModelSerializer):
     """Страны"""
@@ -46,20 +46,45 @@ class DiseaseSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""  
     password = serializers.CharField(required=False)
-    disease = serializers.PrimaryKeyRelatedField(
+    disease = PresentablePrimaryKeyRelatedField(
         queryset=Disease.objects.all(),
+        presentation_serializer=DiseaseSerializer,
         allow_null=True,
         required=False,
         many=True
     )
-    main_center = serializers.PrimaryKeyRelatedField(
+    centers = PresentablePrimaryKeyRelatedField(
         queryset=Center.objects.all(),
+        presentation_serializer=CenterSerializer,
+        allow_null=True,
+        required=False,
+        many=True
+    )
+    
+    main_center = PresentablePrimaryKeyRelatedField(
+        queryset=Center.objects.all(),
+        presentation_serializer=CenterSerializer,
         allow_null=True,
         required=False,
         many=False
     )
-    clinic = serializers.PrimaryKeyRelatedField(
+    clinic = PresentablePrimaryKeyRelatedField(
         queryset=Clinic.objects.all(),
+        presentation_serializer=ClinicSerializer,
+        allow_null=True,
+        required=False,
+        many=False
+    )
+    city = PresentablePrimaryKeyRelatedField(
+        queryset=City.objects.all(),
+        presentation_serializer=CitySerializer,
+        allow_null=True,
+        required=False,
+        many=False
+    )
+    country = PresentablePrimaryKeyRelatedField(
+        queryset=Country.objects.all(),
+        presentation_serializer=CountrySerializer,
         allow_null=True,
         required=False,
         many=False
