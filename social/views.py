@@ -68,12 +68,11 @@ class MessageView(APIView):
 
 
 class ChatView(APIView):
-    # permission_classes = [IsAuthenticated]
-
+    permission_classes = [IsAuthenticated]
     @swagger_auto_schema(operation_summary="Получение чатов по конкретному пользователю")
-    def get(self, request, user_id):
+    def get(self, request):
         chat = cache.get_or_set("chats", get_chats())
-        result = chat.filter(users__id=user_id)
+        result = chat.filter(users=request.user)
         serializer = ChatSerializer(result, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)

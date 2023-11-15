@@ -104,6 +104,7 @@ class SearchView(APIView):
 class DoctorsListView(APIView):
     permissions_classes = [IsAuthenticated]
 
+    
     @swagger_auto_schema(operation_summary="Получение докторов")
     def get(self, request):
         doc = cache.get_or_set("doctors", get_doctors())
