@@ -8,8 +8,8 @@ User = get_user_model()
 
 
 class ChatCreateSerializer(serializers.Serializer):
-    user_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
-    center_ids = serializers.ListField(child=serializers.IntegerField(), required=True)
+    user_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
+    center_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
 
     def validate(self, data):
         res, field, msg = chat_create_data_validate(data)
