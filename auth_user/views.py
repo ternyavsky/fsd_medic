@@ -33,7 +33,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 class UserView(generics.ListCreateAPIView):
     """Список пользователей"""
-    permission_classes = [OnlyCreate]
+    # permission_classes = [OnlyCreate]
     serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -44,6 +44,10 @@ class UserView(generics.ListCreateAPIView):
     )
     def post(self, request):
         return create_user_service(request, context={'request': request})
+
+    @method_decorator(cache_page(60 * 60))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):

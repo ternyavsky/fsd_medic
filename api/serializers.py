@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import empty
-
+from social.serializers import UnreadMsgSerializer
+from social.models import UnreadMessage
 from auth_doctor.models import Doctor
 from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access, City
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
@@ -46,6 +47,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""  
     password = serializers.CharField(required=False)
+    unread_messages = serializers.SerializerMethodField()
     disease = PresentablePrimaryKeyRelatedField(
         queryset=Disease.objects.all(),
         presentation_serializer=DiseaseSerializer,
@@ -99,6 +101,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
+    def get_unread_messages(self, obj):
+        queryset = UnreadMessage.objects.filter(user=obj)
+        return UnreadMsgSerializer(queryset, many=True).data
+
 
 class AccessSerializer(serializers.ModelSerializer):
     """Доступ"""
@@ -123,16 +129,6 @@ class NewsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         news = News.objects.create(**validated_data)
-        if "disease" in validated_data and "center" in validated_data:
-            news.disease = validated_data["disease"]
-            news.center = validated_data["center"]
-        elif "disease" in validated_data and "center" not in validated_data:
-            news.disease = validated_data["disease"]
-        elif "center" in validated_data and "disease" not in validated_data:
-            news.center = validated_data["center"]
-        else:
-            raise serializers.ValidationError(
-                "Center or disease should be specified!")
         return news
 
 

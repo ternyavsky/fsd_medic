@@ -63,3 +63,9 @@ class Message(models.Model):
     class Meta:
         verbose_name = 'Сообщение'
         verbose_name_plural = 'Сообщения'
+
+class UnreadMessage(models.Model):
+    message = models.ForeignKey(Message, verbose_name=_("Сообщение"), on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_("Пользователь"), on_delete=models.CASCADE, blank=True)
+    chat = models.ForeignKey(Chat, verbose_name=_("Чат"), on_delete=models.CASCADE)
+    

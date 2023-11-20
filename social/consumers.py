@@ -4,6 +4,7 @@ import logging
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer, StopConsumer
 from django.contrib.auth import get_user_model
+from django.utils import text
 from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.observer import model_observer
@@ -21,15 +22,15 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
-class NotifyConsumer(GenericAsyncAPIConsumer):
+class NotifyConsumer(GenericAsyncAPIConsumer, AsyncWebsocketConsumer):
     queryset = cache.get_or_set("users", get_users())
     serializer_class = UserSerializer
 
+
     @action()
     async def subscribe_to_notify_activity(self, request_id, **kwargs):
-        user_id = self.scope["url_route"]["kwargs"]["user_id"]
-        user = await database_sync_to_async(User.objects.get)(id=user_id)
-        await self.notify_activity.subscribe(user=user_id)
+        user = await database_sync_to_async(User.objects.get)(id=self.scope["user"].id)
+        await self.notify_activity.subscribe(user=user.id)
 
     @model_observer(Notification)
     async def notify_activity(self, message, observer=None, **kwargs):
@@ -62,32 +63,88 @@ class MyConsumer(AsyncWebsocketConsumer):
 
     #### CONNECT ####
     # ACTION WITH USER CONNECTED, THAT RECIEVE ON CONNECT
-    active_entities = []
+    active_entities = {}
     chats = cache.get_or_set("chats", get_chats())
     messages = cache.get_or_set("messages", get_messages())
     users = cache.get_or_set("users", get_users())
+    hour = 60*60
 
     async def connect(self):
         self.chat_uuid = self.scope["url_route"]["kwargs"]["chat_uuid"]
         self.group_name = "chat_%s" % self.chat_uuid
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
-
+        print(self.scope["user"], 76)
         chat = self.chats.filter(uuid=self.chat_uuid).first()
         logger.debug(chat)
+        data = {}
+        serialize = UserSerializer(User.objects.get(number=self.scope["user"])).data
+        data["number"] = serialize["number"]
+        data["first_name"] = serialize["first_name"]
+
+        a = cache.get(self.chat_uuid)
+        if a:
+            print("a != none")
+            print(a, 86)
+            if data not in a:
+                a.append(data)
+            print(a, 88)
+            cache.set(self.chat_uuid, a, self.hour)
+        else:
+            cache.set(self.chat_uuid, [data], self.hour)
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "open",
+                "message": self.active_entities
+            }
+        )
         messages = await database_sync_to_async(self.queryset.filter)(chat=chat)
         logger.debug(messages)
         await self.send(
             text_data=json.dumps({
                 'action': 'list_message',
+                'chat': self.chat_uuid,
                 'messages': dict(data=self.serializer(instance=messages, many=True).data)
             })  
         )
+
+    async def open(self, e):
+        await self.send(
+            text_data=json.dumps({
+                "action": 'user connect',
+                "chat": self.chat_uuid,
+                "online_users": cache.get(self.chat_uuid)
+            })
+        )
+        
 
     #### CONNECT ####
 
     #### DISCONNECT ####
     # ACTION WITH USER DICCONNECTED, THAT RECIEVE ON DISCONNECT
+    async def disconnect(self, code):
+        data = {}
+        serialize = UserSerializer(User.objects.get(number=self.scope["user"])).data
+        data["number"] = serialize["number"]
+        data["first_name"] = serialize["first_name"]
+        
+        a = cache.get(self.chat_uuid, None)
+        a.remove(data)
+        cache.set(self.chat_uuid, a, self.hour)
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "close",
+                "message": self.active_entities
+            }
+        )
+    async def close(self, e):
+        await self.send(text_data=json.dumps({
+            "action": "user disconnect",
+            "chat": self.chat_uuid,
+            "online_users": cache.get(self.chat_uuid)
+        }))
 
 
     #### DISCONNECT ####
@@ -96,66 +153,20 @@ class MyConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         print(data, "data")
+        
         action = data["action"]
         match action:  # CHOICE ACTION
-            case 'connect_entity':
-                if data['type'] == 'user':
-                    obj = await database_sync_to_async(User.objects.get)(
-                        id=data['id']
-                    )
-                    ins = UserSerializer(obj).data
+            case 'typing':
+                action_type = "typing"
+                message = self.scope["user"]
 
-                elif data['type'] == 'center':
-                    obj = await database_sync_to_async(Center.objects.get)(
-                        id=data['id']
-                    )
-                    ins = CenterSerializer(obj).data
-
-                elif data["type"] == 'doctor':
-                    obj = await database_sync_to_async(Doctor.objects.get)(
-                        id=data['id']
-                    )
-
-                    ins = DoctorGetSerializer(obj).data
-                if ins not in self.active_entities:
-                    self.active_entities.append(ins)
-                message = {
-                    "message": "connected", 
-                    "active_entities": self.active_entities 
-                    }
-                action_type = "connect_entity"
-                
-            case 'disconnect_entity':
-                if data['type'] == 'user':
-                    obj = await database_sync_to_async(User.objects.get)(
-                        id=data['id']
-                    )
-                    ins = UserSerializer(obj).data
-
-                elif data['type'] == 'center':
-                    obj = await database_sync_to_async(Center.objects.get)(
-                        id=data['id']
-                    )
-                    ins = CenterSerializer(obj).data
-
-                elif data["type"] == 'doctor':
-                    obj = await database_sync_to_async(Doctor.objects.get)(
-                        id=data['id']
-                    )
-
-                    ins = DoctorGetSerializer(obj).data
-                self.active_entities.remove(ins)
-                message = {
-                    "message": "disconnected", 
-                    "active_entities": self.active_entities 
-                    }
-                action_type = "disconnect_entity"
-            
             case 'send_message':
                 obj = await database_sync_to_async(Message.objects.create)(
                     text=data["text"],
                     chat=self.chats.filter(uuid=data["chat_uuid"]).first(),
-                    user=self.users.filter(id=data["user_id"]).first(),
+                    user=self.users.filter(id=self.scope["user"].id).first(),
+                    note=data["note"] if "note" in data else None,
+                    news=data["news"] if "news" in data else None
                 )
                 logger.debug(obj)
                 message = dict(data=self.serializer(instance=obj).data)
@@ -187,25 +198,17 @@ class MyConsumer(AsyncWebsocketConsumer):
         )
         ### ACTION WITH CALLED WHEN SEND MESSAGE ###
 
+
+    async def typing(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "aciton": event["action"],
+                    "message": f"{event['message']} typing..."
+                }
+            )
+        )
     async def update_message(self, event):
-        await self.send(
-            text_data=json.dumps(
-                {
-                    "action": event["action"],
-                    "message": event["message"]
-                }
-            )
-        )
-    async def connect_entity(self, event):
-        await self.send(
-            text_data=json.dumps(
-                {
-                    "action": event["action"],
-                    "message": event["message"]
-                }
-            )
-        )
-    async def disconnect_entity(self, event):
         await self.send(
             text_data=json.dumps(
                 {

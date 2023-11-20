@@ -13,6 +13,8 @@ class Doctor(AbstractBaseUser):
     last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50, null=True)
     number = models.CharField(verbose_name=_("Номер телефона"), max_length=30)
     email = models.CharField(verbose_name=_("Почта"), max_length=220, null=True)
+    image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
+                              default='users_photos/AccauntPreview.png')
     middle_name = models.CharField(verbose_name="Отчетсво", max_length=50)
     city = models.ForeignKey(City, on_delete=models.PROTECT, verbose_name=_("Город"), max_length=220, null=True)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True)

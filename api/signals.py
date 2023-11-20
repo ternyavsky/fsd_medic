@@ -164,13 +164,14 @@ def clinic_post_save_handler(sender, **kwargs):
 # Center post signal
 @receiver(pre_save, sender=News)
 def notify_center(sender, instance, **kwargs):
+    print('news signal')
     users = User.objects.filter(main_center=instance.center)
     users2 = User.objects.filter(centers=instance.center)
     data = users.union(users2)
     for i in range(len(data)):
         Notification.objects.create(
             user=data[i], text=f"Вышел новый пост у мед.центра {instance.center.name}")
-
+    print("create")
     # Change status Note signal
 
 
@@ -197,8 +198,8 @@ def notify_verify(sender, instance, created, **kwargs):
 
 # SEND REMINDER FOR NOTE
 
-@receiver(post_save, sender=Note)
-def notify_time(sender, instance, created, **kwargs):
-    if created:
-        start_time_reminder.s(instance.user.id, instance.notify).apply_async(
-            eta=instance.notify)
+# @receiver(post_save, sender=Note)
+# def notify_time(sender, instance, created, **kwargs):
+#     if created:
+#         start_time_reminder.s(instance.user.id, instance.notify).apply_async(
+#             eta=instance.notify)

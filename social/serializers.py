@@ -1,11 +1,18 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
+from rest_framework import fields, serializers
 
 from .models import *
 from .services.chat_services import chat_create_data_validate
 
 User = get_user_model()
 
+
+
+class UnreadMsgSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnreadMessage
+        fields = "__all__"
+        depth = 1
 
 class ChatCreateSerializer(serializers.Serializer):
     user_ids = serializers.ListField(child=serializers.IntegerField(), required=False)

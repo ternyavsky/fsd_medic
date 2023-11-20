@@ -27,6 +27,7 @@
     <input id="delete_message" type="button" value="Удалить">
     <input id="exit" type="button" value="Close">
     <input id="update_message" type="button" value="Обновить">
+    <input id="chat-message-send2" type="button" value="отправить 2">
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script>
 
@@ -47,27 +48,16 @@
 
         })
         const user_id = 1
+        const token_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAyOTAzMTcwLCJpYXQiOjE3MDAzMTExNzAsImp0aSI6ImJkYjJlNzQ4MTAwNzQ5N2I4ZDgzNmE1ZDg4MmQ4Y2RhIiwidXNlcl9pZCI6MSwidHlwZSI6InVzZXIiLCJudW1iZXIiOiIrNzk5OTk5OTk5MDAifQ.WDN9bfr5i9dwMX3iGmx0w_htmsfge49pU7xbBV73ZgI"
+        const token_2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAyOTA0Mzc0LCJpYXQiOjE3MDAzMTIzNzQsImp0aSI6Ijg1OTkyN2Q4NWM3MDQ3YTVhMTI4ZWRlMDQ4MzY3MjFmIiwidXNlcl9pZCI6MiwidHlwZSI6InVzZXIiLCJudW1iZXIiOiIrNzkxMTExMTExMTEifQ._oR8FgyQQB6qLz5QrhdpdmqdDOW0OwiYXu0Se7R69mA"
+
         const chat_uuid = '1f46a5ca-6557-4675-9955-6afa451b51fe'
+        const chat_uuid2 = '9f868277-d73b-47c9-bf58-25dbfa7b1f2f'
         const user = '{{ user }}'
         console.log(user_id)
         const request_id = new Date().getTime()
-        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid}/`);
-        ws.onopen = () => {
-            ws.send(JSON.stringify({
-                "action": "connect_entity",
-                "type": "user",
-                "id": 1
-            }))
-        }
-
-        ws.onclose = () => {
-            ws.send(JSON.stringify({
-                "action": "disconnect_entity",
-                "type": "user",
-                "id": 1
-            }))
-        }
-
+        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid}/?token=${token_1}`);
+        const ws1 = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid2}/?token=${token_2}`);
 
         ws.onmessage = (e) => {
             const data = JSON.parse(e.data);
@@ -87,7 +77,33 @@
                 app.$data.messages = data.messages.data;
 
                 app.$forceUpdate();
--
+
+            } if (data.action === 'delete_message') {
+                const messageToDelete = data.message.data
+                console.log(messageToDelete)
+                app.$data.messages.filter((message) => message !== messageToDelete);
+
+            };
+        }
+        ws1.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            console.log(data)
+            if (data.action === 'send') {
+                document.querySelector('#chat-log').value += `user connect ${data.connect}`
+            }
+            if (data.action === 'connect') {
+                console.log(data)
+            }
+
+            if (data.action === 'send_message') {
+                console.log(data.message.data)
+                app.$data.messages.push(data.message.data);
+            }
+            if (data.action === 'list_message') {
+                app.$data.messages = data.messages.data;
+
+                app.$forceUpdate();
+
             } if (data.action === 'delete_message') {
                 const messageToDelete = data.message.data
                 console.log(messageToDelete)
@@ -129,6 +145,18 @@
                 document.querySelector('#chat-message-submit').click();
             }
         };
+
+        document.querySelector("#chat-message-send2").onclick = (e) => {
+            const messageinput = document.querySelector('#chat-message-input');
+            const message = messageinput.value;
+
+            ws1.send(JSON.stringify({
+                action: 'send_message',
+                chat_uuid: chat_uuid2,
+                text: message,
+                user_id: user_id
+            }))
+        }
 
         document.querySelector('#chat-message-submit').onclick = function (e) {
             const messageInputDom = document.querySelector('#chat-message-input');
