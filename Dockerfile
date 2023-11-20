@@ -14,6 +14,6 @@ RUN poetry install
 #cmd setting
 EXPOSE 8000
 
-CMD [ "gunicorn", "fsd_medic.asgi:application", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker" ]
+#CMD [ "gunicorn", "fsd_medic.asgi:application", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker" ]
 
-# CMD [ "poetry", "run", "python", "manage.py", "runserver" ]
+CMD [ "poetry", "run", "python", "manage.py", "runserver" "0.0.0.0:8000" ]
