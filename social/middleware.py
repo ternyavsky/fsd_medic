@@ -31,14 +31,7 @@ def get_doctor(validated_token):
     except Doctor.DoesNotExist:
         return AnonymousUser()
 
-@database_sync_to_async
-def get_clinic(validated_token):
-    try:
-        clinic = Clinic.objects.get(number=validated_token["number"])
-        print(f"{clinic}")
-        return clinic
-    except Clinic.DoesNotExist:
-        return AnonymousUser()
+
 
 @database_sync_to_async
 def get_center(validated_token):
@@ -86,8 +79,6 @@ class JwtAuthMiddleware(BaseMiddleware):
                     scope["user"] = await get_user(validated_token=decoded_data)
                 case "doctor":
                     scope["doctor"] = await get_doctor(validated_token=decoded_data)
-                case "clinic":
-                    scope["clinic"] = await get_clinic(validated_token=decoded_data)
                 case "center":
                     scope["center"] = await get_center(validated_token=decoded_data)
                 

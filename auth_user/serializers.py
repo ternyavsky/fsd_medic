@@ -13,8 +13,6 @@ from social.models import Chat
 from api.serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
-
-
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
 
     # Overiding validate function in the TokenObtainSerializer  

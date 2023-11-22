@@ -114,6 +114,11 @@
 
 
 
+        // usehotkeys etc...
+        ws.send(JSON.stringify({
+            action: 'typing'
+        }))
+
 
 
         document.querySelector('#delete_message').onclick = function (e) {

@@ -65,7 +65,9 @@ class Message(models.Model):
         verbose_name_plural = 'Сообщения'
 
 class UnreadMessage(models.Model):
-    message = models.ForeignKey(Message, verbose_name=_("Сообщение"), on_delete=models.CASCADE)
-    user = models.ForeignKey(User, verbose_name=_("Пользователь"), on_delete=models.CASCADE, blank=True)
+    message = models.ForeignKey(Message, verbose_name=_("Сообщение"), on_delete=models.CASCADE, blank=True)
+    user = models.ForeignKey(User, verbose_name=_("Пользователь"), on_delete=models.CASCADE, blank=True, null=True)
+    doctor = models.ForeignKey(Doctor, verbose_name=_("Доктор"), on_delete=models.CASCADE, null=True, blank=True)
+    center = models.ForeignKey(Center, verbose_name=_("Центр"), on_delete=models.CASCADE, null=True, blank=True)
     chat = models.ForeignKey(Chat, verbose_name=_("Чат"), on_delete=models.CASCADE)
     

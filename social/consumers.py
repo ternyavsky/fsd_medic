@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer, StopConsumer
@@ -9,9 +10,9 @@ from djangochannelsrestframework.decorators import action
 from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.observer import model_observer
 from django.core.cache import cache
-from db.queries import get_chats, get_messages, get_users
+from db.queries import get_centers, get_chats, get_doctors, get_messages, get_users
 from api.serializers import UserSerializer, CenterSerializer, DoctorGetSerializer
-from .models import Chat, Message, Notification
+from .models import Chat, Message, Notification, UnreadMessage
 from .serializers import MessageSerializer, NotificationSerializer
 from django.db import transaction
 from api.models import Center
@@ -67,6 +68,8 @@ class MyConsumer(AsyncWebsocketConsumer):
     chats = cache.get_or_set("chats", get_chats())
     messages = cache.get_or_set("messages", get_messages())
     users = cache.get_or_set("users", get_users())
+    doctors = cache.get_or_set("doctors", get_doctors())
+    centers = cache.get_or_set("centers", get_centers())
     hour = 60*60
 
     async def connect(self):
@@ -75,20 +78,28 @@ class MyConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
         print(self.scope["user"], 76)
-        chat = self.chats.filter(uuid=self.chat_uuid).first()
-        logger.debug(chat)
+        self.chat = self.chats.filter(uuid=self.chat_uuid).first()
+        self.chat_users = self.chat.users.all() 
+        self.chat_centers = self.chat.centers.all()
+        self.chat_doctors = self.chat.doctors.all()
+        logger.debug(self.chat)
         data = {}
-        serialize = UserSerializer(User.objects.get(number=self.scope["user"])).data
+        # doctor/center set this! 
+        if "user" in self.scope:
+            instance = self.users.filter(number=self.scope["user"]).first()
+            serialize = UserSerializer(instance).data
+        elif "doctor" in self.scope:
+            instance = self.doctors.filter(number=self.scope["doctor"]).first()
+            serialize = DoctorGetSerializer(instance).data
+        elif "center" in self.scope:
+            instance = self.centers.filter(number=self.scope["center"]).first()
+            serialize = CenterSerializer(instance).data
         data["number"] = serialize["number"]
         data["first_name"] = serialize["first_name"]
-
         a = cache.get(self.chat_uuid)
         if a:
-            print("a != none")
-            print(a, 86)
             if data not in a:
                 a.append(data)
-            print(a, 88)
             cache.set(self.chat_uuid, a, self.hour)
         else:
             cache.set(self.chat_uuid, [data], self.hour)
@@ -99,7 +110,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 "message": self.active_entities
             }
         )
-        messages = await database_sync_to_async(self.queryset.filter)(chat=chat)
+        messages = await database_sync_to_async(self.queryset.filter)(chat=self.chat)
         logger.debug(messages)
         await self.send(
             text_data=json.dumps({
@@ -124,8 +135,16 @@ class MyConsumer(AsyncWebsocketConsumer):
     #### DISCONNECT ####
     # ACTION WITH USER DICCONNECTED, THAT RECIEVE ON DISCONNECT
     async def disconnect(self, code):
+        if "user" in self.scope:
+            instance = self.users.filter(number=self.scope["user"]).first()
+            serialize = UserSerializer(instance).data
+        elif "doctor" in self.scope:
+            instance = self.doctors.filter(number=self.scope["doctor"]).first()
+            serialize = DoctorGetSerializer(instance).data
+        elif "center" in self.scope:
+            instance = self.centers.filter(number=self.scope["center"]).first()
+            serialize = CenterSerializer(instance).data
         data = {}
-        serialize = UserSerializer(User.objects.get(number=self.scope["user"])).data
         data["number"] = serialize["number"]
         data["first_name"] = serialize["first_name"]
         
@@ -158,16 +177,40 @@ class MyConsumer(AsyncWebsocketConsumer):
         match action:  # CHOICE ACTION
             case 'typing':
                 action_type = "typing"
-                message = self.scope["user"]
+                message = self.scope["user"] if "user" in self.scope else self.scope["doctor"] if "doctor" in self.scope else self.scope["center"]
 
             case 'send_message':
                 obj = await database_sync_to_async(Message.objects.create)(
                     text=data["text"],
                     chat=self.chats.filter(uuid=data["chat_uuid"]).first(),
-                    user=self.users.filter(id=self.scope["user"].id).first(),
+                    user=self.users.filter(id=self.scope["user"].id).first() if "user" in self.scope else None,
+                    doctor=self.doctors.filter(id=self.scope["doctor"].id).first() if "doctor" in self.scope else None,
+                    center=self.centers.filter(id=self.scope["center"].id).first() if "center" in self.scope else None,
                     note=data["note"] if "note" in data else None,
                     news=data["news"] if "news" in data else None
                 )
+                numbers = [j["number"] for j in cache.get(self.chat_uuid)]
+                for i in self.chat_users:
+                    if i.number not in numbers:
+                        await database_sync_to_async(UnreadMessage.objects.create)(
+                            message=obj,
+                            user=i,
+                            chat=self.chat
+                        )
+                for i in self.chat_centers:
+                    if i.number not in numbers:
+                        await database_sync_to_async(UnreadMessage.objects.create)(
+                            message=obj,
+                            center=i,
+                            chat=self.chat
+                        )
+                for i in self.chat_doctors:
+                    if i.number not in numbers:
+                        await database_sync_to_async(UnreadMessage.objects.create)(
+                            message=obj,
+                            doctor=i,
+                            chat=self.chat
+                        )
                 logger.debug(obj)
                 message = dict(data=self.serializer(instance=obj).data)
                 logger.debug(message)
