@@ -60,8 +60,9 @@ class MessageView(APIView):
 
     @swagger_auto_schema(operation_summary="Получение сообщений по конкретному чату")
     def get(self, request, chat_id):
-        messages = cache.get_or_set("messages", get_messages(chat=chat_id))
-        serializer = MessageSerializer(messages, many=True)
+        messages = cache.get_or_set("messages", get_messages())
+        result = messages.filter(chat_id=chat_id).order_by("-created_at")
+        serializer = MessageSerializer(result, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
