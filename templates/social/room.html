@@ -121,13 +121,6 @@
 
 
 
-        document.querySelector('#delete_message').onclick = function (e) {
-            ws.send(JSON.stringify({
-                action: 'delete_message',
-                pk: 9,
-            }))
-        }
-
         document.querySelector("#update_message").onclick = function (e) {
             ws.send(JSON.stringify({
                 action: "update_message",
@@ -136,6 +129,15 @@
             }
             ))
         }
+
+        document.querySelector('#delete_message').onclick = function (e) {
+            ws.send(JSON.stringify({
+                action: 'delete_message',
+                pk: 9,
+            }))
+        }
+
+
         document.querySelector("#exit").onclick = (e) => {
             ws.send(JSON.stringify({
                 action: "disconnect_entity",
@@ -169,9 +171,7 @@
 
             ws.send(JSON.stringify({
                 action: 'send_message',
-                chat_uuid: chat_uuid,
                 text: message,
-                user_id: user_id,
                 //note_id: note_id,
                 //doctor_id: doctor_id,
                 //center_id: center_id
