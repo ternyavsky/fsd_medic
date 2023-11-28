@@ -182,7 +182,7 @@ class MyConsumer(AsyncWebsocketConsumer):
             case 'send_message':
                 obj = await database_sync_to_async(Message.objects.create)(
                     text=data["text"],
-                    chat=self.chats.filter(uuid=data["chat_uuid"]).first(),
+                    chat=self.chats.filter(uuid=self.chat_uuid).first(),
                     user=self.users.filter(id=self.scope["user"].id).first() if "user" in self.scope else None,
                     doctor=self.doctors.filter(id=self.scope["doctor"].id).first() if "doctor" in self.scope else None,
                     center=self.centers.filter(id=self.scope["center"].id).first() if "center" in self.scope else None,
