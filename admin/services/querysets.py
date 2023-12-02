@@ -105,37 +105,31 @@ def main_page_data():
     users = get_users()
     created_today = users.filter(created_at__date=date.today()).count()
     group_1 = users.filter(birthday__year__lte=date.today().year - 10, birthday__year__gte=date.today().year - 20)
-    group_1 = group_1.annotate(
-        man=Count("sex", filter=Q(sex="Мужчина")),
-        woman=Count("sex", filter=Q(sex="Женщина"))
-    )
+    group1_mans = group_1.filter(sex="Мужчина").count()
+    group1_womans = group_1.filter(sex="Женщина").count()
+
     group_2 = users.filter(birthday__year__lte=date.today().year - 20, birthday__year__gte=date.today().year - 30)
-    group_2 = group_2.annotate(
-        man=Count("sex", filter=Q(sex="Мужчина")),
-        woman=Count("sex", filter=Q(sex="Женщина"))
-    )
+    group2_mans = group_2.filter(sex="Мужчина").count()
+    group2_womans = group_2.filter(sex="Женщина").count()
+
+
     group_3 = users.filter(birthday__year__lte=date.today().year - 30 , birthday__year__gte=date.today().year - 40)
-    group_3 = group_3.annotate(
-        man=Count("sex", filter=Q(sex="Мужчина")),
-        woman=Count("sex", filter=Q(sex="Женщина"))
-    )
+    group3_mans = group_3.filter(sex="Мужчина").count()
+    group3_womans = group_3.filter(sex="Женщина").count()
+
     group_4 = users.filter(birthday__year__lte=date.today().year - 40, birthday__year__gte=date.today().year - 50)
-    group_4 = group_4.annotate(
-        man=Count("sex", filter=Q(sex="Мужчина")),
-        woman=Count("sex", filter=Q(sex="Женщина"))
-    )
+    group4_mans = group_4.filter(sex="Мужчина").count()
+    group4_womans = group_4.filter(sex="Женщина").count()
+
     group_5 = users.filter(birthday__year__lte=date.today().year - 50, birthday__year__gte=date.today().year - 60)
-    group_5 = group_5.annotate(
-        man=Count("sex", filter=Q(sex="Мужчина")),
-        woman=Count("sex", filter=Q(sex="Женщина"))
-    )
+    group5_mans = group_5.filter(sex="Мужчина").count()
+    group5_womans = group_5.filter(sex="Женщина").count()
+
     group_6 = users.filter(birthday__year__lte=date.today().year - 60, birthday__year__gte=date.today().year - 70)
-    group_6 = group_6.annotate(
-        man=Count("sex", filter=Q(sex="Мужчина")),
-        woman=Count("sex", filter=Q(sex="Женщина"))
-    )
+    group6_mans = group_6.filter(sex="Мужчина").count()
+    group6_womans = group_6.filter(sex="Женщина").count()
+
     # print(group_1.first().woman)
-    print(group_2.values())
     diseases = cache.get_or_set("disease", get_disease())
     diseases = diseases.annotate(
         most_count=Count("user")
@@ -144,12 +138,13 @@ def main_page_data():
 
     data = {
         "diseases": diseases,
-        "_10_20": group_1,
-        "_20_30": group_2,
-        "_30_40": group_3,
-        "_40_50": group_4,
-        "_50_60": group_5,
-        "_60_70": group_6,
+        "_10_20": [{"man" : group1_mans, "woman": group1_womans}],
+        "_20_30": [{"man": group2_mans, "woman": group2_womans}],
+        "_30_40": [{"man": group3_mans, "woman": group3_womans}],
+        "_40_50": [{"man": group4_mans, "woman": group4_womans}],
+        "_50_60": [{"man": group5_mans, "woman": group5_womans}],
+        "_60_70": [{"man": group6_mans, "woman": group6_womans}],
         "created_today": created_today
     }
+    print(group_1)
     return data

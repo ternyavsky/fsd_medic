@@ -101,7 +101,7 @@ class MainPage(APIView):
     @swagger_auto_schema(
         operation_summary="Сайт и приложение"
     )
-    @method_decorator(cache_page(60 * 60))
+    # @method_decorator(cache_page(60 * 60))
     def get(self, request):
         queryset = main_page_data()
         serializer = MainPageSerializer(queryset)
