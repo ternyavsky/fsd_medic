@@ -22,7 +22,7 @@ email = os.getenv('EMAIL')
 def send_reset_sms(number, code):
     key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Вы+пытаетесь+восстановить+доступ+к+аккаунту+,+ваш+код+доступа+-+{code}&sign=SMSAero'
+    url = f'https://sms.ru/sms/send?api_id=0F9113E2-B4ED-8975-4BEA-B47ACCC656C6&to={number}&msg=Вы+пытаетесь+восстановить+доступ+к+аккаунту+,+ваш+код+доступа+-+{code}&json=1'
     res = requests.get(url)
     print(code)
     if res.status_code == 200:
@@ -58,19 +58,23 @@ def Send_email(user_email, message):
 def send_sms(number, code):
     key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number}&text=Регистрация+была+успешно+пройдена,+ваш+код+подтверждения+{code}&sign=SMSAero'
+    url = f'https://sms.ru/sms/send?api_id=0F9113E2-B4ED-8975-4BEA-B47ACCC656C6&to={number}&msg=Регистрация+была+успешно+пройдена,+ваш+код+подтверждения+{code}&json=1'
     res = requests.get(url)
     print(code)
     if res.status_code == 200:
         print('отправилось')
         return True
     else:
+        print('no send')
         return False
 
 
 def generate_email_code():
     code = random.randrange(start=10000000, stop=99999999)
     return code
+
+
+
 
 
 def generate_verification_code():
