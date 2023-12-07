@@ -257,7 +257,6 @@ class AccessViewSet(APIView):
 
 
     @swagger_auto_schema(operation_summary="Получение доступа пользователя")
-    @method_decorator(cache_page(60*180))
     def get(self, request):
         return Response(self.serializer_class(self.get_queryset(), many=True).data, status=status.HTTP_200_OK)
 
