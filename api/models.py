@@ -380,14 +380,17 @@ class City(models.Model):
         verbose_name = 'Город'
 
 
+class NewsPhotos(models.Model):
+    image = models.ImageField(default='news_photos/news_photo.jpg', verbose_name=_("Фото к новости"), upload_to="news_photos/")
+class NewsVideos(models.Model):
+    video = models.FileField(verbose_name=_("Видео к новости"), upload_to="news_videos", default="news_photos/news_photo.jpg")
+
 class News(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     title = models.CharField(verbose_name=_(
         'Заголовок новости'), max_length=40, null=True, blank=True)
     text = models.TextField(verbose_name=_(
         'Текст новости'), max_length=500, null=True, blank=True)
-    image = models.ImageField(verbose_name=_('Фото к новости'), default='news_photos/news_photo.jpg',
-                              upload_to='news_photos/')
     center = models.ForeignKey('Center', verbose_name=_(
         'Центр'), on_delete=models.SET_NULL, null=True, blank=True)
     clinic = models.ForeignKey('Clinic', verbose_name=_("Клиника"), on_delete=models.SET_NULL, null=True, blank=True)
@@ -397,7 +400,8 @@ class News(models.Model):
         'Дата создания'), auto_now_add=True, null=True)
     updated_at = models.DateTimeField(verbose_name=_(
         'Дата обновления'), auto_now=True, null=True)
-
+    images = models.ManyToManyField("NewsPhotos", verbose_name=_("Фото к новости"))
+    videos = models.ManyToManyField("NewsVideos", verbose_name=_("Видео к новости"))
     class Meta:
         verbose_name_plural = 'Новости'
         verbose_name = 'Новость'

@@ -127,11 +127,14 @@ class NewsPreviewSerializer(serializers.ModelSerializer):
         fields = ['image', 'title', 'created_at']
 
 
+
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
         depth = 1
+
+ 
 
     def create(self, validated_data):
         news = News.objects.create(**validated_data)
