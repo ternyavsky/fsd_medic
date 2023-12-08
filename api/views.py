@@ -63,6 +63,7 @@ class NewsViewSet(viewsets.ModelViewSet):
                 logger.info("Admin request")
                 return news
             if user.is_authenticated:
+                clinic_news = news.filter(clinic__in=user.clinic)
                 center_news = news.filter(center__in=user.centers.all())
                 disease_news = news.filter(disease__in=user.disease.all())
                 disease_news = disease_news.annotate(
@@ -71,7 +72,10 @@ class NewsViewSet(viewsets.ModelViewSet):
                 center_news = center_news.annotate(
                     quant_likes=Count("like", distinct=True)
                 ).order_by("-quant_likes")
-                news = center_news.union(disease_news)
+                clinic_news = clinic_news.annotate(
+                quant_likes=Count("like", distinct=True)
+                ).order_by("-quant_likes")
+                news = center_news.union(disease_news, clinic_news)
                 logger.debug(self.request.path)
                 return news
             else:

@@ -247,8 +247,8 @@ class AccessViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        users = cache.get_or_set("users", get_users())
-        queryset = cache.get_or_set("access", get_access())
+        users = get_users()
+        queryset = get_access()
         if self.request.user.is_staff:
             return queryset
         else:

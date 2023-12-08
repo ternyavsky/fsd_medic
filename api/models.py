@@ -390,6 +390,7 @@ class News(models.Model):
                               upload_to='news_photos/')
     center = models.ForeignKey('Center', verbose_name=_(
         'Центр'), on_delete=models.SET_NULL, null=True, blank=True)
+    clinic = models.ForeignKey('Clinic', verbose_name=_("Клиника"), on_delete=models.SET_NULL, null=True, blank=True)
     disease = models.ForeignKey('Disease', verbose_name=_('Заболевание'), on_delete=models.SET_NULL, null=True,
                                 blank=True)
     created_at = models.DateTimeField(verbose_name=_(
