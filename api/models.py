@@ -86,7 +86,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(
         verbose_name=_('Статус персонала'), default=False)
     group = models.ForeignKey('Group', verbose_name=_(
-        'Группа'), on_delete=models.CASCADE)
+        'Группа'), on_delete=models.CASCADE, null=True, blank=True)
     sex = models.CharField(_("Пол"), max_length=255, default=None, null=True)
     main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True,
                                     blank=True, related_name="main_center")
@@ -103,9 +103,9 @@ class User(AbstractBaseUser):
                                  on_delete=models.CASCADE, related_name="interest")
     birthday = models.DateField(verbose_name=_('Дата рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
-                              default='users_photos/AccauntPreview.png')
+                              default=None)
     country = models.ForeignKey(
-        'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
+        'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True, default=None)
     city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=False, null=True)
@@ -125,7 +125,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     def __str__(self):
-        return self.number
+        return str(self.number)
 
     def delete(self, using=None, keep_parents=False):
         group = Group.objects.get(id=self.group_id)
@@ -142,10 +142,11 @@ class User(AbstractBaseUser):
 
     class Meta:
         verbose_name_plural = 'Пользователи'
-        verbose_name = 'Пользователья'
+        verbose_name = 'Пользователи'
 
 
 class Group(models.Model):
+    
     id = models.BigAutoField(primary_key=True, db_index=True)
     name = models.CharField(verbose_name=_(
         'Название Группы'), max_length=100, null=True)
@@ -356,7 +357,6 @@ class NumberCode(models.Model):
 
 class Country(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
-    cities = models.ManyToManyField("City", verbose_name=_("Города"))
     name = models.CharField(verbose_name=_(
         'Название страны'), max_length=50, unique=True)
 

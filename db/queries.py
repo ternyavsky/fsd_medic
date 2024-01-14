@@ -29,7 +29,7 @@ def get_cities(**kwargs):
 
 
 def get_countries(**kwargs):
-    return Country.objects.filter(**kwargs).prefetch_related("cities")
+    return Country.objects.filter(**kwargs)
 
 
 def get_saved(**kwargs):
@@ -58,7 +58,7 @@ def get_clinics(**kwargs):
     return (Clinic.objects
             .select_related("country", "center", "center__country", "city")
             .prefetch_related("employees", "supported_diseases", "center__supported_diseases",
-                              "center__employees", "country__cities")
+                              "center__employees")
             .filter(**kwargs)
             )
 
@@ -73,7 +73,7 @@ def get_centers(**kwargs):
     return (Center.objects
             .select_related("country", "admin", "city")
             .prefetch_related("supported_diseases", "employees", "admin__centers", "admin__disease",
-                              "country__cities"
+                            
                               )
             .filter(**kwargs)
 
@@ -83,7 +83,10 @@ def get_centers(**kwargs):
 # user
 def get_users(**kwargs):
     """Получение пользователей"""
-    return (User.objects.all())
+    return (User.objects.filter(**kwargs)
+            .select_related("group", "main_center", "clinic")
+            .prefetch_related("disease", "centers", "centers__employees", "centers__supported_diseases", 
+                              "main_center__employees", "main_center__supported_diseases", "clinic__employees","clinic__supported_diseases",))
 
 
 def get_doctors(**kwargs):

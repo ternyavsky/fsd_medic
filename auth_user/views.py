@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from api.models import User
 from api.permissions import OnlyCreate
-from api.serializers import UserSerializer, CenterSerializer, DiseaseSerializer, AccessSerializer
+from api.serializers import UserSerializer, CenterSerializer, DiseaseSerializer, AccessSerializer, UserUpdateSerializer
 from auth_user.serializers import *
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
@@ -37,7 +37,7 @@ class UserView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        return User.objects.all()
+        return get_users()
 
     @swagger_auto_schema(
         operation_summary="Создание пользователя"
@@ -45,7 +45,7 @@ class UserView(generics.ListCreateAPIView):
     def post(self, request):
         return create_user_service(request, context={'request': request})
 
-    @method_decorator(cache_page(60 * 60))
+    # @method_decorator(cache_page(60 * 60))
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -54,14 +54,22 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    
+
+
     def get_object(self):
-        data = cache.get_or_set("users", get_users())
-        data = data.filter(id=self.request.user.id).first()
+        data = self.request.user
         logger.debug(data)
         logger.debug(self.request.path)
         return data
 
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.request.user
+        serializer = UserUpdateSerializer(data=request.data, instance=instance)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
 class GetDiseasesView(APIView):
     permission_classes = [AllowAny]

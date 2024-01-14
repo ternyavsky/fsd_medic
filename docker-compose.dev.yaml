@@ -18,33 +18,33 @@ services:
     image: memcached:latest
     ports:
       - "11211:11211"
-  prometheus:
-    container_name: fsd_medic.prometheus
-    image: prom/prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+  # prometheus:
+  #   container_name: fsd_medic.prometheus
+  #   image: prom/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
 
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yaml'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-  grafana:
-    container_name: fsd_medic.grafana
-    image: grafana/grafana
-    volumes:
-      - grafana_storage:/var/lib/grafana
-    ports:
-      - "3000:3000"
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yaml'
+  #     - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+  #     - '--web.console.templates=/usr/share/prometheus/consoles'
+  # grafana:
+  #   container_name: fsd_medic.grafana
+  #   image: grafana/grafana
+  #   volumes:
+  #     - grafana_storage:/var/lib/grafana
+  #   ports:
+  #     - "3000:3000"
 
 
-  loki:
-    container_name: fsd_medic.loki
-    image: grafana/loki
-    ports:
-      - "3100:3100"
-    restart: unless-stopped
+  # loki:
+  #   container_name: fsd_medic.loki
+  #   image: grafana/loki
+  #   ports:
+  #     - "3100:3100"
+  #   restart: unless-stopped
 
   celery:
     build: .

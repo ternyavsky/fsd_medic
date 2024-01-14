@@ -14,7 +14,7 @@ def doctor_authenticate(number=None, password=None):
         doctor = doctors.filter(number=number).first()
         if check_password(password, doctor.password):
             return doctor
-        else:
+        else: 
             return None
     except Doctor.DoesNotExist:
         return None

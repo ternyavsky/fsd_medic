@@ -51,9 +51,19 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    def __init__(self, *args, **kwargs):
+        self.depth = kwargs.pop("depth", 1)
+        self.Meta.depth = self.depth
+        super(UserSerializer, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class UserUpdateSerializer(serializers.ModelSerializer):
     """Получаем пользователя(аккаунт и т.п)"""  
     password = serializers.CharField(required=False)
-    unread_messages = serializers.SerializerMethodField()
     disease = PresentablePrimaryKeyRelatedField(
         queryset=Disease.objects.all(),
         presentation_serializer=DiseaseSerializer,
@@ -97,19 +107,18 @@ class UserSerializer(serializers.ModelSerializer):
         required=False,
         many=False
     )
-    
+
+
     def __init__(self, *args, **kwargs):
         self.depth = kwargs.pop("depth", 1)
         self.Meta.depth = self.depth
-        super(UserSerializer, self).__init__(*args, **kwargs)
+        super(UserUpdateSerializer, self).__init__(*args, **kwargs)
 
     class Meta:
         model = User
         fields = '__all__'
 
-    def get_unread_messages(self, obj):
-        queryset = UnreadMessage.objects.filter(user=obj)
-        return UnreadMsgSerializer(queryset, many=True).data
+    
 
 
 class AccessSerializer(serializers.ModelSerializer):
