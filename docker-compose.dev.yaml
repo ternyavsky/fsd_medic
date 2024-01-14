@@ -49,7 +49,7 @@ services:
   celery:
     build: .
     container_name: fsd_medic.celery
-    command: poetry run celery -A fsd_medic worker --loglevel=info
+    command: python run celery -A fsd_medic worker --loglevel=info
 
 
   rabbitmq:

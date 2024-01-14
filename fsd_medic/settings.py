@@ -194,7 +194,7 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "172.17.0.1:11211",
+        "LOCATION": "host.docker.internal:11211",
     }
 }
 
