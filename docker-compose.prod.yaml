@@ -9,7 +9,7 @@ services:
       - "8000:8000"
     links:
       - redis
-  redis:
+  redis: 
     container_name: fsd_medic.redis
     image: redis:alpine
     ports:

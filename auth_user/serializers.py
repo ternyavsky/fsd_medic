@@ -81,7 +81,6 @@ class CreateUserSerializer(serializers.Serializer):
         request = self.context['request']
         stage = self.context['request'].data.get('stage')
         user = None
-
         if stage == 1:
             user = User.objects.create_user(
                 number=validated_data['number'],

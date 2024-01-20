@@ -182,10 +182,7 @@ DATABASES = {
         }
     }
 
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+
 }
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
@@ -194,7 +191,7 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        "LOCATION": "host.docker.internal:11211",
+        "LOCATION": "172.17.0.1:11211",
     }
 }
 

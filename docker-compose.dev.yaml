@@ -49,7 +49,7 @@ services:
   celery:
     build: .
     container_name: fsd_medic.celery
-    command: python run celery -A fsd_medic worker --loglevel=info
+    command: celery -A fsd_medic worker --loglevel=info
 
 
   rabbitmq:
@@ -67,5 +67,6 @@ services:
 
 
 volumes:
+  dbdata: 
   grafana_storage: {}
 
