@@ -9,7 +9,7 @@ from .choices import NOTE_CHOICES, PROCESS
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, number, password, group=None, center_id=None, email=None, first_name=None, last_name=None,
+    def create_user(self, password, number=None, group=None, center_id=None, email=None, first_name=None, last_name=None,
                     disease_id=None, birthday=None, *args, **kwargs):
         user = self.model(number=number)
         user_group = Group.objects.get(name='Пользователи')
@@ -17,7 +17,7 @@ class UserManager(BaseUserManager):
         user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
         user.birthday = birthday
-        user.set_password(password)
+        user.password = make_password(password)
 
         if group == 'Пользователи':
             user.disease_id = disease_id
@@ -94,7 +94,7 @@ class User(AbstractBaseUser):
                                related_name="user_clinic")
     centers = models.ManyToManyField('Center', verbose_name=_('Центр'), blank=True)
     disease = models.ManyToManyField('Disease', verbose_name=_('Заболевания'), blank=True)
-    number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True)
+    number = models.CharField(verbose_name=_('Номер'), max_length=30, unique=True, null=True, blank=True)
     email = models.CharField(verbose_name=_('Электронный адрес'), max_length=100, blank=True, null=True, unique=True)
     first_name = models.CharField(verbose_name=_('Имя'), max_length=20, null=True, blank=True)
     last_name = models.CharField(verbose_name=_('Фамилия'), max_length=30, null=True, blank=True)
@@ -104,9 +104,9 @@ class User(AbstractBaseUser):
     birthday = models.DateField(verbose_name=_('Дата рождения'), null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default=None)
-    country = models.ForeignKey(
-        'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True, default=None)
-    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None)
+    
+    country = models.CharField(verbose_name=_('Страна'), max_length=255, null=True, blank=True)
+    city = models.CharField(verbose_name=_('Город'), max_length=255, null=True, blank=True)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_(
@@ -120,12 +120,12 @@ class User(AbstractBaseUser):
     email_verification_code = models.PositiveIntegerField(
         _('Код для привязки почты к аккаунту'), default=0)
 
-    USERNAME_FIELD = 'number'
+    USERNAME_FIELD = 'email'
 
     objects = UserManager()
 
     def __str__(self):
-        return str(self.number)
+        return str(self.email)
 
     def delete(self, using=None, keep_parents=False):
         group = Group.objects.get(id=self.group_id)
@@ -145,6 +145,19 @@ class User(AbstractBaseUser):
         verbose_name = 'Пользователи'
 
 
+class Subscribe(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
+    clinic = models.ForeignKey("Clinic", on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey("User", on_delete=models.CASCADE, null=True, blank=True)
+    main_doctor = models.ForeignKey("auth_doctor.Doctor", on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return "Subscribe for user " + self.user.number
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
 class Group(models.Model):
     
     id = models.BigAutoField(primary_key=True, db_index=True)
@@ -158,7 +171,7 @@ class Group(models.Model):
 
     class Meta:
         verbose_name_plural = 'Группы'
-        verbose_name = 'Группу'
+        verbose_name = 'Группа'
 
 
 class Access(models.Model):
@@ -242,11 +255,10 @@ class Center(AbstractBaseUser):
         'Сотрудники'), related_name="employees")
     supported_diseases = models.ManyToManyField(
         "Disease", verbose_name=_('Поддерживаемые заболевания'))
-    country = models.ForeignKey(
-        'Country', on_delete=models.PROTECT, verbose_name=_('Страна'), null=True)
+    country = models.CharField(verbose_name=_("Cтрана"), max_length=255, null=True,blank=True)
     observed = models.IntegerField(verbose_name=_("Наблюдается"), default=100)
     observed_after = models.IntegerField(verbose_name=_("Наблюдалось"), default=100)
-    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None, null=True)
+   
     address = models.CharField(verbose_name=_('Адрес'), max_length=100, unique=True, null=True)
     lng = models.DecimalField(verbose_name=_("Долгота"), max_digits=6, decimal_places=4, default=0)
     lat = models.DecimalField(verbose_name=_("Широта"), max_digits=6, decimal_places=4, default=0)
@@ -291,8 +303,8 @@ class Clinic(AbstractBaseUser):
     employees = models.ManyToManyField(to="auth_doctor.Doctor", verbose_name=_(
         'Сотрудники'), related_name="clinic_employees")
     supported_diseases = models.ManyToManyField('Disease', verbose_name="Изученные заболевания")
-    country = models.ForeignKey('Country', on_delete=models.PROTECT, verbose_name=_('Страна'))
-    city = models.ForeignKey("City", on_delete=models.PROTECT, verbose_name=_("Город"), default=None)
+    country = models.CharField(verbose_name=_("Cтрана"), max_length=255, null=True,blank=True)
+    city = models.CharField(verbose_name=_("Город"), max_length=255, null=True,blank=True)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=True)
     created_at = models.DateTimeField(

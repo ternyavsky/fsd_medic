@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.core.cache import cache
 
 from api.models import User
-from auth_user.serializers import CreateUserSerializer, VerifyCodeSerializer, ResendCodeSerializer, \
+from auth_user.serializers import  VerifyCodeSerializer, ResendCodeSerializer, \
       VerifyResetCodeSerializer, NewPasswordSerializer
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password
 from db.queries import get_users
@@ -16,18 +16,19 @@ logger = logging.getLogger(__name__)
 
 
 def create_user_service(request, context):
-    code = generate_verification_code()
-    serializer = CreateUserSerializer(data=request.data, context={"request": request})
-    if serializer.is_valid():
-        user = serializer.save()
-        if int(request.data['stage']) == 3:
-            send_sms.delay(user.number, code)
-            user.verification_code = code
-            user.save()
-        response = Response(serializer.data, status=status.HTTP_201_CREATED)
-        response.headers["Access-Control-Allow-Headers"] = default_headers, "access-control-allow-methods"
-        return response
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    pass
+        # code = generate_verification_code()
+        # serializer = CreateUserSerializer(data=request.data, context={"request": request})
+        # if serializer.is_valid():
+        #     user = serializer.save()
+        #     if int(request.data['stage']) == 3:
+        #         send_sms.delay(user.number, code)
+        #         user.verification_code = code
+        #         user.save()
+        #     response = Response(serializer.data, status=status.HTTP_201_CREATED)
+        #     response.headers["Access-Control-Allow-Headers"] = default_headers, "access-control-allow-methods"
+        #     return response
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def verify_code_service(request):

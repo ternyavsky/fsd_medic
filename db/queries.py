@@ -10,7 +10,7 @@ User = get_user_model()
 def get_news(**kwargs):
     """Получение новостей"""
     return (News.objects
-            .select_related("center", "disease", "center__country")
+            .select_related("center", "disease",)
             .prefetch_related("center__employees", "center__supported_diseases")
             .filter(**kwargs)
             )
@@ -18,10 +18,15 @@ def get_news(**kwargs):
 
 def get_likes(**kwargs):
     return (Like.objects.filter(**kwargs)
-            .select_related("user", "user__main_center", "user__group", "user__main_center__country",
-                            "user__country", "news", "news__center", "news__disease", "news__center__country")
-            .prefetch_related("user__disease", "user__centers", "user__centers__country")
+            .select_related("user", "user__main_center", "user__group", 
+                            "news", "news__center", "news__disease", )
+            .prefetch_related("user__disease", "user__centers", )
             )
+
+def get_subscribes(**kwargs):
+    return (Subscribe.objects.filter(**kwargs)
+        .select_related("clinic", "user", "main_doctor")
+    )
 
 
 def get_cities(**kwargs):
@@ -34,9 +39,9 @@ def get_countries(**kwargs):
 
 def get_saved(**kwargs):
     return (Saved.objects.filter(**kwargs)
-            .select_related("user", "user__main_center", "user__group", "user__main_center__country",
-                            "user__country", "news", "news__center", "news__disease", "news__center__country")
-            .prefetch_related("user__disease", "user__centers", "user__centers__country")
+            .select_related("user", "user__main_center", "user__group", 
+                             "news", "news__center", "news__disease",)
+            .prefetch_related("user__disease", "user__centers",  )
             )
 
 
@@ -45,7 +50,7 @@ def get_notes(**kwargs):
     """Получение записей"""
     return (Note.objects
             .select_related("doctor", "user", "center", "user__group", "user__main_center", "clinic",
-                            "user__country", "doctor__country", "doctor__center", "center__admin", "center__country",
+                           "doctor__center", "center__admin", 
                             "clinic__admin")
             .prefetch_related("center__employees", "user__centers", "center__supported_diseases", "user__disease",
                               "clinic__supported_diseases")
@@ -56,7 +61,7 @@ def get_notes(**kwargs):
 def get_clinics(**kwargs):
     """Получение списка клиник"""
     return (Clinic.objects
-            .select_related("country", "center", "center__country", "city")
+            .select_related("center", )
             .prefetch_related("employees", "supported_diseases", "center__supported_diseases",
                               "center__employees")
             .filter(**kwargs)
@@ -65,13 +70,14 @@ def get_clinics(**kwargs):
 
 def get_disease(**kwargs):
     """Получение списка болезней"""
+
     return Disease.objects.filter(**kwargs)
 
 
 def get_centers(**kwargs):
     """Получение центров"""
     return (Center.objects
-            .select_related("country", "admin", "city")
+            .select_related( "admin",)
             .prefetch_related("supported_diseases", "employees", "admin__centers", "admin__disease",
                             
                               )
@@ -91,7 +97,7 @@ def get_users(**kwargs):
 
 def get_doctors(**kwargs):
     return (Doctor.objects.filter(**kwargs)
-            .select_related("country", "center", "clinic", "city")
+            .select_related( "center", "clinic", )
             .prefetch_related("center__employees", "center__supported_diseases")
             )
 

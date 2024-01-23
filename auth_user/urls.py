@@ -4,6 +4,12 @@ from .views import *
 
 urlpatterns = [
 
+    #regiistration steps 
+
+    # path('api/c', CreateUserView.as_view(), name='create_user_1'),
+    # path('api/create_user_2/', CreateUserSecondStepView.as_view(), name='create_user_2'),
+
+    path('api/login', LoginView.as_view(), name='login'),
     path('api/users/', UserView.as_view(), name='user-list'),
     path('api/access/', AccessViewSet.as_view(), name="user-access"),
     path('api/create/admin/', CreateAdminView.as_view(), name='create_admin_url'),

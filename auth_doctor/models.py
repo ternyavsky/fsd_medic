@@ -8,20 +8,21 @@ from api.models import Country, Center, Clinic, City
 # Create your models here.
 class Doctor(AbstractBaseUser):
     id = models.BigAutoField(db_index=True, primary_key=True)
+    main_status = models.BooleanField(default=False, null=True, blank=True)
     # Любой сотрудник центра
     first_name = models.CharField(verbose_name=_("Имя"), max_length=50, null=True)
     last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50, null=True)
     number = models.CharField(verbose_name=_("Номер телефона"), max_length=30)
-    email = models.CharField(verbose_name=_("Почта"), max_length=220, null=True)
+    email = models.CharField(verbose_name=_("Почта"), max_length=220, null=True, blank=True)
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='users_photos/AccauntPreview.png')
     middle_name = models.CharField(verbose_name="Отчетсво", max_length=50)
-    city = models.ForeignKey(City, on_delete=models.PROTECT, verbose_name=_("Город"), max_length=220, null=True)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True)
+    country = models.CharField(verbose_name=_('Страна'), max_length=255, null=True, blank=True)
+    city = models.CharField(verbose_name=_('Город'), max_length=255, null=True, blank=True)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, verbose_name=_(
         "Центр, в котором зарегистрирован врач"))
     clinic = models.ForeignKey(Clinic, null=True, on_delete=models.CASCADE, verbose_name=_(
-        "Клиника, где врач работает"))
+        "Клиника, где врач работает"), blank=True)
     address = models.CharField(max_length=200, verbose_name=_("Адрес"))
     specialization = models.CharField(
         max_length=200, verbose_name=_("Специальность/должность"))
@@ -29,7 +30,7 @@ class Doctor(AbstractBaseUser):
         "Опыт работы, лет"), max_digits=3, decimal_places=1)
     registration_date = models.DateTimeField(auto_now_add=True)
     review_date = models.DateTimeField(
-        null=True, verbose_name="Предполагаемая дата и время интервью")
+        null=True, verbose_name="Предполагаемая дата и время интервью" ,blank=True)
     review_passed = models.BooleanField(_("Собеседование пройдено"), null=True)
     created_at = models.DateTimeField(
         verbose_name=_('Дата создания'), auto_now_add=True, null=True)
@@ -42,12 +43,14 @@ class Doctor(AbstractBaseUser):
     email_verification_code = models.PositiveIntegerField(
         _('Код для привязки почты к аккаунту'), default=0)
 
+    USERNAME_FIELD = 'number'
     class Meta:
         verbose_name = "Врач"
         verbose_name_plural = "Врачи"
 
     def __str__(self):
         return f"{self.id}_{self.first_name}_{self.last_name}"
+
 
 
 class LinkToInterview(models.Model):

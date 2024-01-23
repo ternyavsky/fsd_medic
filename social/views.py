@@ -23,9 +23,9 @@ class NotifyView(APIView):
 
     @swagger_auto_schema(
         operation_summary="Список уведомлений",
-        responses={
-            status.HTTP_200_OK: NotificationSerializer,
-        }
+        # responses={
+        #     status.HTTP_200_OK: NotificationSerializer,
+        # }
     )
     def get(self, request):
         notifications = cache.get_or_set("notifications", get_notifications())
@@ -40,9 +40,9 @@ class NotifyView(APIView):
 class ChatCreate(APIView):
     @swagger_auto_schema(
         operation_summary="Создание чата при первом сообщении",
-        query_serializer=ChatCreateSerializer,
+        # query_serializer=ChatCreateSerializer,
         responses={
-            status.HTTP_200_OK: ChatSerializer,
+            # status.HTTP_200_OK: ChatSerializer,
             status.HTTP_400_BAD_REQUEST: "Bad Request",
         }
     )

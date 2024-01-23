@@ -31,9 +31,9 @@ class ClinicDataPast(views.APIView):
 
     @swagger_auto_schema(
         operation_summary="Сохраняет данные клиники в кэш",
-        query_serializer=ClinicCreateSerializer,
+        # query_serializer=ClinicCreateSerializer,
         responses={
-            status.HTTP_200_OK: DoctorDataResponseSerializer(),
+            # status.HTTP_200_OK: DoctorDataResponseSerializer(),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
         }
     )
@@ -57,9 +57,9 @@ class DoctorDataPast(views.APIView):
 
     @swagger_auto_schema(
         operation_summary="Сохранение данных врача в кэш и отправка ссылки",
-        query_serializer=DoctorCreateSerializer,
+        # query_serializer=DoctorCreateSerializer,
         responses={
-            status.HTTP_200_OK: DoctorDataResponseSerializer(),
+            # status.HTTP_200_OK: DoctorDataResponseSerializer(),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
         }
     )

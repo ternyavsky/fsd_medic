@@ -3,7 +3,7 @@ from rest_framework.fields import empty
 from social.serializers import UnreadMsgSerializer
 from social.models import UnreadMessage
 from auth_doctor.models import Doctor
-from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access, City
+from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access, City, Subscribe
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -89,20 +89,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     clinic = PresentablePrimaryKeyRelatedField(
         queryset=Clinic.objects.all(),
         presentation_serializer=ClinicSerializer,
-        allow_null=True,
-        required=False,
-        many=False
-    )
-    city = PresentablePrimaryKeyRelatedField(
-        queryset=City.objects.all(),
-        presentation_serializer=CitySerializer,
-        allow_null=True,
-        required=False,
-        many=False
-    )
-    country = PresentablePrimaryKeyRelatedField(
-        queryset=Country.objects.all(),
-        presentation_serializer=CountrySerializer,
         allow_null=True,
         required=False,
         many=False
@@ -197,7 +183,7 @@ class SearchSerializer(serializers.Serializer):
 
 
 class SavedSerializer(serializers.ModelSerializer):
-    ''' get serialier for saved model'''
+    ''' get serializer for saved model'''
 
     class Meta:
         model = Saved
@@ -205,9 +191,17 @@ class SavedSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-# like too up
+class SubscribeSerializer(serializers.ModelSerializer):
+    '''get serializer for subscribe model'''
+
+    class Meta:
+        model = Subscribe
+        fields = '__all__'
+        depth = 1
+
+
 class LikeSerializer(serializers.ModelSerializer):
-    ''' get serializer for saved model'''
+    ''' get serializer for like model'''
 
     class Meta:
         model = Like

@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from auth_doctor.models import Doctor, Interview
 from auth_user.service import start_time_reminder
 from social.models import Chat, Message, Notification
-from .models import Center, Clinic, Disease, Like, News, Note, User, Saved, City, Country
+from .models import Center, Clinic, Disease, Like, News, Note, User, Saved, City, Country, Subscribe
 
 
 # CACHE SIGNALS
@@ -68,6 +68,15 @@ def saved_post_delete_handler(sender, **kwargs):
 @receiver(post_save, sender=Saved, dispatch_uid='saved_updated')
 def saved_post_save_handler(sender, **kwargs):
     cache.delete('saved')
+
+@receiver(post_delete, sender=Subscribe, dispatch_uid="subscribe_deleted")
+def subscribe_post_delete_handler(sender, **kwargs):
+    cache.delete('subscribes')
+
+
+@receiver(post_save, sender=Subscribe, dispatch_uid='subscribe_updated')
+def subscribe_post_save_handler(sender, **kwargs):
+    cache.delete('subscribes')
 
 
 @receiver(post_delete, sender=Like, dispatch_uid="likes_deleted")

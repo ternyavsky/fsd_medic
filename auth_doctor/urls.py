@@ -27,4 +27,8 @@ urlpatterns = [
 
     path('api/inter/', InterviewView.as_view(), name='test')
     # Сохранение данных в кэше
+
+
+    
+
 ]

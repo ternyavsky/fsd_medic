@@ -1,11 +1,26 @@
 from rest_framework.views import APIView
 import jwt
-from api.models import Center, Clinic
+from api.models import Center, Clinic, User
 from auth_doctor.models import Doctor
-from db.queries import get_centers, get_clinics, get_doctors
+from db.queries import get_centers, get_clinics, get_doctors, get_users
 from django.core.cache import cache
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
+
+
+def user_authenticate(number=None, email=None, password=None):
+    try:
+        user = None
+        if number:
+            user = get_users(number=number).first()
+        elif email:
+            user = get_users(email=email).first()
+        if check_password(password, user.password):
+            return user
+        else:
+            return None
+    except User.DoesNotExist:
+        return None
 
 
 def doctor_authenticate(number=None, password=None):

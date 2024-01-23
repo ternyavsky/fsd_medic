@@ -3,6 +3,7 @@ from django.db import transaction
 import logging
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import transaction
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -30,6 +31,32 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     # Replace the serializer with your custom
     serializer_class = CustomTokenObtainPairSerializer
 
+class LoginView(APIView):
+    def post(self, request):
+        auth_kwargs = {}
+        auth_kwargs["password"] = request.data["password"]
+        if "number" in request.data:
+            auth_kwargs["number"] = request.data["number"]
+        elif "email" in request.data:
+            auth_kwargs["email"] = request.data["email"]
+        user = None
+        try:
+            if "number" in auth_kwargs:
+                user = User.objects.get(number=auth_kwargs["number"])
+
+            if "email" in auth_kwargs:
+                user = get_users(email=auth_kwargs["email"]).first()
+            auth = user_authenticate(**auth_kwargs)
+            if auth is None:
+                raise exceptions.AuthenticationFailed("Incorrect password")
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "access_token": str(refresh.access_token),
+                "refresh_token": str(refresh)
+            }, status=status.HTTP_202_ACCEPTED)
+        except:
+            raise exceptions.AuthenticationFailed("No active users")
+
 
 class UserView(generics.ListCreateAPIView):
     """Список пользователей"""
@@ -37,15 +64,21 @@ class UserView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        return get_users()
+        return cache.get_or_set("users", get_users())
 
-    @swagger_auto_schema(
-        operation_summary="Создание пользователя"
-    )
     def post(self, request):
-        return create_user_service(request, context={'request': request})
+        code = generate_verification_code()
+        serializer = CreateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user: User = serializer.save()
+        send_reset_email.delay(user.email, code)
+        user.email_verification_code = code
+        user.save()
+        return Response(UserSerializer(user).data, status=status.HTTP_202_ACCEPTED)
 
-    # @method_decorator(cache_page(60 * 60))
+
+
+    
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 

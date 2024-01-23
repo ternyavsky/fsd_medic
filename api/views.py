@@ -8,12 +8,21 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count
-from api.authentication import CustomAuthentication
 from db.queries import *
 from .serializers import *
 
-
 logger = logging.getLogger(__name__)
+
+
+class SubscribeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscribeSerializer
+    
+    def get_queryset(self):
+        data = cache.get_or_set("subscribes", get_subscribes())
+        data = data.filter(user=self.request.user)
+        logger.debug(self.request.path)
+        return data
 
 class SaveViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
