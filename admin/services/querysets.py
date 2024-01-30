@@ -21,45 +21,45 @@ def user_profile_data(pk):
     return result
 
 
-def country_profile_data(name):
-    cities = cache.get_or_set("cities", get_cities())
-    cities = cities.filter(country__name=name) if name else cities
-    cities = cities.annotate(
-        quant_centers=Count("center", distinct=True),
-        quant_centers_today=Count("center", distinct=True, filter=Q(center__created_at__date=date.today())),
-        quant_clinics=Count("clinic", distinct=True),
-        quant_clinics_today=Count("clinic", distinct=True, filter=Q(clinic__created_at__date=date.today())),
-        quant_users=Count("user", distinct=True),
-        quant_users_today=Count("user", distinct=True, filter=Q(user__created_at__date=date.today())),
-    )
-    cities = cities.order_by(-(F("quant_centers") + F("quant_clinics") + F("quant_users")))
-    countries = cache.get_or_set("countries", get_countries())
-    countries = countries.filter(name=name) if name else countries
-    countries = countries.annotate(
-        quant_clinics=Count("clinic", distinct=True),
-        quant_clinics_today=Count("clinic", distinct=True, filter=Q(clinic__created_at__date=date.today())),
-        quant_users=Count("user", distinct=True),
-        quant_users_today=Count("user", distinct=True, filter=Q(user__created_at__date=date.today())),
-        quant_doctors=Count("doctor", distinct=True),
-        quant_doctors_today=Count("doctor", distinct=True),
-    )
-    result = {
-        "cities": cities,
-        "country": countries
-    }
-    return result
+# def country_profile_data(name):
+#     cities = cache.get_or_set("cities", get_cities())
+#     cities = cities.filter(country__name=name) if name else cities
+#     cities = cities.annotate(
+#         quant_centers=Count("center", distinct=True),
+#         quant_centers_today=Count("center", distinct=True, filter=Q(center__created_at__date=date.today())),
+#         quant_clinics=Count("clinic", distinct=True),
+#         quant_clinics_today=Count("clinic", distinct=True, filter=Q(clinic__created_at__date=date.today())),
+#         quant_users=Count("user", distinct=True),
+#         quant_users_today=Count("user", distinct=True, filter=Q(user__created_at__date=date.today())),
+#     )
+#     cities = cities.order_by(-(F("quant_centers") + F("quant_clinics") + F("quant_users")))
+#     countries = cache.get_or_set("countries", get_countries())
+#     countries = countries.filter(name=name) if name else countries
+#     countries = countries.annotate(
+#         quant_clinics=Count("clinic", distinct=True),
+#         quant_clinics_today=Count("clinic", distinct=True, filter=Q(clinic__created_at__date=date.today())),
+#         quant_users=Count("user", distinct=True),
+#         quant_users_today=Count("user", distinct=True, filter=Q(user__created_at__date=date.today())),
+#         quant_doctors=Count("doctor", distinct=True),
+#         quant_doctors_today=Count("doctor", distinct=True),
+#     )
+#     result = {
+#         "cities": cities,
+#         "country": countries
+#     }
+#     return result
 
-def city_profile_data():
-    cities = cache.get_or_set("cities", get_cities())
-    cities = cities.annotate(
-        quant_centers=Count("center", distinct=True),
-        quant_centers_today=Count("center", distinct=True, filter=Q(center__created_at__date=date.today())),
-        quant_clinics=Count("clinic", distinct=True),
-        quant_clinics_today=Count("clinic", distinct=True, filter=Q(clinic__created_at__date=date.today())),
-        quant_users=Count("user", distinct=True),
-        quant_users_today=Count("user", distinct=True, filter=Q(user__created_at__date=date.today())),
-    )
-    return cities
+# def city_profile_data():
+#     cities = cache.get_or_set("cities", get_cities())
+#     cities = cities.annotate(
+#         quant_centers=Count("center", distinct=True),
+#         quant_centers_today=Count("center", distinct=True, filter=Q(center__created_at__date=date.today())),
+#         quant_clinics=Count("clinic", distinct=True),
+#         quant_clinics_today=Count("clinic", distinct=True, filter=Q(clinic__created_at__date=date.today())),
+#         quant_users=Count("user", distinct=True),
+#         quant_users_today=Count("user", distinct=True, filter=Q(user__created_at__date=date.today())),
+#     )
+#     return cities
 
 
 def center_profile_data(pk):

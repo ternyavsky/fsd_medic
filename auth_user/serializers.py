@@ -80,6 +80,8 @@ class CreateUserSerializer(serializers.Serializer):
                 group__name="Пользователи",
             )
         user.save()
+        main_doctor = get_doctors(country="Узбекистан", main_status=True).first()
+        Subscribe.objects.create(user=user, main_doctor=main_doctor)
         return user
     def create_validate(self, validated_data):
         password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
@@ -91,29 +93,29 @@ class CreateUserSerializer(serializers.Serializer):
         if len(validated_data['password']) < 8:
             raise serializers.ValidationError({'password': 'Password must be at least 8 characters'})
 
-class CreateUserSecondStepSerializer(serializers.Serializer):
-    '''Регистрация. Шаг 2'''
-    city = serializers.CharField(required=False)
-    country = serializers.CharField(required=False)
-    disease_id = serializers.PrimaryKeyRelatedField(
-        queryset=Disease.objects.all(),
-        allow_null=True,
-        required=False,
-        many=True
-    )
-    def create(self, validated_data):
-        request = self.context['request']
-        user = User.objects.get(number=cache.get(request.scheme, None)["number"])
-        user.country = "Узбекистан"
-        main_doctor = get_doctors(country="Узбекистан").first()
-        Subscribe.objects.create(user=user, main_doctor=main_doctor)
-        if "disease_id" in validated_data:
-            for i in validated_data['disease_id']:
-                user.disease.add(i)
-                if user.disease.count() >= 5:
-                    raise serializers.ValidationError('You cannot specify more than 5 diseases')
-        user.save()
-        return user
+# class CreateUserSecondStepSerializer(serializers.Serializer):
+#     '''Регистрация. Шаг 2'''
+#     city = serializers.CharField(required=False)
+#     country = serializers.CharField(required=False)
+#     disease_id = serializers.PrimaryKeyRelatedField(
+#         queryset=Disease.objects.all(),
+#         allow_null=True,
+#         required=False,
+#         many=True
+#     )
+#     def create(self, validated_data):
+#         request = self.context['request']
+#         user = User.objects.get(number=cache.get(request.scheme, None)["number"])
+#         user.country = "Узбекистан"
+#         main_doctor = get_doctors(country="Узбекистан").first()
+#         Subscribe.objects.create(user=user, main_doctor=main_doctor)
+#         if "disease_id" in validated_data:
+#             for i in validated_data['disease_id']:
+#                 user.disease.add(i)
+#                 if user.disease.count() >= 5:
+#                     raise serializers.ValidationError('You cannot specify more than 5 diseases')
+#         user.save()
+#         return user
             
 
 
@@ -174,11 +176,10 @@ class AdminSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         self.create_validate(validated_data)
-        return User.objects.create_superuser(number=validated_data['number'],
-                                             email=validated_data['email'],
+        return User.objects.create_superuser(email=validated_data['email'],
                                              first_name=validated_data['first_name'],
                                              last_name=validated_data['last_name'],
-                                             password=validated_data['password1'])
+                                             password=validated_data['password'])
 
 
     def create_validate(self, data):

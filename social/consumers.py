@@ -18,6 +18,7 @@ from django.db import transaction
 from api.models import Center
 from auth_doctor.models import Doctor
 
+
 User = get_user_model()
 
 logger = logging.getLogger(__name__)

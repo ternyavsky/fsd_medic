@@ -9,8 +9,22 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/wsgi/
 
 import os
 
+import socketio
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fsd_medic.settings')
-
 application = get_wsgi_application()
+
+from social.gateway import server
+application = socketio.WSGIApp(server, application)
+
+
+# from gevent import pywsgi
+
+import eventlet
+import eventlet.wsgi
+
+eventlet.wsgi.server(eventlet.listen(('', 8000)), application)
+# pywsgi.WSGIServer(('', 8000), application=application).serve_forever()
+
+

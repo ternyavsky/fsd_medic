@@ -201,7 +201,7 @@ def notify_note(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def notify_verify(sender, instance, created, **kwargs):
     if not created:
-        if instance.verification_code != 0 and instance.email_verification_code != 0:
+        if instance.verification_code != 1 and instance.email_verification_code != 1:
             Notification.objects.create(
                 user=instance, text="Ваш аккаунт был успешно защищен эл.почтой или телефоном")
 

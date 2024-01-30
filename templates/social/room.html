@@ -29,9 +29,40 @@
     <input id="update_message" type="button" value="Обновить">
     <input id="chat-message-send2" type="button" value="отправить 2">
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script type="module">
+        import {io} from "https://cdn.socket.io/4.7.4/socket.io.esm.min.js"
+
+        const socket = io("http://127.0.0.1:8000")
+        const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA5MTEyMTQ4LCJpYXQiOjE3MDY1MjAxNDgsImp0aSI6Ijk3OGJhNmIzODlkNTQxYjg5MjI1NmYwOGY0N2E5NThlIiwidXNlcl9pZCI6MX0.dmBySsxhsPM3hmBCGYSlAaoS-85Jv2Cnhrge1Ct2a4U"
+        socket.emit("connectCall", token)
+        socket.emit("typing", token, 1)
+        socket.emit("send_message", token, 1, "Hello")
+        socket.on("send_message", message => {
+            console.log(message)
+        })
+        socket.on("connectCall", (instance) => {
+            console.log(instance)
+        })
+        socket.on("disconnectCall", (instance) => {
+            console.log(instance)
+        })
+        socket.on("typing", data => {
+            console.log(data)
+        })
+        
+
+        window.onbeforeunload = function () {
+            console.log('unload')
+            socket.emit('disconnectCall',token );
+    }
+        socket.on('test', function (data) {
+    console.log(data);
+})
+        
+    </script>
     <script>
 
-
+                
         var app = new Vue({
             
             el: '#app',
@@ -49,7 +80,7 @@
 
         })
         const user_id = 1
-        const token_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAyOTAzMTcwLCJpYXQiOjE3MDAzMTExNzAsImp0aSI6ImJkYjJlNzQ4MTAwNzQ5N2I4ZDgzNmE1ZDg4MmQ4Y2RhIiwidXNlcl9pZCI6MSwidHlwZSI6InVzZXIiLCJudW1iZXIiOiIrNzk5OTk5OTk5MDAifQ.WDN9bfr5i9dwMX3iGmx0w_htmsfge49pU7xbBV73ZgI"
+        const token_1 = ""
         const token_2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAyOTA0Mzc0LCJpYXQiOjE3MDAzMTIzNzQsImp0aSI6Ijg1OTkyN2Q4NWM3MDQ3YTVhMTI4ZWRlMDQ4MzY3MjFmIiwidXNlcl9pZCI6MiwidHlwZSI6InVzZXIiLCJudW1iZXIiOiIrNzkxMTExMTExMTEifQ._oR8FgyQQB6qLz5QrhdpdmqdDOW0OwiYXu0Se7R69mA"
 
         const chat_uuid = '1f46a5ca-6557-4675-9955-6afa451b51fe'
@@ -57,62 +88,7 @@
         const user = '{{ user }}'
         console.log(user_id)
         const request_id = new Date().getTime()
-        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid}/?token=${token_1}`);
-        const ws1 = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${chat_uuid2}/?token=${token_2}`);
-
-        ws.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            console.log(data)
-            if (data.action === 'send') {
-                document.querySelector('#chat-log').value += `user connect ${data.connect}`
-            }
-            if (data.action === 'connect') {
-                console.log(data)
-            }
-
-            if (data.action === 'send_message') {
-                console.log(data.message.data)
-                app.$data.messages.push(data.message.data);
-            }
-            if (data.action === 'list_message') {
-                app.$data.messages = data.messages.data;
-
-                app.$forceUpdate();
-
-            } if (data.action === 'delete_message') {
-                const messageToDelete = data.message.data
-                console.log(messageToDelete)
-                app.$data.messages.filter((message) => message !== messageToDelete);
-
-            };
-        }
-        ws1.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            console.log(data)
-            if (data.action === 'send') {
-                document.querySelector('#chat-log').value += `user connect ${data.connect}`
-            }
-            if (data.action === 'connect') {
-                console.log(data)
-            }
-
-            if (data.action === 'send_message') {
-                console.log(data.message.data)
-                app.$data.messages.push(data.message.data);
-            }
-            if (data.action === 'list_message') {
-                app.$data.messages = data.messages.data;
-
-                app.$forceUpdate();
-
-            } if (data.action === 'delete_message') {
-                const messageToDelete = data.message.data
-                console.log(messageToDelete)
-                app.$data.messages.filter((message) => message !== messageToDelete);
-
-            };
-        }
-
+        const ws = new 
 
 
         // usehotkeys etc...
@@ -147,11 +123,14 @@
             }))
         }
 
-        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').addEventListener("keydown", (e) => {
+            console.log("typing")
+        })
         document.querySelector('#chat-message-input').onkeyup = function (e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#chat-message-submit').click();
-            }
+            // if (e.keyCode === 13) {  // enter, return
+            //     document.querySelector('#chat-message-submit').click();
+            // }
+            console.log('typing')
         };
 
         document.querySelector("#chat-message-send2").onclick = (e) => {

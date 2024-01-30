@@ -14,17 +14,19 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 from channels.auth import AuthMiddlewareStack
 from social.middleware import JwtAuthMiddlewareStack
+import socketio
+import eventlet
+import eventlet.ws
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fsd_medic.settings')
+# os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+# django.setup()
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fsd_medic.settings')
-os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
-django.setup()
+# from social import routing
+application = get_asgi_application();
+# application = ProtocolTypeRouter({
+#     'http': get_asgi_application(),
+#     'websocket': JwtAuthMiddlewareStack(URLRouter(
+#         routing.websocket_urlpatterns
+#     ))
 
-from social import routing
-
-application = ProtocolTypeRouter({
-    'http': get_asgi_application(),
-    'websocket': JwtAuthMiddlewareStack(URLRouter(
-        routing.websocket_urlpatterns
-    ))
-
-})
+# })

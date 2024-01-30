@@ -12,8 +12,9 @@ from db.queries import get_messages, get_chats, get_notifications
 from .serializers import *
 from .serializers import ChatCreateSerializer, ChatSerializer
 from .services.chat_services import chat_create
-
+import socketio
 logger = logging.getLogger(__name__)
+
 
 
 # Create your views here.

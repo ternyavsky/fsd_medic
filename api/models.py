@@ -9,16 +9,15 @@ from .choices import NOTE_CHOICES, PROCESS
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, password, number=None, group=None, center_id=None, email=None, first_name=None, last_name=None,
-                    disease_id=None, birthday=None, *args, **kwargs):
+    def create_user(self, 
+        password, 
+         
+        group, email=None, first_name=None, last_name=None, birthday=None, *args, **kwargs):
         user = self.model(number=number)
         user_group = Group.objects.get(name='Пользователи')
-        user_group.number_of_people += 1
-        user_group.save(update_fields=['number_of_people'])
         user.group_id = user_group.id
         user.birthday = birthday
         user.password = make_password(password)
-
         if group == 'Пользователи':
             user.disease_id = disease_id
             user.is_required = True
@@ -32,49 +31,15 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def update_user(self, user, number=None, email=None, password=None, first_name=None, last_name=None, surname=None,
-                    center_id=None, disease_id=None):
-
-        updated_fields = ["updated_at"]
-        user_group = Group.objects.get(name='Пользователи')
-        last_user_group = Group.objects.get(name='Пациенты')
-        user.group_id = user_group.id
-        user_group.number_of_people += 1
-        user_group.save(update_fields=['number_of_people'])
-        last_user_group.number_of_people -= 1
-        last_user_group.save(update_fields=['number_of_people'])
-
-        if center_id is not None:
-            user.center_id = center_id
-            user.country_id = Center.objects.get(id=center_id).country_id
-            updated_fields += 'center_id'
-
-        if number is not None:
-            user.number = number
-
-        if email is not None:
-            user.email = email
-
-        if password is not None:
-            user.set_password()
-
-        user.save(update_fields=updated_fields)
-        return user
-
     def create_superuser(self, number, email, first_name, last_name, password=None):
         superuser = self.model(number=number, email=email,
                                first_name=first_name, last_name=last_name)
 
         superuser_group = Group.objects.get(name='Администраторы')
-        superuser_group.number_of_people += 1
-        superuser_group.save(update_fields=['number_of_people'])
         superuser.group_id = superuser_group.id
-
         superuser.is_staff = True
         superuser.is_required = False
-
         superuser.set_password(password)
-
         superuser.save()
         return superuser
 
@@ -85,11 +50,10 @@ class User(AbstractBaseUser):
         'Статус подтверждения'), default=False, blank=True)
     is_staff = models.BooleanField(
         verbose_name=_('Статус персонала'), default=False)
+    online = models.BooleanField(_("Онлайн"), default=False)
     group = models.ForeignKey('Group', verbose_name=_(
         'Группа'), on_delete=models.CASCADE, null=True, blank=True)
     sex = models.CharField(_("Пол"), max_length=255, default=None, null=True)
-    main_center = models.ForeignKey('Center', verbose_name=_('Ведущий центр'), on_delete=models.PROTECT, null=True,
-                                    blank=True, related_name="main_center")
     clinic = models.ForeignKey("Clinic", on_delete=models.PROTECT, verbose_name=_("Клиника"), null=True,
                                related_name="user_clinic")
     centers = models.ManyToManyField('Center', verbose_name=_('Центр'), blank=True)
@@ -105,8 +69,8 @@ class User(AbstractBaseUser):
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default=None)
     
-    country = models.CharField(verbose_name=_('Страна'), max_length=255, null=True, blank=True)
-    city = models.CharField(verbose_name=_('Город'), max_length=255, null=True, blank=True)
+    country = models.ForeignKey("Country", verbose_name=_("Страна"),on_delete=models.SET_NULL, null=True, blank=True)
+    city = models.ForeignKey("City", verbose_name=_('Город'), on_delete=models.SET_NULL, null=True, blank=True)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=False, null=True)
     created_at = models.DateTimeField(verbose_name=_(
@@ -127,12 +91,6 @@ class User(AbstractBaseUser):
     def __str__(self):
         return str(self.email)
 
-    def delete(self, using=None, keep_parents=False):
-        group = Group.objects.get(id=self.group_id)
-        group.number_of_people -= 1
-        group.save(update_fields=['number_of_people'])
-
-        super(User, self).delete()
 
     def has_perm(self, perm, obj=None):
         return self.is_staff
@@ -152,7 +110,7 @@ class Subscribe(models.Model):
     main_doctor = models.ForeignKey("auth_doctor.Doctor", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return "Subscribe for user " + self.user.number
+        return f"Subscribe for user {self.user.number}"
 
     class Meta:
         verbose_name = 'Подписка'
@@ -346,7 +304,7 @@ class Url_Params(models.Model):
         super(Url_Params, self).save()
 
     def __str__(self):
-        return self.parameter
+        return str(self.parameter)
 
     class Meta:
         verbose_name_plural = 'Ссылки для регистрации'
@@ -373,7 +331,7 @@ class Country(models.Model):
         'Название страны'), max_length=50, unique=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     class Meta:
         verbose_name_plural = 'Страны'
@@ -385,7 +343,7 @@ class City(models.Model):
     name = models.CharField(verbose_name=_("Название страны"), max_length=255, unique=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     class Meta:
         verbose_name_plural = 'Города'
@@ -456,7 +414,7 @@ class Disease(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     class Meta:
         verbose_name_plural = 'Заболевания'

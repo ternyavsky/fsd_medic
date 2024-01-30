@@ -18,7 +18,7 @@ def get_news(**kwargs):
 
 def get_likes(**kwargs):
     return (Like.objects.filter(**kwargs)
-            .select_related("user", "user__main_center", "user__group", 
+            .select_related("user",  "user__group", 
                             "news", "news__center", "news__disease", )
             .prefetch_related("user__disease", "user__centers", )
             )
@@ -39,7 +39,7 @@ def get_countries(**kwargs):
 
 def get_saved(**kwargs):
     return (Saved.objects.filter(**kwargs)
-            .select_related("user", "user__main_center", "user__group", 
+            .select_related("user",  "user__group", 
                              "news", "news__center", "news__disease",)
             .prefetch_related("user__disease", "user__centers",  )
             )
@@ -49,7 +49,7 @@ def get_saved(**kwargs):
 def get_notes(**kwargs):
     """Получение записей"""
     return (Note.objects
-            .select_related("doctor", "user", "center", "user__group", "user__main_center", "clinic",
+            .select_related("doctor", "user", "center", "user__group",  "clinic",
                            "doctor__center", "center__admin", 
                             "clinic__admin")
             .prefetch_related("center__employees", "user__centers", "center__supported_diseases", "user__disease",
@@ -90,9 +90,8 @@ def get_centers(**kwargs):
 def get_users(**kwargs):
     """Получение пользователей"""
     return (User.objects.filter(**kwargs)
-            .select_related("group", "main_center", "clinic")
-            .prefetch_related("disease", "centers", "centers__employees", "centers__supported_diseases", 
-                              "main_center__employees", "main_center__supported_diseases", "clinic__employees","clinic__supported_diseases",))
+            .select_related("group", "clinic")
+            .prefetch_related("disease", "centers", "centers__employees", "centers__supported_diseases", "clinic__employees","clinic__supported_diseases",))
 
 
 def get_doctors(**kwargs):
@@ -128,13 +127,13 @@ def get_notifications(**kwargs):
 
 def get_messages(**kwargs):
     return (Message.objects.
-            select_related("chat", "news", "note", "user", "center", "doctor", )
-            .prefetch_related("user__centers", "user__disease", "chat__users", "chat__centers", "chat__doctors")
+            select_related("chat", "news", "note", "user", "doctor", )
+            .prefetch_related("user__disease", "chat__users",  "chat__doctors")
             .filter(**kwargs)
             )
 
 
 def get_chats(**kwargs):
     return (Chat.objects.
-            prefetch_related("users", "centers", "doctors")
+            prefetch_related("users",  "doctors")
             .filter(**kwargs))

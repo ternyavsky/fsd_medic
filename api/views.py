@@ -139,6 +139,7 @@ class CountryListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CityListView(APIView):
+
     @swagger_auto_schema(operation_summary="Получение городов")
     def get(self, request):
         cities = cache.get_or_set("cities", get_cities())

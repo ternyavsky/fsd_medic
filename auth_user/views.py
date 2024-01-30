@@ -66,7 +66,7 @@ class UserView(generics.ListCreateAPIView):
     def get_queryset(self):
         return cache.get_or_set("users", get_users())
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         code = generate_verification_code()
         serializer = CreateUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -79,8 +79,8 @@ class UserView(generics.ListCreateAPIView):
 
 
     
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     return super().get(request, *args, **kwargs)
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -253,7 +253,7 @@ class CreateAdminView(generics.CreateAPIView):
     @swagger_auto_schema(
         operation_summary="Создание пользователя"
     )
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = AdminSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

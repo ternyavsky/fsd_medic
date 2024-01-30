@@ -3,7 +3,6 @@ from datetime import timedelta
 from pathlib import Path
 from corsheaders.defaults import default_headers
 
-
 from dotenv import load_dotenv
 
 AUTH_USER_MODEL = 'api.User'
@@ -34,7 +33,6 @@ REST_FRAMEWORK = {
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +54,7 @@ INSTALLED_APPS = [
     'auth_user.apps.AuthUserConfig',
     'auth_doctor.apps.AuthDoctorConfig',
     'db.apps.DbConfig',
+    'socketio'
 ]
 
 MIDDLEWARE = [
@@ -96,7 +95,10 @@ CORS_ORIGIN_WHITELIST = (
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
-    "TOKEN_OBTAIN_SERIALIZER": "auth_user.serializers.CustomTokenObtainPairSerializer"
+    "TOKEN_OBTAIN_SERIALIZER": "auth_user.serializers.CustomTokenObtainPairSerializer",
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": "Bearer",
+    "VERIFYING_KEY": "Bearer",
 }
 
 ROOT_URLCONF = 'fsd_medic.urls'

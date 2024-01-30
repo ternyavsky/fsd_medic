@@ -9,6 +9,7 @@ from api.models import Country, Center, Clinic, City
 class Doctor(AbstractBaseUser):
     id = models.BigAutoField(db_index=True, primary_key=True)
     main_status = models.BooleanField(default=False, null=True, blank=True)
+    online = models.BooleanField(default=False, blank=True, null=True)
     # Любой сотрудник центра
     first_name = models.CharField(verbose_name=_("Имя"), max_length=50, null=True)
     last_name = models.CharField(verbose_name=_("Фамилия"), max_length=50, null=True)
