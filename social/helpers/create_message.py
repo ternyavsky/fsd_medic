@@ -7,15 +7,15 @@ from .jwt_decode import jwt_decode
 from django.core.cache import cache
 from db.queries import get_users, get_doctors
 
-def create_message(instance: User | Doctor, chat: Chat, text:str, reply: Message):
+def create_message(instance: User | Doctor, chat: Chat, text:str, reply: Message=None):
     print(type(instance) == User)
     if type(instance) == User:
         user = cache.get_or_set("users", get_users()).filter(id=instance["id"]).first()
         message = Message.objects.create(
             user=user,
             text=text,
-            chat=chat
-            
+            chat=chat,
+            reply=reply if reply else None
             )
         message.save()
     else:
@@ -23,7 +23,8 @@ def create_message(instance: User | Doctor, chat: Chat, text:str, reply: Message
         message = Message.objects.create(
             doctor=doctor,
             text=text,
-            chat=chat
+            chat=chat,
+            reply=reply if reply else None
             )
         message.save()
     return MessageSerializer(message).data
