@@ -2,9 +2,7 @@ import os.path
 from datetime import timedelta
 from pathlib import Path
 from corsheaders.defaults import default_headers
-
 from dotenv import load_dotenv
-
 AUTH_USER_MODEL = 'api.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

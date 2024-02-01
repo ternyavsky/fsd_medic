@@ -161,8 +161,7 @@ class Note(models.Model):
         verbose_name=_('Конец'), null=True, blank=True)
     notify = models.DateTimeField(verbose_name=_(
         'Время уведомления о записи'), null=True, blank=True)
-    doctor = models.ForeignKey('auth_doctor.Doctor', verbose_name=_('Врач'), on_delete=models.PROTECT, null=True,
-                               related_name="to_doctor")
+    doctors = models.ManyToManyField("auth_doctor.Doctor", verbose_name=_("Врачи"))
     problem = models.CharField(verbose_name=_(
         'Причина'), max_length=255, null=True, blank=True)
     duration_note = models.IntegerField(
@@ -236,6 +235,7 @@ class Center(AbstractBaseUser):
     class Meta:
         verbose_name_plural = 'Центры'
         verbose_name = 'Центр'
+
 
 
 class Clinic(AbstractBaseUser):
