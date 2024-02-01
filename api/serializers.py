@@ -12,13 +12,11 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = '__all__'
-        depth = 1
 
 class ClinicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         fields = '__all__'
-        depth = 1
 
 class CitySerializer(serializers.ModelSerializer):
     """Города"""
@@ -26,7 +24,6 @@ class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = '__all__'
-        depth = 1
 class CenterSerializer(serializers.ModelSerializer):
     """Клиники"""
 
@@ -35,7 +32,6 @@ class CenterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Center
         fields = '__all__'
-        depth = 1
 
     def get_unread_messages(self, obj):
         queryset = UnreadMessage.objects.filter(center=obj)
@@ -51,11 +47,6 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
-    def __init__(self, *args, **kwargs):
-        self.depth = kwargs.pop("depth", 1)
-        self.Meta.depth = self.depth
-        super(UserSerializer, self).__init__(*args, **kwargs)
 
     class Meta:
         model = User
@@ -78,14 +69,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         required=False,
         many=True
     )
-    
-    main_center = PresentablePrimaryKeyRelatedField(
-        queryset=Center.objects.all(),
-        presentation_serializer=CenterSerializer,
-        allow_null=True,
-        required=False,
-        many=False
-    )
+
     clinic = PresentablePrimaryKeyRelatedField(
         queryset=Clinic.objects.all(),
         presentation_serializer=ClinicSerializer,
@@ -94,11 +78,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         many=False
     )
 
-
-    def __init__(self, *args, **kwargs):
-        self.depth = kwargs.pop("depth", 1)
-        self.Meta.depth = self.depth
-        super(UserUpdateSerializer, self).__init__(*args, **kwargs)
 
     class Meta:
         model = User
@@ -113,7 +92,6 @@ class AccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Access
         fields = '__all__'
-        depth = 1
 
 
 class NewsPreviewSerializer(serializers.ModelSerializer):
@@ -127,10 +105,8 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
-        depth = 1
 
  
-
     def create(self, validated_data):
         news = News.objects.create(**validated_data)
         return news
@@ -140,7 +116,6 @@ class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         fields = '__all__'
-        depth = 1
 
     def create(self, validated_data):
         self.create_validate(validated_data)
@@ -163,20 +138,14 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class DoctorGetSerializer(serializers.ModelSerializer):
-    unread_messages = serializers.SerializerMethodField()
 
     class Meta:
         model = Doctor
         fields = "__all__"
-        depth = 1
     
-    
-    def get_unread_messages(self, obj):
-        queryset = UnreadMessage.objects.filter(doctor=obj)
-        return UnreadMsgSerializer(queryset, many=True).data
-
 
 class SearchSerializer(serializers.Serializer):
+    
     doctors = DoctorGetSerializer(read_only=True, many=True)
     clinics = ClinicSerializer(read_only=True, many=True)
     centers = CenterSerializer(read_only=True, many=True)
@@ -188,7 +157,6 @@ class SavedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saved
         fields = '__all__'
-        depth = 1
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -197,7 +165,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscribe
         fields = '__all__'
-        depth = 1
 
 
 class LikeSerializer(serializers.ModelSerializer):
@@ -206,4 +173,4 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = '__all__'
-        depth = 1
+        

@@ -174,12 +174,10 @@ def clinic_post_save_handler(sender, **kwargs):
 @receiver(pre_save, sender=News)
 def notify_center(sender, instance, **kwargs):
     print('news signal')
-    users = User.objects.filter(main_center=instance.center)
-    users2 = User.objects.filter(centers=instance.center)
-    data = users.union(users2)
-    for i in range(len(data)):
+    users = User.objects.filter(centers=instance.center)
+    for i in range(len(users)):
         Notification.objects.create(
-            user=data[i], text=f"Вышел новый пост у мед.центра {instance.center.name}")
+            user=users[i], text=f"Вышел новый пост у мед.центра {instance.center.name}")
     print("create")
     # Change status Note signal
 

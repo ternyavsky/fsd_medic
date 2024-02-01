@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from api.models import User
 from api.permissions import OnlyCreate
-from api.serializers import UserSerializer, CenterSerializer, DiseaseSerializer, AccessSerializer, UserUpdateSerializer
+from api.serializers import UserSerializer, DiseaseSerializer, AccessSerializer, CenterSerializer, UserUpdateSerializer
 from auth_user.serializers import *
 from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
     send_verification_email
@@ -61,10 +61,12 @@ class LoginView(APIView):
 class UserView(generics.ListCreateAPIView):
     """Список пользователей"""
     # permission_classes = [OnlyCreate]
-    serializer_class = UserSerializer
+    serializer_class = UserSerializer   
 
     def get_queryset(self):
-        return cache.get_or_set("users", get_users())
+        return get_users()
+
+
 
     def post(self, request, *args, **kwargs):
         code = generate_verification_code()

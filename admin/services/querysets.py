@@ -74,9 +74,8 @@ def center_profile_data(pk):
                             filter=Q(note__online=False, note__time_start__day=date.today().day)),
     )
     users = cache.get_or_set("users", get_users())
-    users_mainc = users.filter(main_center__id__in=centers.values("id"))
     users_centers = users.filter(centers__id__in=centers.values("id"))
-    result = users_mainc.union(users_centers)
+    result = users_centers 
     obj = {
         "center": centers,
         "pacients": result

@@ -93,30 +93,6 @@ class CreateUserSerializer(serializers.Serializer):
         if len(validated_data['password']) < 8:
             raise serializers.ValidationError({'password': 'Password must be at least 8 characters'})
 
-# class CreateUserSecondStepSerializer(serializers.Serializer):
-#     '''Регистрация. Шаг 2'''
-#     city = serializers.CharField(required=False)
-#     country = serializers.CharField(required=False)
-#     disease_id = serializers.PrimaryKeyRelatedField(
-#         queryset=Disease.objects.all(),
-#         allow_null=True,
-#         required=False,
-#         many=True
-#     )
-#     def create(self, validated_data):
-#         request = self.context['request']
-#         user = User.objects.get(number=cache.get(request.scheme, None)["number"])
-#         user.country = "Узбекистан"
-#         main_doctor = get_doctors(country="Узбекистан").first()
-#         Subscribe.objects.create(user=user, main_doctor=main_doctor)
-#         if "disease_id" in validated_data:
-#             for i in validated_data['disease_id']:
-#                 user.disease.add(i)
-#                 if user.disease.count() >= 5:
-#                     raise serializers.ValidationError('You cannot specify more than 5 diseases')
-#         user.save()
-#         return user
-            
 
 
 # sms code block ##

@@ -28,7 +28,7 @@ class ChatCreateSerializer(serializers.Serializer):
 class MessageCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ["id", "news", "chat", "note", "text", "user", "center", "created_at"]
+        fields = ["id", "news", "chat", "note", "text", "user",  "created_at"]
 
 
 class NotificationSerializer(serializers.ModelSerializer):

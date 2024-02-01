@@ -22,12 +22,7 @@ logger = logging.getLogger(__name__)
 class NotifyView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(
-        operation_summary="Список уведомлений",
-        # responses={
-        #     status.HTTP_200_OK: NotificationSerializer,
-        # }
-    )
+
     def get(self, request):
         notifications = cache.get_or_set("notifications", get_notifications())
         notifications = notifications.filter(user=request.user)
@@ -39,14 +34,7 @@ class NotifyView(APIView):
 
 
 class ChatCreate(APIView):
-    @swagger_auto_schema(
-        operation_summary="Создание чата при первом сообщении",
-        # query_serializer=ChatCreateSerializer,
-        responses={
-            # status.HTTP_200_OK: ChatSerializer,
-            status.HTTP_400_BAD_REQUEST: "Bad Request",
-        }
-    )
+
     def post(self, request):
         serializer = ChatCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -59,7 +47,6 @@ class ChatCreate(APIView):
 class MessageView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_summary="Получение сообщений по конкретному чату")
     def get(self, request, chat_id):
         messages = cache.get_or_set("messages", get_messages())
         result = messages.filter(chat_id=chat_id).order_by("-created_at")

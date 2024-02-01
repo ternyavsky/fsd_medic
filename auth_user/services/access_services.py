@@ -2,7 +2,7 @@ from django.core.cache import cache
 
 from api.models import Access
 from api.serializers import UserSerializer
-from db.queries import get_centers, get_chats, get_users, get_access
+from db.queries import get_centers, get_chats, get_users, get_access, get_doctors
 from django.db import transaction
 
 from social.models import Notification, Chat
@@ -33,7 +33,8 @@ def accept_access_service(request):
     user.access_accept.add(user_to_accept_access.user)
     user_to_accept_access.access_accept.add(user.user)
     chats = cache.get_or_set("chats", get_chats())
-    chat_to_add = chats.filter(centers=user_i.main_center, users=user_i).first()
+    doctor = cache.get_or_set("doctors", get_doctors()).filter(main_status=True, country=user.country).first()
+    chat_to_add = chats.filter(doctors=doctor, users=user_i).first()
     chat_to_add.users.add(user_to_accept_access)
 
 

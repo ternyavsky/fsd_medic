@@ -76,7 +76,6 @@ class CountryProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = "__all__"
-        depth = 1
 
 
 class CountryCitySerializer(serializers.Serializer):
@@ -111,7 +110,7 @@ class MainPageSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.Serializer):
-    user = UserSerializer(many=True, read_only=True, depth=0)
+    user = UserSerializer(many=True, read_only=True)
     curr_notes = NoteSerializer(many=True, read_only=True)
     process_notes = NoteSerializer(many=True, read_only=True)
     miss_notes = NoteSerializer(many=True, read_only=True)
@@ -128,7 +127,6 @@ class CenterProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Center
         fields = "__all__"
-        depth = 1
 
     def get_online_notes(self, obj):
         return obj.online_notes
@@ -156,7 +154,6 @@ class ClinicProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         fields = "__all__"
-        depth = 1
 
 
     def get_online_notes(self, obj):
