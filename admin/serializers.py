@@ -7,6 +7,7 @@ from api.serializers import UserSerializer, NoteSerializer, AccessSerializer
 from db.queries import *
 
 
+
 class CityProfileSerializer(serializers.ModelSerializer):
     quant_centers = serializers.SerializerMethodField()
     quant_centers_today = serializers.SerializerMethodField()

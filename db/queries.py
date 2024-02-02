@@ -6,6 +6,7 @@ from auth_doctor.models import Doctor
 from social.models import *
 User = get_user_model()
 
+
 # news
 def get_news(**kwargs):
     """Получение новостей"""
