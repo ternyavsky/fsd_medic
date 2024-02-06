@@ -50,8 +50,8 @@ def get_saved(**kwargs):
 def get_notes(**kwargs):
     """Получение записей"""
     return (Note.objects
-            .select_related("doctor", "user", "center", "user__group",  "clinic",
-                           "doctor__center", "center__admin", 
+            .select_related("user", "center", "user__group",  "clinic",
+                            "center__admin", 
                             "clinic__admin")
             .prefetch_related("center__employees", "user__centers", "center__supported_diseases", "user__disease",
                               "clinic__supported_diseases")

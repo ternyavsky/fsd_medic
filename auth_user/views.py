@@ -104,6 +104,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance = self.request.user
         serializer = UserUpdateSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
 class GetDiseasesView(APIView):
