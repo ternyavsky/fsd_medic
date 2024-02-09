@@ -8,9 +8,9 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
 from django.core.cache import cache
 from db.queries import get_users, get_centers, get_cities, get_doctors
-from api.models import Disease, Center, User, Subscribe
+from api.models import Disease, Center, User, Subscribe, Country
 from social.models import Chat
-from api.serializers import UserSerializer
+from api.serializers import UserSerializer, CountrySerializer
 from api.backends import user_authenticate
 
 logger = logging.getLogger(__name__)
@@ -68,16 +68,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
 class CreateUserSerializer(serializers.Serializer):
     '''Регистрация'''
     email = serializers.EmailField()
-    country = serializers.CharField()
     password = serializers.CharField(write_only=True)
-
+    country = CountrySerializer
     def create(self, validated_data):
         self.create_validate(validated_data)
         user = User.objects.create_user(
                 email=validated_data["email"],
                 password=validated_data['password'],
-                country=validated_data["country"],
             )
+        user.country = Country.objects.get(name="Узбекистан")
         user.save()
         main_doctor = get_doctors(country="Узбекистан", main_status=True).first()
         Subscribe.objects.create(user=user, main_doctor=main_doctor)
