@@ -23,13 +23,11 @@ ALLOWED_HOSTS = ['*', ]
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
-
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-#        'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated'
-#     ]
-# }
+       ),
+    'DEFAULT_PAGINATION_CLASS': (
+        'rest_framework.pagination.LimitOffsetPagination'
+       ),
 }
 # Application definition
 
@@ -47,15 +45,18 @@ INSTALLED_APPS = [
     'rest_framework',
     'debug_toolbar',
     'django_prometheus',
+    'django_filters',
     'django_loki',
     'storages',
+    'socketio', 
     'corsheaders',
+
+
     'api.apps.ApiConfig',
     'social.apps.SocialConfig',
     'auth_user.apps.AuthUserConfig',
     'auth_doctor.apps.AuthDoctorConfig',
     'db.apps.DbConfig',
-    'socketio'
 ]
 
 MIDDLEWARE = [

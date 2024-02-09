@@ -8,8 +8,6 @@ from .models import *
 
 
 
-class GroupAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'number_of_people']
 
 
 # class CenterAdmin(admin.ModelAdmin):
@@ -22,22 +20,8 @@ class GroupAdmin(admin.ModelAdmin):
 #               ]
 #     readonly_fields = ['id', 'created_at', 'updated_at']
 
-
-class UrlParamsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'get_parameter', 'group']
-    list_filter = ['group']
-    fields = ['group']
-
-    @admin.display
-    def get_parameter(self, obj):
-        return format_html(f'<a href="/registration/{obj}">registration/{obj}</a>')
-
-    get_parameter.short_description = 'Ссылка'
-
-
 admin.site.register(Center)
 admin.site.register(User)
-admin.site.register(Group, GroupAdmin)
 admin.site.register(Country)
 admin.site.register(City)
 admin.site.register(News)
@@ -46,5 +30,4 @@ admin.site.register(Disease)
 admin.site.register(Saved)
 admin.site.register(Clinic)
 admin.site.register(Note)
-admin.site.register(Url_Params, UrlParamsAdmin)
 admin.site.register(Subscribe)

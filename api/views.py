@@ -1,10 +1,11 @@
 import logging
 from django.core.cache import cache
+from django_filters.rest_framework import DjangoFilterBackend
 # REST IMPORTS
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count
@@ -16,86 +17,89 @@ logger = logging.getLogger(__name__)
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
+    queryset = Subscribe.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = SubscribeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user', 'clinic', 'main_doctor']
     
+
     def get_queryset(self):
-        data = cache.get_or_set("subscribes", get_subscribes())
-        data = data.filter(user=self.request.user)
-        logger.debug(self.request.path)
-        return data
+        return self.queryset.filter(user=self.request.user) 
+
 
 class SaveViewSet(viewsets.ModelViewSet):
+    queryset = Saved.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = SavedSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user', 'news']
+
 
     def get_queryset(self):
-        data = cache.get_or_set("saved", get_saved())
-        data = data.filter(user=self.request.user)
-        logger.debug(self.request.path)
-        return data
+        return self.queryset.filter(user=self.request.user)
 
 
 class LikeViewSet(viewsets.ModelViewSet):
+    queryset = Like.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user', 'news']
 
-
-    def get_queryset(self):
-        logger.debug(self.request.path)
-        data = cache.get_or_set("likes", get_likes())
-        data =data.filter(user=self.request.user)
-        return data
     
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
 
 class NoteViewSet(viewsets.ModelViewSet):
+    queryset = Note.objects.all().prefetch_related('doctors')
     permission_classes = [IsAuthenticated]
     serializer_class = NoteSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user', 'online', 'problem', 'center', 'clinic', 'special_check', 'status']
 
     def get_queryset(self):
-        notes = cache.get_or_set("notes", get_notes())
         if not self.request.user.is_staff:
-            notes = notes.filter(user=self.request.user)
-        logger.debug(self.request.path)
-        return notes
+            return self.queryset.filter(user=self.request.user)
+        return self.queryset 
 
 
 class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.all().prefetch_related('images', 'videos')
+    permission_classes = [AllowAny]
     serializer_class = NewsSerializer
-    # permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['title', 'text', 'center', 'clinic', 'disease']
 
     def get_queryset(self):
-        logger.debug(self.request)
-        if self.action == 'list':
-            news = cache.get_or_set("news", get_news())
-            user = self.request.user
-            if user.is_staff:
-                logger.info("Admin request")
-                return news
-            if user.is_authenticated:
-                clinic_news = news.filter(clinic__in=user.clinic)
-                center_news = news.filter(center__in=user.centers.all())
-                disease_news = news.filter(disease__in=user.disease.all())
-                disease_news = disease_news.annotate(
+        news = self.queryset
+        user = self.request.user
+        if user.is_staff:
+            return news 
+        if user.is_authenticated:
+            clinic_news = news.filter(clinic__in=user.clinic)
+            center_news = news.filter(center__in=user.centers.all())
+            disease_news = news.filter(disease__in=user.disease.all())
+            disease_news = disease_news.annotate(
                     quant_likes=Count("like", distinct=True)
                 ).order_by("-quant_likes")
-                center_news = center_news.annotate(
+            center_news = center_news.annotate(
                     quant_likes=Count("like", distinct=True)
                 ).order_by("-quant_likes")
-                clinic_news = clinic_news.annotate(
+            clinic_news = clinic_news.annotate(
                 quant_likes=Count("like", distinct=True)
                 ).order_by("-quant_likes")
-                news = center_news.union(disease_news, clinic_news)
-                logger.debug(self.request.path)
-                return news
-            else:
-                logger.warning("Not authorized")
-                return news[:3]
-        return get_news()
+            
+            news = center_news.union(disease_news, clinic_news)
+            return news
+        else:
+            return news[:3]
 
 
 class SearchView(APIView):
-    # permission_classes = [IsAuthenticated]
+    serializer_class = SearchSerializer
+    permission_classes = [AllowAny]
 
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request, *args, **kwargs):
@@ -107,29 +111,28 @@ class SearchView(APIView):
             'centers': centers,
             'doctors': doctors,
         }
-        serializer = SearchSerializer(search_results)
-        logger.debug(serializer.data)
-        logger.debug(request.path)
-        request.session["test"] = serializer.data
-        request.session.save()
+        serializer = self.serializer_class(search_results)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class DoctorsListView(APIView):
+    queryset = Doctor.objects.all()
     permissions_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['country', 'city', 'first_name', 'last_name', 'work_experience',
+        'specialization', 'main_status'
+    ]
 
     
     @swagger_auto_schema(operation_summary="Получение докторов")
     def get(self, request):
-        doc = cache.get_or_set("doctors", get_doctors())
-        doctors = doc.filter(city=self.request.user.city)
+        doctors = self.queryset.filter(country=self.request.user.country)
         serializer = DoctorGetSerializer(doctors, many=True)
-        logger.debug(serializer.data)
-        logger.debug(request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CountryListView(APIView):
+    
 
     @swagger_auto_schema(operation_summary="Получение стран")
     def get(self, request):

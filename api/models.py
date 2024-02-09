@@ -11,21 +11,15 @@ from .choices import NOTE_CHOICES, PROCESS
 class UserManager(BaseUserManager):
     def create_user(self, 
         password, 
-         
-        group, email=None, first_name=None, last_name=None, birthday=None, *args, **kwargs):
-        user = self.model(number=number)
-        user_group = Group.objects.get(name='Пользователи')
-        user.group_id = user_group.id
+        email=None, 
+        first_name=None, 
+        last_name=None, 
+        birthday=None, 
+        *args, 
+        **kwargs):
+        user = self.model(email=email)
         user.birthday = birthday
         user.password = make_password(password)
-        if group == 'Пользователи':
-            user.disease_id = disease_id
-            user.is_required = True
-        else:
-            user.email = email
-            user.first_name = first_name
-            user.last_name = last_name
-            user.is_required = False
         # это UserManager(BaseUserManager)
 
         user.save()
@@ -35,8 +29,6 @@ class UserManager(BaseUserManager):
         superuser = self.model(number=number, email=email,
                                first_name=first_name, last_name=last_name)
 
-        superuser_group = Group.objects.get(name='Администраторы')
-        superuser.group_id = superuser_group.id
         superuser.is_staff = True
         superuser.is_required = False
         superuser.set_password(password)
@@ -51,8 +43,6 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(
         verbose_name=_('Статус персонала'), default=False)
     online = models.BooleanField(_("Онлайн"), default=False)
-    group = models.ForeignKey('Group', verbose_name=_(
-        'Группа'), on_delete=models.CASCADE, null=True, blank=True)
     sex = models.CharField(_("Пол"), max_length=255, default=None, null=True)
     clinic = models.ForeignKey("Clinic", on_delete=models.PROTECT, verbose_name=_("Клиника"), null=True,
                                related_name="user_clinic")
@@ -115,21 +105,6 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-
-class Group(models.Model):
-    
-    id = models.BigAutoField(primary_key=True, db_index=True)
-    name = models.CharField(verbose_name=_(
-        'Название Группы'), max_length=100, null=True)
-    number_of_people = models.IntegerField(
-        verbose_name=_('Количество людей'), default=0)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = 'Группы'
-        verbose_name = 'Группа'
 
 
 class Access(models.Model):
@@ -212,7 +187,9 @@ class Center(AbstractBaseUser):
         'Сотрудники'), related_name="employees")
     supported_diseases = models.ManyToManyField(
         "Disease", verbose_name=_('Поддерживаемые заболевания'))
-    country = models.CharField(verbose_name=_("Cтрана"), max_length=255, null=True,blank=True)
+
+    country = models.ForeignKey("Country", verbose_name=_("Страна"),on_delete=models.SET_NULL, null=True, blank=True)
+    city = models.ForeignKey("City", verbose_name=_('Город'), on_delete=models.SET_NULL, null=True, blank=True)
     observed = models.IntegerField(verbose_name=_("Наблюдается"), default=100)
     observed_after = models.IntegerField(verbose_name=_("Наблюдалось"), default=100)
    
@@ -261,8 +238,8 @@ class Clinic(AbstractBaseUser):
     employees = models.ManyToManyField(to="auth_doctor.Doctor", verbose_name=_(
         'Сотрудники'), related_name="clinic_employees")
     supported_diseases = models.ManyToManyField('Disease', verbose_name="Изученные заболевания")
-    country = models.CharField(verbose_name=_("Cтрана"), max_length=255, null=True,blank=True)
-    city = models.CharField(verbose_name=_("Город"), max_length=255, null=True,blank=True)
+    country = models.ForeignKey("Country", verbose_name=_("Страна"),on_delete=models.SET_NULL, null=True, blank=True)
+    city = models.ForeignKey("City", verbose_name=_('Город'), on_delete=models.SET_NULL, null=True, blank=True)
     address = models.CharField(verbose_name=_(
         'Адрес'), max_length=100, unique=True)
     created_at = models.DateTimeField(
@@ -293,22 +270,6 @@ class Clinic(AbstractBaseUser):
         verbose_name_plural = 'Клиники'
         verbose_name = 'Клиника'
 
-
-class Url_Params(models.Model):
-    parameter = models.CharField(verbose_name=_('Ссылка'), max_length=50, )
-    group = models.ForeignKey('Group', verbose_name=_(
-        'Группа'), on_delete=models.CASCADE, null=True)
-
-    def save(self):
-        self.parameter = get_random_string(length=50)
-        super(Url_Params, self).save()
-
-    def __str__(self):
-        return str(self.parameter)
-
-    class Meta:
-        verbose_name_plural = 'Ссылки для регистрации'
-        verbose_name = 'Ссылку'
 
 
 class EmailCode(models.Model):

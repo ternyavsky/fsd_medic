@@ -24,6 +24,7 @@ daphne==4.0.0
 Django==5.0.1
 django-cors-headers==4.3.1
 django-debug-toolbar==4.2.0
+django-filter==23.5
 django-loki==0.1.4
 django-prometheus==2.3.1
 django-redis==5.4.0
@@ -38,6 +39,7 @@ eventlet==0.35.0
 filetype==1.2.0
 gevent==23.9.1
 greenlet==3.0.3
+gunicorn==21.2.0
 h11==0.14.0
 hyperlink==21.0.0
 idna==3.6

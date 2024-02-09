@@ -2,9 +2,11 @@ from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
+from social.gateway import server
 from auth_doctor.models import Doctor, Interview
 from auth_user.service import start_time_reminder
 from social.models import Chat, Message, Notification
+from social.serializers import NotificationSerializer
 from .models import Center, Clinic, Disease, Like, News, Note, User, Saved, City, Country, Subscribe
 
 
@@ -176,7 +178,7 @@ def notify_center(sender, instance, **kwargs):
     print('news signal')
     users = User.objects.filter(centers=instance.center)
     for i in range(len(users)):
-        Notification.objects.create(
+        notification = Notification.objects.create(
             user=users[i], text=f"Вышел новый пост у мед.центра {instance.center.name}")
     print("create")
     # Change status Note signal
@@ -185,23 +187,28 @@ def notify_center(sender, instance, **kwargs):
 @receiver(post_save, sender=Note)
 def notify_note(sender, instance, created, **kwargs):
     if not created:
+        notify = None
         if instance.special_check == True:
-            Notification.objects.create(
+            notify = Notification.objects.create(
                 user=instance.user, text="Созданная запись прошла дополнительную проверку")
         if instance.status == "Rejected":
-            Notification.objects.create(
+            notify = Notification.objects.create(
                 user=instance.user, text="Запись была отклонена вашим центром")
         elif instance.status == "Passed":
-            Notification.objects.create(
+            notify = Notification.objects.create(
                 user=instance.user, text="Запись была подтверждена вашим центром")
+        notify.save()
+        server.emit("notification", {"notification": NotificationSerializer(notify).data})
 
 
 @receiver(post_save, sender=User)
 def notify_verify(sender, instance, created, **kwargs):
     if not created:
         if instance.verification_code != 1 and instance.email_verification_code != 1:
-            Notification.objects.create(
+            notify = Notification.objects.create(
                 user=instance, text="Ваш аккаунт был успешно защищен эл.почтой или телефоном")
+            notify.save()
+            server.emit("notification", {"notification": NotificationSerializer(notify).data})
 
 # SEND REMINDER FOR NOTE
 

@@ -3,6 +3,7 @@ from django.db import transaction
 import logging
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import transaction
 from drf_yasg import openapi
@@ -60,12 +61,11 @@ class LoginView(APIView):
 
 class UserView(generics.ListCreateAPIView):
     """Список пользователей"""
+    queryset = get_users()
     # permission_classes = [OnlyCreate]
     serializer_class = UserSerializer   
-
-    def get_queryset(self):
-        return get_users()
-
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['sex', 'clinic', 'disease']
 
 
     def post(self, request, *args, **kwargs):
@@ -78,11 +78,6 @@ class UserView(generics.ListCreateAPIView):
         user.save()
         return Response(UserSerializer(user).data, status=status.HTTP_202_ACCEPTED)
 
-
-
-    
-    # def get(self, request, *args, **kwargs):
-    #     return super().get(request, *args, **kwargs)
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):

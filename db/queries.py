@@ -12,7 +12,7 @@ def get_news(**kwargs):
     """Получение новостей"""
     return (News.objects
             .select_related("center", "disease",)
-            .prefetch_related("center__employees", "center__supported_diseases")
+            .prefetch_related("center__employees", "center__supported_diseases", "videos", "images")
             .filter(**kwargs)
             )
 
@@ -91,7 +91,7 @@ def get_centers(**kwargs):
 def get_users(**kwargs):
     """Получение пользователей"""
     return (User.objects.filter(**kwargs)
-            .select_related("group", "clinic")
+            .select_related("clinic")
             .prefetch_related("disease", "centers", "centers__employees", "centers__supported_diseases", "clinic__employees","clinic__supported_diseases",))
 
 

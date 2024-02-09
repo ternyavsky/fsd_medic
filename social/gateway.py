@@ -44,7 +44,7 @@ def send_message(sid, token:str, chat_id:Chat.id, text:str, reply_id:Message.id=
 @server.event
 def update_message(sid, text:str, message_id:Message.id):
     msg = cache.get_or_set("messages", get_messages()).filter(id=message_id).first()
-    message = upd_message(msg)
+    message = upd_message(msg, text)
     server.emit("update_message", message)
 
 

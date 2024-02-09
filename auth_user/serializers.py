@@ -77,7 +77,6 @@ class CreateUserSerializer(serializers.Serializer):
                 email=validated_data["email"],
                 password=validated_data['password'],
                 country=validated_data["country"],
-                group__name="Пользователи",
             )
         user.save()
         main_doctor = get_doctors(country="Узбекистан", main_status=True).first()
