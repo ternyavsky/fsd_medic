@@ -12,7 +12,7 @@ class UnreadMsgSerializer(serializers.ModelSerializer):
     class Meta:
         model = UnreadMessage
         fields = "__all__"
-        depth = 1
+       # depth = 1
 
 class ChatCreateSerializer(serializers.Serializer):
     user_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
@@ -35,18 +35,18 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = "__all__"
-        depth = 1
+        #depth = 1
 
 
 class ChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
         fields = "__all__"
-        depth = 1
+        #depth = 1
 
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = "__all__"
-        depth = 1
+       # depth = 1

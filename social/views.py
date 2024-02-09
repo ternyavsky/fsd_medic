@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 
 class NotifyView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
     def get(self, request):
         notifications = cache.get_or_set("notifications", get_notifications())
-        notifications = notifications.filter(user=request.user)
+     #   notifications = notifications.filter(user=request.user)
         serializer = NotificationSerializer(notifications, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)

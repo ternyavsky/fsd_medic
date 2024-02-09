@@ -18,7 +18,6 @@ class Notification(models.Model):
     id = models.BigAutoField(primary_key=True, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.CharField(max_length=220, null=False, blank=True)
-    add = models.JSONField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -121,6 +121,7 @@ def get_notifications(**kwargs):
     return (
         Notification.objects.filter(**kwargs)
         .select_related("user")
+        .prefetch_related("user__disease")
         )
 
 ##

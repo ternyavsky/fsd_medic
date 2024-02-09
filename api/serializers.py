@@ -47,6 +47,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    disease = DiseaseSerializer(many=True)
 
     class Meta:
         model = User

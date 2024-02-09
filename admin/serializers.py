@@ -1,9 +1,10 @@
 from datetime import date
+from logging import Manager
 
 from django.core.cache import cache
 from rest_framework import serializers
 
-from api.serializers import UserSerializer, NoteSerializer, AccessSerializer
+from api.serializers import DoctorGetSerializer, UserSerializer, NoteSerializer, AccessSerializer
 from db.queries import *
 
 
@@ -151,6 +152,7 @@ class ClinicProfileSerializer(serializers.ModelSerializer):
     offline_notes = serializers.SerializerMethodField()
     visit_online = serializers.SerializerMethodField()
     visit_offline = serializers.SerializerMethodField()
+    employees = DoctorGetSerializer(many=True)
 
     class Meta:
         model = Clinic
