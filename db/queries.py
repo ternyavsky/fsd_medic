@@ -91,7 +91,7 @@ def get_centers(**kwargs):
 def get_users(**kwargs):
     """Получение пользователей"""
     return (User.objects.filter(**kwargs)
-            .select_related("clinic")
+            .select_related("clinic", "country", "city")
             .prefetch_related("disease", "centers", "centers__employees", "centers__supported_diseases", "clinic__employees","clinic__supported_diseases",))
 
 

@@ -173,11 +173,11 @@ SWAGGER_SETTINGS = {
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE'),
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'NAME': "sys", 
+        'USER': "root", 
+        'PASSWORD': "root",
         'PORT': os.getenv('DB_PORT'),
-        'HOST': os.getenv('DB_HOST'),
+        'HOST': "172.17.0.1" ,
         'OPTIONS': {
             'sql_mode': os.getenv('DB_SQL_MODE')
         },

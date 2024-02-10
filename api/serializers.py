@@ -49,6 +49,8 @@ class DiseaseSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     disease = DiseaseSerializer(many=True)
     country = CountrySerializer()
+    city = CitySerializer()
+    interest = DiseaseSerializer()
     class Meta:
         model = User
         fields = '__all__'

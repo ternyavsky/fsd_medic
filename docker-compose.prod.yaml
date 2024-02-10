@@ -37,6 +37,17 @@ services:
     image: grafana/grafana
     ports: 
       - "3000:3000"
+  mysql:
+    container_name: fsd_medic.mysql
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root 
+      MYSQL_DATABASE: mysql
+      MYSQL_PASSWORD: root 
+    volumes:
+      - ./dbdata:/var/lib/mysql/
 
   loki:
     container_name: fsd_medic.loki
@@ -73,4 +84,5 @@ services:
 
         #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
 volumes:
+  dbdata: 
   grafana_storage: {}
