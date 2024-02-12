@@ -78,7 +78,7 @@ def get_disease(**kwargs):
 def get_centers(**kwargs):
     """Получение центров"""
     return (Center.objects
-            .select_related( "admin",)
+            .select_related( "admin")
             .prefetch_related("supported_diseases", "employees", "admin__centers", "admin__disease",
                             
                               )

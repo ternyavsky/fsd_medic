@@ -17,12 +17,11 @@ from api.models import User
 from api.permissions import OnlyCreate
 from api.serializers import UserSerializer, DiseaseSerializer, AccessSerializer, CenterSerializer, UserUpdateSerializer
 from auth_user.serializers import *
-from auth_user.service import generate_verification_code, send_sms, send_reset_sms, send_reset_email, set_new_password, \
-    send_verification_email
+from auth_user.service import generate_verification_code, send_email 
 from auth_user.services.access_services import add_access_service, accept_access_service, delete_access_service
-from auth_user.services.create_user_services import create_user_service, verify_code_service, resend_sms_service, \
+from auth_user.services.create_user_services import verify_code_service, resend_sms_service, \
     password_reset_service, verify_reset_code_service, set_new_password_service
-from auth_user.services.email_bind_services import email_bind_service, verify_email_bind_service
+from auth_user.services.email_bind_services import number_bind_service, verify_number_bind_service 
 from db.queries import *
 
 logger = logging.getLogger(__name__)
@@ -61,11 +60,12 @@ class LoginView(APIView):
 
 class UserView(generics.ListCreateAPIView):
     """Список пользователей"""
-    queryset = get_users()
+    queryset = get_users() 
     # permission_classes = [OnlyCreate]
     serializer_class = UserSerializer   
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['sex', 'clinic', 'disease']
+
 
 
     def post(self, request, *args, **kwargs):
@@ -73,10 +73,10 @@ class UserView(generics.ListCreateAPIView):
         serializer = CreateUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user: User = serializer.save()
-        send_reset_email.delay(user.email, code)
-        user.email_verification_code = code
+        send_email.delay(user.email, code)
+        user.verification_code = code
         user.save()
-        return Response(UserSerializer(user).data, status=status.HTTP_202_ACCEPTED)
+        return Response(self.serializer_class(user).data, status=status.HTTP_202_ACCEPTED)
 
 
 
@@ -110,12 +110,8 @@ class GetDiseasesView(APIView):
         operation_summary="Получение всех заболеваний"
     )
     def get(self, request):
-        print(request)
-        print(request.headers)
         diseases = cache.get_or_set("diseases", get_disease())
         serializer = DiseaseSerializer(diseases, many=True)
-        logger.debug(serializer.data)
-        logger.debug(self.request.path)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -130,7 +126,7 @@ class VerifyCodeView(APIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "number": openapi.Schema(type=openapi.TYPE_STRING),
+                "email": openapi.Schema(type=openapi.TYPE_STRING),
                 "verification_code": openapi.Schema(type=openapi.TYPE_INTEGER)
             }),
     )
@@ -141,12 +137,14 @@ class VerifyCodeView(APIView):
 class ResendSmsView(APIView):
     permission_classes = [AllowAny]
     """Переотправка смс, в разделе 'получить смс снова'. Регистрация """
+
+
     @swagger_auto_schema(
         operation_summary="Переотправка смс (Пользователь)",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "number": openapi.Schema(type=openapi.TYPE_STRING)
+                "email": openapi.Schema(type=openapi.TYPE_STRING)
             }),
     )
     def post(self, request):
@@ -208,38 +206,38 @@ class SetNewPasswordView(APIView):
 
 
 # email block
-class EmailBindingView(APIView):
+class NumberBindingView(APIView):
     permission_classes = [IsAuthenticated]
-    """Привязка почты к аккаунту. Шаг 1 - отправка письма"""
+    """Привязка номера к аккаунту. Шаг 1 - отправка cмс"""
     @swagger_auto_schema(
-        operation_summary="Привязка почты к аккаунту",
+        operation_summary="Привязка номера к аккаунту",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["email"],
+            required=["number"],
             properties={
-                "email": openapi.Schema(type=openapi.TYPE_STRING),
+                "number": openapi.Schema(type=openapi.TYPE_STRING),
             }),
     )
     def post(self, request):
-        return email_bind_service(request)
+        return number_bind_service(request)
 
 
-class VerifyEmailCodeView(APIView):
+class VerifyNumberCodeView(APIView):
     permission_classes = [IsAuthenticated]
-    """Проверка кода из email , для привязки почты"""
+    """Проверка кода, для привязки номера"""
 
     @swagger_auto_schema(
-        operation_summary="Проверка кода из email, для привязки почты к аккаунту",
+        operation_summary="Проверка кода, для привязки номера",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["email", "email_verification_code"],
+            required=["number", "number_verification_code"],
             properties={
-                "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "email_verification_code": openapi.Schema(type=openapi.TYPE_INTEGER)
+                "number": openapi.Schema(type=openapi.TYPE_STRING),
+                "number_verification_code": openapi.Schema(type=openapi.TYPE_INTEGER)
             }),
     )
     def post(self, request):
-        return verify_email_bind_service(request)
+        return verify_number_bind_service(request)
 
 
 class CreateAdminView(generics.CreateAPIView):
@@ -249,7 +247,7 @@ class CreateAdminView(generics.CreateAPIView):
     serializer_class = AdminSerializer
 
     @swagger_auto_schema(
-        operation_summary="Создание пользователя"
+        operation_summary="Создание администратора"
     )
     def post(self, request, *args, **kwargs):
         serializer = AdminSerializer(data=request.data)
@@ -263,22 +261,6 @@ class CreateAdminView(generics.CreateAPIView):
         logger.warning(request.path)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class CenterRegistrationView(APIView):
-    permission_classes = [AllowAny]
-    lookup_field = "city"
-
-    @swagger_auto_schema(
-        operation_summary="Получение центров(при регистрации)",
-    )
-    def get(self, request, city):
-        center = cache.get_or_set("centers", get_centers())
-        centers = center.filter(city__name=city)
-        logger.debug(centers)
-        data = CenterSerializer(centers, many=True).data
-        logger.debug(data)
-        logger.debug(request.path)
-        return Response(data, status=status.HTTP_200_OK)
 
 
 class AccessViewSet(APIView):

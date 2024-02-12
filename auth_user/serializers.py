@@ -69,7 +69,7 @@ class CreateUserSerializer(serializers.Serializer):
     '''Регистрация'''
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    country = CountrySerializer
+    country = serializers.CharField() 
     def create(self, validated_data):
         self.create_validate(validated_data)
         user = User.objects.create_user(
@@ -96,13 +96,13 @@ class CreateUserSerializer(serializers.Serializer):
 # sms code block ##
 class VerifyCodeSerializer(serializers.Serializer):
     """Отправка кода для проверки. Регистрация"""
-    number = serializers.CharField()
+    email = serializers.CharField()
     verification_code = serializers.IntegerField()
 
 
 class ResendCodeSerializer(serializers.Serializer):
     """Переотправка смс кода в разделе 'отправить код снова'. Регистрация."""
-    number = serializers.CharField()
+    email = serializers.CharField()
 
 
 
@@ -118,29 +118,24 @@ class NewPasswordSerializer(serializers.Serializer):
     """Устанавливаем новый пароль в разделе 'забыли пароль' """
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
-    password1 = serializers.CharField(min_length=8, max_length=128)
     password2 = serializers.CharField(min_length=8, max_length=128)
 
+
+
+## number bind block
+class NumberBindingSerializer(serializers.Serializer):
+    """Привязка номера к аккаунту. Шаг 1 - отправка смс """
+    number = serializers.CharField()
+
     def validate(self, data):
-        if data['password1'] != data['password2']:
-            raise serializers.ValidationError("Passwords do not match.")
+        if User.objects.filter(number=data['number']).exists():
+            raise serializers.ValidationError({"number": 'Number already in use'})
         return data
 
 
-## email block
-class EmailBindingSerializer(serializers.Serializer):
-    """Привязка email к аккаунту. Шаг 1 - отправка письма"""
-    email = serializers.CharField()
-
-    def validate(self, data):
-        if User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError({"email": 'Email already in use'})
-        return data
-
-
-class VerifyEmailCodeSerializer(serializers.Serializer):
-    email = serializers.CharField()
-    email_verification_code = serializers.IntegerField()
+class VerifyNumberCodeSerializer(serializers.Serializer):
+    number = serializers.CharField()
+    number_verification_code = serializers.IntegerField()
 
 
 # end block#
@@ -181,18 +176,12 @@ class AdminSerializer(serializers.Serializer):
             raise serializers.ValidationError('Lastname cannot be shorter than 1 char')
         if len(data['last_name']) > 30:
             raise serializers.ValidationError('Lastname cannot be longer than 30 char')
-        # Проверка паролей
-        if len(data['password1']) < 8:
-            raise serializers.ValidationError('Password cannot be shorter than 8 char')
-        if data['password1'] != data['password2']:
-            raise serializers.ValidationError('Password must match')
 
     def update_validate(self, data):
         pass
 
-    number = serializers.CharField()
+    # number = serializers.CharField()
     email = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
-    password1 = serializers.CharField(write_only=True)
-    password2 = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)

@@ -73,7 +73,7 @@ class NewsViewSet(viewsets.ModelViewSet):
     filterset_fields = ['title', 'text', 'center', 'clinic', 'disease']
 
     def get_queryset(self):
-        news = self.queryset
+        news = self.queryset.order_by('-created_at')
         user = self.request.user
         if user.is_staff:
             return news 
@@ -132,22 +132,26 @@ class DoctorsListView(APIView):
 
 
 class CountryListView(APIView):
-    
+    queryset = Country.objects.all()
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name']
+
 
     @swagger_auto_schema(operation_summary="Получение стран")
     def get(self, request):
-        countries = cache.get_or_set("countries", get_countries())
-        serializer = CountrySerializer(countries, many=True)
-        logger.debug(serializer.data)
-        logger.debug(request.path)
+        serializer = CountrySerializer(self.queryset.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class CityListView(APIView):
+    queryset = City.objects.all()
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name']
+
 
     @swagger_auto_schema(operation_summary="Получение городов")
     def get(self, request):
-        cities = cache.get_or_set("cities", get_cities())
-        serializer = CitySerializer(cities, many=True)
-        logger.debug(serializer.data)
-        logger.debug(request.path)
+        serializer = CitySerializer(self.queryset.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

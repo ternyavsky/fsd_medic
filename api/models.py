@@ -71,7 +71,7 @@ class User(AbstractBaseUser):
         verbose_name=_('СМС код подтверждения'), default=1)
     reset_code = models.PositiveIntegerField(
         _('Код для сброса пароля'), default=1)
-    email_verification_code = models.PositiveIntegerField(
+    number_verification_code = models.PositiveIntegerField(
         _('Код для привязки почты к аккаунту'), default=0)
 
     USERNAME_FIELD = 'email'

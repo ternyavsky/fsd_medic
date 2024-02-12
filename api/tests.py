@@ -15,7 +15,6 @@ class NoteViewsetTestCase(TestCase):
     def setUp(self):
         # create doctor
         # create center
-        self.group = Group.objects.create(name="Пользователи")
         self.city = City.objects.create(name="Москва")
         self.country = Country.objects.create(name="Россия")
         self.user = User.objects.create(

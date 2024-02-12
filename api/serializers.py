@@ -27,15 +27,15 @@ class CitySerializer(serializers.ModelSerializer):
 class CenterSerializer(serializers.ModelSerializer):
     """Клиники"""
 
-    unread_messages = serializers.SerializerMethodField()
+    # unread_messages = serializers.SerializerMethodField()
 
     class Meta:
         model = Center
         fields = '__all__'
 
-    def get_unread_messages(self, obj):
-        queryset = UnreadMessage.objects.filter(center=obj)
-        return UnreadMsgSerializer(queryset, many=True).data
+    #def get_unread_messages(self, obj):
+    #    queryset = UnreadMessage.objects.filter(center=obj)
+    #    return UnreadMsgSerializer(queryset, many=True).data
 
 
 class DiseaseSerializer(serializers.ModelSerializer):

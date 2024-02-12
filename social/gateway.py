@@ -25,6 +25,7 @@ def disconnectCall(sid, token):
     instance = jwt_decode(token, connect=False)
     server.emit("disconnectCall", {"instance disconnected": instance})
 
+
 @server.event
 def typing(sid, token, chat_id):
     instance = jwt_decode(token)
