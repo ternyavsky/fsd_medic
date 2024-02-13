@@ -80,6 +80,7 @@ class CreateUserSerializer(serializers.Serializer):
         user.save()
         main_doctor = get_doctors(country="Узбекистан", main_status=True).first()
         Subscribe.objects.create(user=user, main_doctor=main_doctor)
+        # Chat create with mdoctor
         return user
     def create_validate(self, validated_data):
         password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')

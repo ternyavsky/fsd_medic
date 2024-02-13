@@ -48,6 +48,7 @@ services:
       MYSQL_PASSWORD: root 
     volumes:
       - ./dbdata:/var/lib/mysql/
+      - ./default_db.sql:/docker-entrypoint-initdb.d/default_db.sql
 
   loki:
     container_name: fsd_medic.loki
