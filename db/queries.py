@@ -120,8 +120,8 @@ def get_groups(**kwargs):
 def get_notifications(**kwargs):
     return (
         Notification.objects.filter(**kwargs)
-        .select_related("user")
-        .prefetch_related("user__disease")
+        .select_related("user", "user__clinic", "user__country", "user__city")
+        .prefetch_related("user__disease", "user__centers")
         )
 
 ##

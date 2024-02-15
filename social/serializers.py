@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import fields, serializers
 
+
+from api import serializers as api_s
+
 from .models import *
 from .services.chat_services import chat_create_data_validate
 
@@ -31,11 +34,6 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "news", "chat", "note", "text", "user",  "created_at"]
 
 
-class NotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notification
-        fields = "__all__"
-        #depth = 1
 
 
 class ChatSerializer(serializers.ModelSerializer):

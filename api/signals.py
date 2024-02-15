@@ -6,7 +6,7 @@ from social.gateway import server
 from auth_doctor.models import Doctor, Interview
 from auth_user.service import start_time_reminder
 from social.models import Chat, Message, Notification
-from social.serializers import NotificationSerializer
+from .serializers import NotificationSerializer
 from .models import Center, Clinic, Disease, Like, News, Note, User, Saved, City, Country, Subscribe
 
 

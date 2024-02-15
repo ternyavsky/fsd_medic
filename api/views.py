@@ -24,6 +24,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     filterset_fields = ['user', 'clinic', 'main_doctor']
     
 
+
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user) 
 

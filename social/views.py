@@ -1,6 +1,7 @@
 import logging
 
 from django.core.cache import cache
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -8,8 +9,10 @@ from rest_framework.response import Response
 # REST IMPORTS
 from rest_framework.views import APIView
 
+from .models import Notification
 from db.queries import get_messages, get_chats, get_notifications
 from .serializers import *
+from api.serializers import NotificationSerializer
 from .serializers import ChatCreateSerializer, ChatSerializer
 from .services.chat_services import chat_create
 import socketio
@@ -25,8 +28,7 @@ class NotifyView(APIView):
 
 
     def get(self, request):
-        notifications = cache.get_or_set("notifications", get_notifications())
-     #   notifications = notifications.filter(user=request.user)
+        notifications = cache.get_or_set("notifications", get_notifications()) 
         serializer = NotificationSerializer(notifications, many=True)
         logger.debug(serializer.data)
         logger.debug(request.path)
