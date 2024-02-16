@@ -36,11 +36,6 @@ class MessageCreateSerializer(serializers.ModelSerializer):
 
 
 
-class ChatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Chat
-        fields = "__all__"
-        #depth = 1
 
 
 class MessageSerializer(serializers.ModelSerializer):

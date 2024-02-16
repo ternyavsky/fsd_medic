@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import empty
 from social.serializers import UnreadMsgSerializer
-from social.models import Notification, UnreadMessage
+from social.models import Chat, Notification, UnreadMessage
 from auth_doctor.models import Doctor
 from .models import News, User, Center, Clinic, Disease, Note, Saved, Like, Country, Access, City, Subscribe
 from drf_extra_fields.relations import PresentablePrimaryKeyRelatedField
@@ -17,6 +17,7 @@ class ClinicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         fields = '__all__'
+
 
 class CitySerializer(serializers.ModelSerializer):
     """Города"""
@@ -59,6 +60,13 @@ class NotificationSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     class Meta:
         model = Notification
+        fields = "__all__"
+        #depth = 1
+
+class ChatSerializer(serializers.ModelSerializer):
+    users = UserSerializer(many=True)
+    class Meta:
+        model = Chat
         fields = "__all__"
         #depth = 1
 class UserUpdateSerializer(serializers.ModelSerializer):

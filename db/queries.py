@@ -137,5 +137,5 @@ def get_messages(**kwargs):
 
 def get_chats(**kwargs):
     return (Chat.objects.
-            prefetch_related("users",  "doctors")
+            prefetch_related("users__centers", "users__disease", "doctors")
             .filter(**kwargs))

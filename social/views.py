@@ -12,8 +12,8 @@ from rest_framework.views import APIView
 from .models import Notification
 from db.queries import get_messages, get_chats, get_notifications
 from .serializers import *
-from api.serializers import NotificationSerializer
-from .serializers import ChatCreateSerializer, ChatSerializer
+from api.serializers import NotificationSerializer, ChatSerializer
+from .serializers import ChatCreateSerializer 
 from .services.chat_services import chat_create
 import socketio
 logger = logging.getLogger(__name__)
@@ -43,8 +43,6 @@ class ChatCreate(APIView):
         if serializer.is_valid(raise_exception=True):
             chat = chat_create(serializer.validated_data)
             return Response(status=200, data={"chat_id": chat.id})
-        else:
-            return Response({'message': 'Неверный формат данных'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MessageView(APIView):
