@@ -15,6 +15,8 @@ from .services.querysets import *
 from api.serializers import CenterSerializer
 from db.queries import *
 from .serializers import *
+
+
 # Create your views here.
 
 
@@ -67,8 +69,7 @@ class ClinicProfileViewset(viewsets.ModelViewSet):
     def retrieve(self, request, pk):
         queryset = self.get_queryset(pk=pk)
         serializer = self.serializer_class(queryset)
-        return Response(serializer.data, status=200) 
-
+        return Response(serializer.data, status=200)
 
 
 class CenterProfileViewset(viewsets.ModelViewSet):
@@ -86,7 +87,7 @@ class CenterProfileViewset(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=200)
-    
+
     @swagger_auto_schema(
         operation_summary="Конкретный центр/Админка"
     )

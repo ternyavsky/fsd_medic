@@ -8,7 +8,6 @@ from api.serializers import DoctorGetSerializer, UserSerializer, NoteSerializer,
 from db.queries import *
 
 
-
 class CityProfileSerializer(serializers.ModelSerializer):
     quant_centers = serializers.SerializerMethodField()
     quant_centers_today = serializers.SerializerMethodField()
@@ -16,7 +15,6 @@ class CityProfileSerializer(serializers.ModelSerializer):
     quant_clinics_today = serializers.SerializerMethodField()
     quant_users = serializers.SerializerMethodField()
     quant_users_today = serializers.SerializerMethodField()
-
 
     class Meta:
         model = City
@@ -94,11 +92,12 @@ class DiseasePacientSerializer(serializers.ModelSerializer):
 
     def get_count(self, obj):
         return obj.most_count
-    
-    
+
+
 class AgeSerializer(serializers.Serializer):
     man = serializers.IntegerField()
     woman = serializers.IntegerField()
+
 
 class MainPageSerializer(serializers.Serializer):
     _10_20 = AgeSerializer(many=True, read_only=True)
@@ -125,7 +124,6 @@ class CenterProfileSerializer(serializers.ModelSerializer):
     visit_online = serializers.SerializerMethodField()
     visit_offline = serializers.SerializerMethodField()
 
-
     class Meta:
         model = Center
         fields = "__all__"
@@ -147,6 +145,7 @@ class CenterUserProfileSerializer(serializers.Serializer):
     center = CenterProfileSerializer(many=True, read_only=True)
     pacients = UserSerializer(many=True, read_only=True)
 
+
 class ClinicProfileSerializer(serializers.ModelSerializer):
     online_notes = serializers.SerializerMethodField()
     offline_notes = serializers.SerializerMethodField()
@@ -157,7 +156,6 @@ class ClinicProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         fields = "__all__"
-
 
     def get_online_notes(self, obj):
         return obj.online_notes

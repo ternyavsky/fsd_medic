@@ -20,7 +20,6 @@ urlpatterns = [
     path('api/token/', LoginView.as_view(), name='token_obtain_pair_url'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh_url'),
     path('api/search/', SearchView.as_view(), name='search_view_url'),
-    path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path('api/countries/', CountryListView.as_view(), name="get_countries_url"),
     path('api/cities/', CityListView.as_view(), name="get_cities_url"),
     path('api/chat/create', ChatCreate.as_view(), name='chat_create')

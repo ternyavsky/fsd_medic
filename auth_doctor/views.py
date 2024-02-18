@@ -4,11 +4,12 @@ import datetime
 from datetime import UTC, time, time, date, date, timezone
 from django.core.cache import cache
 from django.db import transaction
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework import generics, status
-from rest_framework import views
-from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -26,7 +27,19 @@ from .services.doctor_reg_services import *
 logger = logging.getLogger(__name__)
 
 
-class ClinicDataPast(views.APIView):
+class DoctorsListView(generics.ListAPIView):
+    queryset = Doctor.objects.all()
+    permissions_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['country', 'city', 'first_name', 'last_name', 'work_experience',
+                        'specialization', 'main_status'
+                        ]
+
+    def get_queryset(self):
+        return self.queryset.filter(country=self.request.user.country)
+
+
+class ClinicDataPast(APIView):
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
@@ -40,19 +53,18 @@ class ClinicDataPast(views.APIView):
     def post(self, request, *args, **kwargs):
         return clinic_datapast_service(request)
 
-class ClinicInterviewCreate(views.APIView):
-    permission_classes = [AllowAny]
 
+class ClinicInterviewCreate(APIView):
+    permission_classes = [AllowAny]
 
     @swagger_auto_schema(
         operation_summary="Назначение даты интервью (Клиника)",
     )
     def post(self, request, clinic_hash):
         return clinic_interview_create_service(request, clinic_hash)
-        
 
 
-class DoctorDataPast(views.APIView):
+class DoctorDataPast(APIView):
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
@@ -68,7 +80,7 @@ class DoctorDataPast(views.APIView):
         return doctor_datapast_service(request)
 
 
-class DoctorInterviewCreate(views.APIView):
+class DoctorInterviewCreate(APIView):
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
@@ -76,7 +88,6 @@ class DoctorInterviewCreate(views.APIView):
     )
     def post(self, request, doctor_hash):
         return doctor_create_interview_service(request, doctor_hash)
-
 
 
 class DoctorPasswordResetView(APIView):
@@ -94,6 +105,7 @@ class DoctorPasswordResetView(APIView):
     )
     def post(self, request):
         return doctor_passoword_reset_service(request)
+
 
 class DoctorVerifyResetCodeView(APIView):
     """Проверка кода для сброса пароля"""
@@ -113,6 +125,7 @@ class DoctorVerifyResetCodeView(APIView):
     def post(self, request):
         return doctor_verify_resetcode_service(request)
 
+
 class DoctorResendSmsView(APIView):
     """Переотправка смс, в разделе 'получить смс снова'"""
     permission_classes = [AllowAny]
@@ -123,10 +136,9 @@ class DoctorResendSmsView(APIView):
             type=openapi.TYPE_OBJECT,
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
-            
+
             }),
     )
-    
     def post(self, request):
         return doctor_resend_sms_service(request)
 
@@ -143,8 +155,8 @@ class DoctorSetNewPasswordView(APIView):
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "password1":openapi.Schema(type=openapi.TYPE_STRING),
-                "password2":openapi.Schema(type=openapi.TYPE_STRING),
+                "password1": openapi.Schema(type=openapi.TYPE_STRING),
+                "password2": openapi.Schema(type=openapi.TYPE_STRING),
             }),
 
     )
@@ -167,18 +179,19 @@ class ClinicPasswordResetView(APIView):
     )
     def post(self, request):
         return clinic_password_reset_service(request)
-        
+
 
 class ClinicResendSmsView(APIView):
     permission_classes = [AllowAny]
     """Переотправка смс, в разделе 'получить смс снова'"""
+
     @swagger_auto_schema(
         operation_summary="Переотправка смс (Клиника)",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
-            
+
             }),
     )
     def post(self, request):
@@ -204,7 +217,6 @@ class ClinicVerifyResetCodeView(APIView):
         return clinic_verify_resetcode_service(request)
 
 
-
 class ClinicSetNewPasswordView(APIView):
     permission_classes = [AllowAny]
     """Установка нового пароля"""
@@ -217,13 +229,12 @@ class ClinicSetNewPasswordView(APIView):
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "password1":openapi.Schema(type=openapi.TYPE_STRING),
-                "password2":openapi.Schema(type=openapi.TYPE_STRING),
+                "password1": openapi.Schema(type=openapi.TYPE_STRING),
+                "password2": openapi.Schema(type=openapi.TYPE_STRING),
             }),
     )
     def post(self, request):
         return clinic_set_password_service(request)
-
 
 
 class InterviewView(generics.ListCreateAPIView):  # как бы это не называлось
@@ -232,8 +243,6 @@ class InterviewView(generics.ListCreateAPIView):  # как бы это не на
     """Работа с сотрудниками"""
     serializer_class = InterviewSerializer
     queryset = Interview.objects.all()
-
-
 
     def get(self, request):
         return super().get(self, request)
@@ -244,7 +253,6 @@ class InterviewView(generics.ListCreateAPIView):  # как бы это не на
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class LoginDoctor(APIView):
@@ -296,7 +304,3 @@ class LoginClinic(APIView):
                 algorithm="HS256")
             return Response({"access_token": clinic_jwt}, status=status.HTTP_200_OK)
         return Response({"error": "Clinic not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-

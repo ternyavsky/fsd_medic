@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/center_token/', LoginCenter.as_view(), name='token-center'),
     path('api/clinic_token/', LoginClinic.as_view(), name='token-clinic'),
 
+    path('api/notes/doctors/', DoctorsListView.as_view(), name="get_doctors_url"),
     path('api/inter/', InterviewView.as_view(), name='test')
     # Сохранение данных в кэше
 

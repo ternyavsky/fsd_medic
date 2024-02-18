@@ -12,7 +12,7 @@ def get_news(**kwargs):
     """Получение новостей"""
     return (News.objects
             .select_related("center", "disease",)
-            .prefetch_related("center__employees", "center__supported_diseases", "videos", "images")
+            .prefetch_related("center__employees", "center__supported_diseases")
             .filter(**kwargs)
             )
 

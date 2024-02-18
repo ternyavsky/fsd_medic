@@ -14,6 +14,8 @@ from api.serializers import UserSerializer, CountrySerializer
 from api.backends import user_authenticate
 
 logger = logging.getLogger(__name__)
+
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
 
     # Overiding validate function in the TokenObtainSerializer  
@@ -69,19 +71,21 @@ class CreateUserSerializer(serializers.Serializer):
     '''Регистрация'''
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    country = serializers.CharField() 
+    country = serializers.CharField()
+
     def create(self, validated_data):
         self.create_validate(validated_data)
         user = User.objects.create_user(
-                email=validated_data["email"],
-                password=validated_data['password'],
-            )
+            email=validated_data["email"],
+            password=validated_data['password'],
+        )
         user.country = Country.objects.get(name="Узбекистан")
         user.save()
         main_doctor = get_doctors(country="Узбекистан", main_status=True).first()
         Subscribe.objects.create(user=user, main_doctor=main_doctor)
         # Chat create with mdoctor
         return user
+
     def create_validate(self, validated_data):
         password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
         if User.objects.filter(email=validated_data['email']).exists():
@@ -91,7 +95,6 @@ class CreateUserSerializer(serializers.Serializer):
                 {'password': 'The password must consist of numbers and letters of both cases'})
         if len(validated_data['password']) < 8:
             raise serializers.ValidationError({'password': 'Password must be at least 8 characters'})
-
 
 
 # sms code block ##
@@ -106,8 +109,6 @@ class ResendCodeSerializer(serializers.Serializer):
     email = serializers.CharField()
 
 
-
-
 class VerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
     email = serializers.CharField(allow_null=True, required=False)
@@ -120,7 +121,6 @@ class NewPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     password2 = serializers.CharField(min_length=8, max_length=128)
-
 
 
 ## number bind block
@@ -150,7 +150,6 @@ class AdminSerializer(serializers.Serializer):
                                              first_name=validated_data['first_name'],
                                              last_name=validated_data['last_name'],
                                              password=validated_data['password'])
-
 
     def create_validate(self, data):
         number_pattern = re.compile('^[+]+[0-9]+$')

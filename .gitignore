@@ -3,5 +3,5 @@ db.sqlite3
 .idea/
 .vscode/
 pyrightconfig.json
-# requirements.txt
+requirements.txt
 .env

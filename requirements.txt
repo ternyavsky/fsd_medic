@@ -29,6 +29,8 @@ django-loki==0.1.4
 django-prometheus==2.3.1
 django-redis==5.4.0
 django-storages==1.14.2
+django-stubs==4.2.7
+django-stubs-ext==4.2.7
 djangochannelsrestframework==1.2.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
@@ -74,6 +76,8 @@ six==1.16.0
 sqlparse==0.4.4
 Twisted==23.10.0
 txaio==23.1.1
+types-pytz==2024.1.0.20240203
+types-PyYAML==6.0.12.12
 typing_extensions==4.9.0
 tzdata==2023.4
 uritemplate==4.1.1

@@ -2,12 +2,11 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from api.models import Country, Center, Clinic, City
+from api.models import Country, Center, Clinic, City, BaseModel
 
 
 # Create your models here.
-class Doctor(AbstractBaseUser):
-    id = models.BigAutoField(db_index=True, primary_key=True)
+class Doctor(AbstractBaseUser, BaseModel):
     main_status = models.BooleanField(default=False, null=True, blank=True)
     online = models.BooleanField(default=False, blank=True, null=True)
     # Любой сотрудник центра
@@ -33,10 +32,6 @@ class Doctor(AbstractBaseUser):
     review_date = models.DateTimeField(
         null=True, verbose_name="Предполагаемая дата и время интервью" ,blank=True)
     review_passed = models.BooleanField(_("Собеседование пройдено"), null=True)
-    created_at = models.DateTimeField(
-        verbose_name=_('Дата создания'), auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(
-        verbose_name=_('Дата Изменения'), auto_now=True, null=True)
     verification_code = models.PositiveIntegerField(
         verbose_name=_('СМС код подтверждения'), default=1)
     reset_code = models.PositiveIntegerField(
@@ -54,8 +49,7 @@ class Doctor(AbstractBaseUser):
 
 
 
-class LinkToInterview(models.Model):
-    id = models.BigAutoField(db_index=True, primary_key=True)
+class LinkToInterview(BaseModel):
     link = models.CharField(verbose_name=_(
         "Ссылка на интервью"), max_length=220, unique=True)
     used = models.BooleanField(_("Использована"), default=False)
@@ -68,8 +62,7 @@ class LinkToInterview(models.Model):
         return f"{self.link}"
 
 
-class Interview(models.Model):
-    id = models.BigAutoField(db_index=True, primary_key=True)
+class Interview(BaseModel):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, null=True, verbose_name=_("Врач"))
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, null=True, verbose_name=_("Клиника"))
     center = models.ForeignKey(Center, on_delete=models.CASCADE, null=True, verbose_name=_("Центр"))
