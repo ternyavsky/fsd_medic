@@ -1,6 +1,5 @@
 import os.path
 from datetime import timedelta
-import environ
 from pathlib import Path
 from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
