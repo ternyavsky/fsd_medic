@@ -3,6 +3,4 @@ db.sqlite3
 .idea/
 .vscode/
 pyrightconfig.json
-requirements.txt
-.pre-commit-config.yaml
 .env
