@@ -8,7 +8,7 @@ AUTH_USER_MODEL = 'api.User'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -177,18 +177,16 @@ DATABASES = {
         #'NAME': "sys",
         'NAME': os.getenv('DB_NAME'),
        # 'USER': "root",
-        'USER': os.getenv('DB_USER', os.environ.get('DB_USER')),
-        'PASSWORD': os.getenv('DB_PASSWORD', os.environ.get('DB_PASSWORD')),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         #'PASSWORD': "root",
-        'PORT': os.getenv('DB_PORT', "3306"),
+        'PORT': os.getenv('DB_PORT'),
         #'HOST': "172.17.0.1" ,
-        'HOST': os.getenv('DB_HOST', '188.225.85.228' ),
+        'HOST': os.getenv('DB_HOST'),
         'OPTIONS': {
-            'sql_mode': os.getenv('DB_SQL_MODE', "traditional")
+            'sql_mode': os.getenv('DB_SQL_MODE')
         },
-        'TEST': {
-            'NAME': 'test_db'
-        }
+
     }
 
 
