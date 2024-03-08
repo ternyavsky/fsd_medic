@@ -28,6 +28,7 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
+          export SECRET_KEY=$SECRET_KEY
           python manage.py test --keepdb
   build:
     needs: [run_tests]

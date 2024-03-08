@@ -17,8 +17,8 @@ class Doctor(AbstractBaseUser, BaseModel):
     image = models.ImageField(verbose_name=_('Фотография Пользователья'), upload_to='users_photos/', blank=True,
                               default='users_photos/AccauntPreview.png')
     middle_name = models.CharField(verbose_name="Отчетсво", max_length=50)
-    country = models.CharField(verbose_name=_('Страна'), max_length=255, null=True, blank=True)
-    city = models.CharField(verbose_name=_('Город'), max_length=255, null=True, blank=True)
+    country = models.ForeignKey("api.Country", verbose_name=_('Страна'), null=True, blank=True, on_delete=models.SET_NULL)
+    city = models.ForeignKey("api.City", verbose_name=_('Город'), null=True, blank=True, on_delete=models.SET_NULL)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, verbose_name=_(
         "Центр, в котором зарегистрирован врач"))
     clinic = models.ForeignKey(Clinic, null=True, on_delete=models.CASCADE, verbose_name=_(
