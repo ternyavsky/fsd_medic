@@ -3,4 +3,4 @@ db.sqlite3
 .idea/
 .vscode/
 pyrightconfig.json
-.env
+fsd_medic/.env

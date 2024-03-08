@@ -1,5 +1,6 @@
 import os.path
 from datetime import timedelta
+import environ
 from pathlib import Path
 from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
@@ -8,13 +9,13 @@ AUTH_USER_MODEL = 'api.User'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-load_dotenv(BASE_DIR / '.env')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY",os.environ.get("SECRET_KEY"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG_STATUS')
@@ -173,18 +174,18 @@ SWAGGER_SETTINGS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
         #'NAME': "sys",
         'NAME': os.getenv('DB_NAME'),
        # 'USER': "root",
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'USER': os.getenv('DB_USER', os.environ.get('DB_USER')),
+        'PASSWORD': os.getenv('DB_PASSWORD', os.environ.get('DB_PASSWORD')),
         #'PASSWORD': "root",
-        'PORT': os.getenv('DB_PORT'),
+        'PORT': os.getenv('DB_PORT', "3306"),
         #'HOST': "172.17.0.1" ,
-        'HOST': os.getenv('DB_HOST'),
+        'HOST': os.getenv('DB_HOST', '188.225.85.228' ),
         'OPTIONS': {
-            'sql_mode': os.getenv('DB_SQL_MODE')
+            'sql_mode': os.getenv('DB_SQL_MODE', "traditional")
         },
         'TEST': {
             'NAME': 'test_db'
