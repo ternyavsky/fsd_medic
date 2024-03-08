@@ -82,6 +82,3 @@ def send_sms(number, code):
         return True
     else:
         return False
-
-
-

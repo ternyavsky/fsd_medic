@@ -1,15 +1,15 @@
 version: "3.8"
 services:
   app:
-    container_name: fsd_medic.app 
+    container_name: fsd_medic.app
       #command:  bash -c "gunicorn fsd_medic.asgi:application --bind 0.0.0.0:8000  -k uvicorn.workers.UvicornWorker"
     command: bash -c "python manage.py runserver 0.0.0.0:8000"
-    build: .  
+    build: .
     ports:
       - "8000:8000"
     links:
       - redis
-  redis: 
+  redis:
     container_name: fsd_medic.redis
     image: redis:alpine
     ports:
@@ -30,12 +30,12 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yaml'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
-  grafana: 
+  grafana:
     container_name: fsd_medic.grafana
     volumes:
       - grafana_storage:/var/lib/grafana
     image: grafana/grafana
-    ports: 
+    ports:
       - "3000:3000"
         #  mysql:
         #    container_name: fsd_medic.mysql
@@ -43,9 +43,9 @@ services:
         #   ports:
         # - "3306:3306"
         #environment:
-        #  MYSQL_ROOT_PASSWORD: root 
+        #  MYSQL_ROOT_PASSWORD: root
         # MYSQL_DATABASE: mysql
-        # MYSQL_PASSWORD: root 
+        # MYSQL_PASSWORD: root
         # volumes:
         # - ./dbdata:/var/lib/mysql/
         # - ./default_db.sql:/docker-entrypoint-initdb.d/default_db.sql
@@ -85,5 +85,5 @@ services:
 
         #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
 volumes:
-  dbdata: 
+  dbdata:
   grafana_storage: {}

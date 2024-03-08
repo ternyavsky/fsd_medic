@@ -3,7 +3,7 @@ import logging
 from rest_framework import status
 from rest_framework.response import Response
 
-from auth_user.serializers import NumberBindingSerializer, VerifyNumberCodeSerializer 
+from auth_user.serializers import NumberBindingSerializer, VerifyNumberCodeSerializer
 from auth_user.service import generate_verification_code, send_sms, send_verification_email
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ def number_bind_service(request):
         user = request.user
         number_code = generate_verification_code()
         send_sms(user.number, number_code)
-        user.number_verification_code = number_code 
+        user.number_verification_code = number_code
         user.save()
 
         logger.debug("code sended")
@@ -35,7 +35,7 @@ def verify_number_bind_service(request):
         number = serializer.validated_data["number"]
         user = request.user
         if number_code == user.number_verification_code:
-            user.number = number 
+            user.number = number
             user.save()
             logger.debug("User verified successfully")
             logger.debug(request.path)

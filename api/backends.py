@@ -29,7 +29,7 @@ def doctor_authenticate(number=None, password=None):
         doctor = doctors.filter(number=number).first()
         if check_password(password, doctor.password):
             return doctor
-        else: 
+        else:
             return None
     except Doctor.DoesNotExist:
         return None
@@ -39,7 +39,7 @@ def clinic_authenticate(number=None, password=None):
         clinics = cache.get_or_set("clinics", get_clinics())
         clinic = clinics.filter(number=number).first()
         if password == clinic.password:
-            return clinic 
+            return clinic
         else:
             return None
     except Clinic.DoesNotExist:
@@ -51,9 +51,8 @@ def center_authenticate(number=None, password=None):
         centers = cache.get_or_set("centers", get_centers())
         center = centers.filter(number=number).first()
         if password == center.password:
-            return center 
+            return center
         else:
             return None
     except Center.DoesNotExist:
         return None
-    

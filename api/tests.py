@@ -18,7 +18,7 @@ class NoteViewsetTestCase(TestCase):
         self.city = City.objects.create(name="Москва")
         self.country = Country.objects.create(name="Россия")
         self.user = User.objects.create(
-            number="+79991119911", 
+            number="+79991119911",
             password="test",
             group=self.group,
             country=self.country,
@@ -39,7 +39,7 @@ class NoteViewsetTestCase(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(self.user)
         self.factory = APIRequestFactory()
-        
+
     def test_note_get(self):
         request = self.factory.get(reverse("notes-list"))
         view = NoteViewSet.as_view({"get": "list"})
@@ -65,14 +65,14 @@ class LikeViewsetTestCase(TestCase):
         City.objects.create(name="Москва")
         Country.objects.create(name="Россия")
         User.objects.create(
-            number="+79991119911", 
+            number="+79991119911",
             password="test",
             group=Group.objects.get(id=1),
             country=Country.objects.get(id=1),
             city=City.objects.get(id=1))
         self.client = Client()
         self.request = APIRequestFactory()
-    
+
     def test_like_viewset_get(self):
         request = self.request.get("")
         view = LikeViewSet.as_view({"get": "retrieve"})
@@ -96,7 +96,7 @@ class SaveViewsetTestCase(TestCase):
         self.city = City.objects.create(name="Москва")
         self.country = Country.objects.create(name="Россия")
         self.user = User.objects.create(
-            number="+79991119911", 
+            number="+79991119911",
             password="test",
             group=self.group,
             country=self.country,
@@ -104,7 +104,7 @@ class SaveViewsetTestCase(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(self.user)
         self.request = APIRequestFactory()
-    
+
     def test_save_viewset_get(self):
         request = self.request.get("")
         view = SaveViewSet.as_view({"get": "retrieve"})
@@ -125,5 +125,3 @@ class SaveViewsetTestCase(TestCase):
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 201)
-
-

@@ -26,5 +26,3 @@ import eventlet.wsgi
 
 eventlet.wsgi.server(eventlet.listen(('', 8000)), application)
 # pywsgi.WSGIServer(('', 8000), application=application).serve_forever()
-
-

@@ -27,7 +27,7 @@ class ClinicDataPastTestCase(TestCase):
             #"center": 1,
             "city": "Москва",
             "supported_diseases": [1],
-            
+
         }
 
     def test_post_clinic_data_past(self):

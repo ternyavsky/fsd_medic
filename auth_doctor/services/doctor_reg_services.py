@@ -172,7 +172,7 @@ def doctor_create(doctor_hash: str, datetime_obj):
 
 @shared_task
 def send_verification_code_doctor(doctor_hash, number_to):
-    key = os.getenv('API_KEY')  
+    key = os.getenv('API_KEY')
     email = os.getenv('EMAIL')
     url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number_to}&text=Ссылка+для+собедования+http://127.0.0.1:8000/api/create_doctor/{doctor_hash}&sign=SMSAero'
     res = requests.get(url)

@@ -18,7 +18,7 @@ def get_user(validated_token):
         user = get_user_model().objects.get(number=validated_token["number"])
         print(f"{user}")
         return user
-   
+
     except User.DoesNotExist:
         return AnonymousUser()
 
@@ -81,7 +81,7 @@ class JwtAuthMiddleware(BaseMiddleware):
                     scope["doctor"] = await get_doctor(validated_token=decoded_data)
                 case "center":
                     scope["center"] = await get_center(validated_token=decoded_data)
-                
+
         return await super().__call__(scope, receive, send)
 
 def JwtAuthMiddlewareStack(inner):

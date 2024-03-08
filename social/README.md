@@ -12,7 +12,7 @@
 
 ![image](https://github.com/ternyavsky/fsd_medic/assets/105453132/3117521d-ad2b-4b6a-8b6b-bc18125845b1)
 
-## Send message 
+## Send message
 
 ![image](https://github.com/ternyavsky/fsd_medic/assets/105453132/1b559b37-409d-4995-a2ce-6a14338a0d64)
 
@@ -21,7 +21,7 @@
 ![image](https://github.com/ternyavsky/fsd_medic/assets/105453132/d6bc7a89-eef9-4fa1-a0ce-fe051d415256)
 
 ## Typing
-reacthotkeys, smth that 
+reacthotkeys, smth that
 
 ![image](https://github.com/ternyavsky/fsd_medic/assets/105453132/a8c0f072-1e65-49ec-b3a2-fc1597337c5e)
 

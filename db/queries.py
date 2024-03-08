@@ -19,7 +19,7 @@ def get_news(**kwargs):
 
 def get_likes(**kwargs):
     return (Like.objects.filter(**kwargs)
-            .select_related("user",  "user__group", 
+            .select_related("user",  "user__group",
                             "news", "news__center", "news__disease", )
             .prefetch_related("user__disease", "user__centers", )
             )
@@ -40,7 +40,7 @@ def get_countries(**kwargs):
 
 def get_saved(**kwargs):
     return (Saved.objects.filter(**kwargs)
-            .select_related("user",  "user__group", 
+            .select_related("user",  "user__group",
                              "news", "news__center", "news__disease",)
             .prefetch_related("user__disease", "user__centers",  )
             )
@@ -51,7 +51,7 @@ def get_notes(**kwargs):
     """Получение записей"""
     return (Note.objects
             .select_related("user", "center", "user__group",  "clinic",
-                            "center__admin", 
+                            "center__admin",
                             "clinic__admin")
             .prefetch_related("center__employees", "user__centers", "center__supported_diseases", "user__disease",
                               "clinic__supported_diseases")
@@ -80,7 +80,7 @@ def get_centers(**kwargs):
     return (Center.objects
             .select_related( "admin")
             .prefetch_related("supported_diseases", "employees", "admin__centers", "admin__disease",
-                            
+
                               )
             .filter(**kwargs)
 
@@ -106,7 +106,7 @@ def get_access(**kwargs):
     """Получение доступа"""
     return (Access.objects.filter(**kwargs)
             .select_related("user")
-            .prefetch_related("access_accept", "access_unaccept", "access_accept__centers", "access_unaccept__centers", 
+            .prefetch_related("access_accept", "access_unaccept", "access_accept__centers", "access_unaccept__centers",
                             "access_accept__disease", "access_unaccept__disease", "user__disease"
                               )
             )

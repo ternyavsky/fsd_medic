@@ -24,9 +24,9 @@ services:
         # ports:
         # - "3306:3306"
         # environment:
-        # MYSQL_ROOT_PASSWORD: root 
+        # MYSQL_ROOT_PASSWORD: root
         #  MYSQL_DATABASE: mysql
-        # MYSQL_PASSWORD: root 
+        # MYSQL_PASSWORD: root
         # volumes:
         # - ./dbdata:/var/lib/mysql
         # - ./default_db.sql:/docker-entrypoint-initdb.d/default_db.sql
@@ -79,6 +79,5 @@ services:
 
 
 volumes:
-  dbdata: 
+  dbdata:
   grafana_storage: {}
-

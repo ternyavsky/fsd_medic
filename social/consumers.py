@@ -80,12 +80,12 @@ class MyConsumer(AsyncWebsocketConsumer):
         await self.accept()
         print(self.scope["user"], 76)
         self.chat = self.chats.filter(uuid=self.chat_uuid).first()
-        self.chat_users = self.chat.users.all() 
+        self.chat_users = self.chat.users.all()
         self.chat_centers = self.chat.centers.all()
         self.chat_doctors = self.chat.doctors.all()
         logger.debug(self.chat)
         data = {}
-        # doctor/center set this! 
+        # doctor/center set this!
         if "user" in self.scope:
             instance = self.users.filter(number=self.scope["user"]).first()
             serialize = UserSerializer(instance).data
@@ -118,7 +118,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 'action': 'list_message',
                 'chat': self.chat_uuid,
                 'messages': dict(data=self.serializer(instance=messages, many=True).data)
-            })  
+            })
         )
 
     async def open(self, e):
@@ -129,7 +129,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 "online_users": cache.get(self.chat_uuid)
             })
         )
-        
+
 
     #### CONNECT ####
 
@@ -148,7 +148,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         data = {}
         data["number"] = serialize["number"]
         data["first_name"] = serialize["first_name"]
-        
+
         a = cache.get(self.chat_uuid, None)
         a.remove(data)
         cache.set(self.chat_uuid, a, self.hour)
@@ -173,7 +173,7 @@ class MyConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         print(data, "data")
-        
+
         action = data["action"]
         match action:  # CHOICE ACTION
             case 'typing':
@@ -263,8 +263,8 @@ class MyConsumer(AsyncWebsocketConsumer):
         )
         await self.disconnect(401)
 
-    
-    
+
+
 
     async def send_message(self, event):
         await self.send(

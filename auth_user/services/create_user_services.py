@@ -127,7 +127,7 @@ def set_new_password_service(request):
             logger.warning("User not found")
             logger.warning(request.path)
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
         set_new_password(user, serializer.validated_data["password"])
         logger.debug("Password changed successfully")
         logger.debug(request.path)

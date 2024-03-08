@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_loki',
     'storages',
-    'socketio', 
+    'socketio',
     'corsheaders',
 
 
@@ -84,7 +84,7 @@ INTERNAL_IPS = [
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:3001',  
+    'http://127.0.0.1:3001',
     "http://localhost:3001"
 ]
 CORS_ALLOW_CREDENTIALS = True
@@ -173,9 +173,9 @@ SWAGGER_SETTINGS = {
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE'),
-        #'NAME': "sys", 
+        #'NAME': "sys",
         'NAME': os.getenv('DB_NAME'),
-       # 'USER': "root", 
+       # 'USER': "root",
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         #'PASSWORD': "root",

@@ -6,7 +6,7 @@ db = MySQLdb.connect(
      user="gen_user",
      passwd="#i*InO79XJn\ZP",
      db="default_db",
-     port=3306 
+     port=3306
 )
 
 
@@ -20,4 +20,3 @@ def delete_noactive_users(id: int):
      db.commit()
      db.close()
      print(cursor.rowcount, "record(s) deleted")
-

@@ -13,7 +13,7 @@ class VerifyCodeServiceTests(APITestCase):
         self.city = City.objects.create(name="Москва")
         self.country = Country.objects.create(name="Россия")
         self.user = User.objects.create(
-            number="+79991119911", 
+            number="+79991119911",
             password="test",
             group=self.group,
             country=self.country,
@@ -46,4 +46,3 @@ class VerifyCodeServiceTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data['error'], 'Invalid verification code')
-

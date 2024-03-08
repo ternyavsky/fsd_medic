@@ -6,13 +6,13 @@ def user_profile_data(pk):
     users = cache.get_or_set("users", get_users())
     users = users.filter(pk=pk) if pk else users
     access = cache.get_or_set("access", get_access())
-    access = access.filter(user_id=pk) if pk else access   
-    notes = cache.get_or_set("notes", get_notes())  
+    access = access.filter(user_id=pk) if pk else access
+    notes = cache.get_or_set("notes", get_notes())
     curr_notes = notes.filter(user_id__in=Subquery(users.values("id")), status="Passed")
     process_notes = notes.filter(user_id__in=Subquery(users.values("id")), status="In processing")
     miss_notes = notes.filter(user_id__in=Subquery(users.values("id")), time_start__gt=datetime.now())
-    result = {  
-        "user": users,  
+    result = {
+        "user": users,
         "curr_notes": curr_notes, #Текущие записи
         "process_notes": process_notes, # Неустановленные записи
         "miss_notes": miss_notes, # Пропущенные записи
@@ -75,7 +75,7 @@ def center_profile_data(pk):
     )
     users = cache.get_or_set("users", get_users())
     users_centers = users.filter(centers__id__in=centers.values("id"))
-    result = users_centers 
+    result = users_centers
     obj = {
         "center": centers,
         "pacients": result

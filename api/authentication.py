@@ -15,7 +15,7 @@ from datetime import date, datetime
 #  smash on clinic, center, doctor
 class CustomAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
-        
+
         token = request.headers["Authorization"].split(" ")
         if token[0] != "Bearer":
             raise exceptions.AuthenticationFailed("No valid secret word")
@@ -43,4 +43,3 @@ class CustomAuthentication(authentication.BaseAuthentication):
                         return (clinic, None)
                     except Clinic.DoesNotExist:
                         raise exceptions.AuthenticationFailed("Clinic not found")
-

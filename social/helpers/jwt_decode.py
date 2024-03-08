@@ -13,7 +13,7 @@ def jwt_decode(token:str, connect:bool=True) -> User | Doctor:
     )
     if "type" in instance:
         doctor = cache.get_or_set("doctors", get_doctors()).filter(number=instance["number"]).first()
-        doctor.online = True if connect else False 
+        doctor.online = True if connect else False
         doctor.save()
         return DoctorGetSerializer(doctor).data
     else:
@@ -21,4 +21,3 @@ def jwt_decode(token:str, connect:bool=True) -> User | Doctor:
         user.online = True if connect else False
         user.save()
         return UserSerializer(user).data
-    

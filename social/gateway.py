@@ -33,7 +33,7 @@ def typing(sid, token, chat_id):
     server.emit("typing", {"typing": {"chat": ChatSerializer(chat).data, "instance": instance}})
 
 
-@server.event 
+@server.event
 def send_message(sid, token:str, chat_id:Chat.id, text:str, reply_id:Message.id=None):
     instance = jwt_decode(token)
     chat = cache.get_or_set("chats", get_chats()).filter(id=chat_id).first()
@@ -54,6 +54,3 @@ def delete_message(sid, message_id:Message.id):
     msg = cache.get_or_set("messages", get_messages()).filter(id=message_id).first()
     message = del_message(msg)
     server.emit("delete_message", message.id)
-
-
-

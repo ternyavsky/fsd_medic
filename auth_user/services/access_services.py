@@ -38,7 +38,7 @@ def accept_access_service(request):
     chat_to_add.users.add(user_to_accept_access)
 
 
-    
+
 
 @transaction.atomic
 def delete_access_service(request):

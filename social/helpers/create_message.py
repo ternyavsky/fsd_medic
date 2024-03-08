@@ -1,5 +1,5 @@
 from ..models import Message, Chat
-from api.models import User 
+from api.models import User
 from api.serializers import UserSerializer, DoctorGetSerializer
 from ..serializers import MessageSerializer
 from auth_doctor.models import Doctor

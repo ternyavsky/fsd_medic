@@ -15,5 +15,5 @@ class Migration(migrations.Migration):
             model_name='country',
             name='cities',
         ),
- 
+
     ]

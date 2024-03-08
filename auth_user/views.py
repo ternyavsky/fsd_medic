@@ -17,11 +17,11 @@ from api.models import User
 from api.permissions import OnlyCreate
 from api.serializers import UserSerializer, DiseaseSerializer, AccessSerializer, CenterSerializer, UserUpdateSerializer
 from auth_user.serializers import *
-from auth_user.service import generate_verification_code, send_email 
+from auth_user.service import generate_verification_code, send_email
 from auth_user.services.access_services import add_access_service, accept_access_service, delete_access_service
 from auth_user.services.create_user_services import verify_code_service, resend_sms_service, \
     password_reset_service, verify_reset_code_service, set_new_password_service
-from auth_user.services.email_bind_services import number_bind_service, verify_number_bind_service 
+from auth_user.services.email_bind_services import number_bind_service, verify_number_bind_service
 from db.queries import *
 
 logger = logging.getLogger(__name__)
@@ -60,9 +60,9 @@ class LoginView(APIView):
 
 class UserView(generics.ListCreateAPIView):
     """Список пользователей"""
-    queryset = get_users() 
+    queryset = get_users()
     # permission_classes = [OnlyCreate]
-    serializer_class = UserSerializer   
+    serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['sex', 'clinic', 'disease']
 
@@ -164,7 +164,7 @@ class PasswordResetView(APIView):
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
                 "email": openapi.Schema(type=openapi.TYPE_STRING)
             }),
-    )    
+    )
     def post(self, request):
         return password_reset_service(request.data)
 
@@ -321,9 +321,6 @@ class AccessViewSet(APIView):
     )
     def put(self, request):
         """ JSON {"id": 22} """
-    
+
         accept_access_service(request)
         return Response({"message": "accepted"}, status=status.HTTP_200_OK)
-
-
-
