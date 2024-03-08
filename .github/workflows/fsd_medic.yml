@@ -25,14 +25,7 @@ jobs:
           poetry lock --no-update
           poetry install
       - name: Run tests
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          export SECRET_KEY=$SECRET_KEY
-          export DB_USER=$DB_USER
-          export DB_PASSWORD=$DB_PASSWORD
           python manage.py test --keepdb
   build:
     needs: [run_tests]
