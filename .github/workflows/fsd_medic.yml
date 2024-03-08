@@ -20,7 +20,6 @@ jobs:
           architecture: 'x64'
       - name: Install Dependencies
         run: |
-          export SECRET_KEY=${{ secrets.SECRET_KEY }}
           python -m pip install poetry
           poetry config virtualenvs.create false
           poetry lock --no-update
