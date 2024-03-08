@@ -25,7 +25,6 @@ jobs:
           poetry lock --no-update
           poetry install
       - name: Run tests
-        env:
         run: |
           export SECRET_KEY=${{ secrets.SECRET_KEY }}
           export DB_USER=${{ secrets.DB_USER }}
