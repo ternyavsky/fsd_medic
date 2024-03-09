@@ -5,23 +5,29 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('api', '0006_center_review_passed_clinic_review_passed'),
+        ("api", "0006_center_review_passed_clinic_review_passed"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clinic',
-            name='email_verification_code',
-            field=models.PositiveIntegerField(default=0, verbose_name='Код для привязки почты к аккаунту'),
+            model_name="clinic",
+            name="email_verification_code",
+            field=models.PositiveIntegerField(
+                default=0, verbose_name="Код для привязки почты к аккаунту"
+            ),
         ),
         migrations.AddField(
-            model_name='clinic',
-            name='reset_code',
-            field=models.PositiveIntegerField(default=1, verbose_name='Код для сброса пароля'),
+            model_name="clinic",
+            name="reset_code",
+            field=models.PositiveIntegerField(
+                default=1, verbose_name="Код для сброса пароля"
+            ),
         ),
         migrations.AddField(
-            model_name='clinic',
-            name='verification_code',
-            field=models.PositiveIntegerField(default=1, verbose_name='СМС код подтверждения'),
+            model_name="clinic",
+            name="verification_code",
+            field=models.PositiveIntegerField(
+                default=1, verbose_name="СМС код подтверждения"
+            ),
         ),
     ]

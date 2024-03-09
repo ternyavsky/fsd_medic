@@ -16,7 +16,8 @@ def notify_center(sender, instance, **kwargs):
         users = User.objects.filter(clinic=instance.clinic)
         for i in range(len(users)):
             notification = Notification.objects.create(
-                user=users[i], text=f"Вышел новый пост у клиники{instance.clinic.name}")
+                user=users[i], text=f"Вышел новый пост у клиники{instance.clinic.name}"
+            )
 
 
 @receiver(post_save, sender=Note)
@@ -25,15 +26,21 @@ def notify_note(sender, instance, created, **kwargs):
         notify = None
         if instance.special_check:
             notify = Notification.objects.create(
-                user=instance.user, text="Созданная запись прошла дополнительную проверку")
+                user=instance.user,
+                text="Созданная запись прошла дополнительную проверку",
+            )
         if instance.status == "Rejected":
             notify = Notification.objects.create(
-                user=instance.user, text="Запись была отклонена вашим центром")
+                user=instance.user, text="Запись была отклонена вашим центром"
+            )
         elif instance.status == "Passed":
             notify = Notification.objects.create(
-                user=instance.user, text="Запись была подтверждена вашим центром")
+                user=instance.user, text="Запись была подтверждена вашим центром"
+            )
         notify.save()
-        server.emit("notification", {"notification": NotificationSerializer(notify).data})
+        server.emit(
+            "notification", {"notification": NotificationSerializer(notify).data}
+        )
 
 
 @receiver(post_save, sender=User)
@@ -41,26 +48,30 @@ def notify_verify(sender, instance, created, **kwargs):
     if not created:
         if instance.verification_code != 1 and instance.number_verification_code != 1:
             notify = Notification.objects.create(
-                user=instance, text="Ваш аккаунт был успешно защищен эл.почтой или телефоном")
+                user=instance,
+                text="Ваш аккаунт был успешно защищен эл.почтой или телефоном",
+            )
             notify.save()
-            server.emit("notification", {"notification": NotificationSerializer(notify).data})
+            server.emit(
+                "notification", {"notification": NotificationSerializer(notify).data}
+            )
 
 
 @receiver(post_delete, sender=Message, dispatch_uid="messages_deleted")
 def message_post_delete_handler(sender, **kwargs):
-    cache.delete('messages')
+    cache.delete("messages")
 
 
-@receiver(post_save, sender=Message, dispatch_uid='messages_updated')
+@receiver(post_save, sender=Message, dispatch_uid="messages_updated")
 def message_post_save_handler(sender, **kwargs):
-    cache.delete('messages')
+    cache.delete("messages")
 
 
 @receiver(post_delete, sender=Chat, dispatch_uid="chats_deleted")
 def chat_post_delete_handler(sender, **kwargs):
-    cache.delete('chats')
+    cache.delete("chats")
 
 
-@receiver(post_save, sender=Chat, dispatch_uid='chats_deleted')
+@receiver(post_save, sender=Chat, dispatch_uid="chats_deleted")
 def chat_post_save_handler(sender, **kwargs):
-    cache.delete('chats')
+    cache.delete("chats")

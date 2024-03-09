@@ -6,23 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0059_remove_news_images_remove_news_videos_and_more'),
+        ("api", "0059_remove_news_images_remove_news_videos_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='news',
-            name='photos',
-            field=models.ManyToManyField(related_name='news_photos', to='api.newsphotos'),
+            model_name="news",
+            name="photos",
+            field=models.ManyToManyField(
+                related_name="news_photos", to="api.newsphotos"
+            ),
         ),
         migrations.AddField(
-            model_name='news',
-            name='videos',
-            field=models.ManyToManyField(related_name='news_videos', to='api.newsvideos'),
+            model_name="news",
+            name="videos",
+            field=models.ManyToManyField(
+                related_name="news_videos", to="api.newsvideos"
+            ),
         ),
         migrations.AlterField(
-            model_name='newsvideos',
-            name='video',
-            field=models.FileField(default='news_photos/news_photo.jpg', upload_to='news_videos/', verbose_name='Видео к новости'),
+            model_name="newsvideos",
+            name="video",
+            field=models.FileField(
+                default="news_photos/news_photo.jpg",
+                upload_to="news_videos/",
+                verbose_name="Видео к новости",
+            ),
         ),
     ]

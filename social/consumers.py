@@ -28,7 +28,6 @@ class NotifyConsumer(GenericAsyncAPIConsumer, AsyncWebsocketConsumer):
     queryset = cache.get_or_set("users", get_users())
     serializer_class = UserSerializer
 
-
     @action()
     async def subscribe_to_notify_activity(self, request_id, **kwargs):
         user = await database_sync_to_async(User.objects.get)(id=self.scope["user"].id)
@@ -42,11 +41,11 @@ class NotifyConsumer(GenericAsyncAPIConsumer, AsyncWebsocketConsumer):
 
     @notify_activity.groups_for_signal
     def notify_activity(self, instance: Notification, **kwargs):
-        yield f'user__{instance.user_id}'
+        yield f"user__{instance.user_id}"
 
     @notify_activity.groups_for_consumer
     def notify_activity(self, user, **kwargs):
-        yield f'user__{user}'
+        yield f"user__{user}"
 
     @notify_activity.serializer
     def notify_activity(self, instance, action, **kwargs):
@@ -71,7 +70,7 @@ class MyConsumer(AsyncWebsocketConsumer):
     users = cache.get_or_set("users", get_users())
     doctors = cache.get_or_set("doctors", get_doctors())
     centers = cache.get_or_set("centers", get_centers())
-    hour = 60*60
+    hour = 60 * 60
 
     async def connect(self):
         self.chat_uuid = self.scope["url_route"]["kwargs"]["chat_uuid"]
@@ -105,31 +104,32 @@ class MyConsumer(AsyncWebsocketConsumer):
         else:
             cache.set(self.chat_uuid, [data], self.hour)
         await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "open",
-                "message": self.active_entities
-            }
+            self.group_name, {"type": "open", "message": self.active_entities}
         )
         messages = await database_sync_to_async(self.queryset.filter)(chat=self.chat)
         logger.debug(messages)
         await self.send(
-            text_data=json.dumps({
-                'action': 'list_message',
-                'chat': self.chat_uuid,
-                'messages': dict(data=self.serializer(instance=messages, many=True).data)
-            })
+            text_data=json.dumps(
+                {
+                    "action": "list_message",
+                    "chat": self.chat_uuid,
+                    "messages": dict(
+                        data=self.serializer(instance=messages, many=True).data
+                    ),
+                }
+            )
         )
 
     async def open(self, e):
         await self.send(
-            text_data=json.dumps({
-                "action": 'user connect',
-                "chat": self.chat_uuid,
-                "online_users": cache.get(self.chat_uuid)
-            })
+            text_data=json.dumps(
+                {
+                    "action": "user connect",
+                    "chat": self.chat_uuid,
+                    "online_users": cache.get(self.chat_uuid),
+                }
+            )
         )
-
 
     #### CONNECT ####
 
@@ -153,19 +153,19 @@ class MyConsumer(AsyncWebsocketConsumer):
         a.remove(data)
         cache.set(self.chat_uuid, a, self.hour)
         await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "close",
-                "message": self.active_entities
-            }
+            self.group_name, {"type": "close", "message": self.active_entities}
         )
-    async def close(self, e):
-        await self.send(text_data=json.dumps({
-            "action": "user disconnect",
-            "chat": self.chat_uuid,
-            "online_users": cache.get(self.chat_uuid)
-        }))
 
+    async def close(self, e):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "action": "user disconnect",
+                    "chat": self.chat_uuid,
+                    "online_users": cache.get(self.chat_uuid),
+                }
+            )
+        )
 
     #### DISCONNECT ####
 
@@ -176,48 +176,54 @@ class MyConsumer(AsyncWebsocketConsumer):
 
         action = data["action"]
         match action:  # CHOICE ACTION
-            case 'typing':
+            case "typing":
                 action_type = "typing"
-                message = self.scope["user"] if "user" in self.scope else self.scope["doctor"] if "doctor" in self.scope else self.scope["center"]
+                message = (
+                    self.scope["user"]
+                    if "user" in self.scope
+                    else self.scope["doctor"]
+                    if "doctor" in self.scope
+                    else self.scope["center"]
+                )
 
-            case 'send_message':
+            case "send_message":
                 obj = await database_sync_to_async(Message.objects.create)(
                     text=data["text"],
                     chat=self.chats.filter(uuid=self.chat_uuid).first(),
-                    user=self.users.filter(id=self.scope["user"].id).first() if "user" in self.scope else None,
-                    doctor=self.doctors.filter(id=self.scope["doctor"].id).first() if "doctor" in self.scope else None,
-                    center=self.centers.filter(id=self.scope["center"].id).first() if "center" in self.scope else None,
+                    user=self.users.filter(id=self.scope["user"].id).first()
+                    if "user" in self.scope
+                    else None,
+                    doctor=self.doctors.filter(id=self.scope["doctor"].id).first()
+                    if "doctor" in self.scope
+                    else None,
+                    center=self.centers.filter(id=self.scope["center"].id).first()
+                    if "center" in self.scope
+                    else None,
                     note=data["note"] if "note" in data else None,
-                    news=data["news"] if "news" in data else None
+                    news=data["news"] if "news" in data else None,
                 )
                 numbers = [j["number"] for j in cache.get(self.chat_uuid)]
                 for i in self.chat_users:
                     if i.number not in numbers:
                         await database_sync_to_async(UnreadMessage.objects.create)(
-                            message=obj,
-                            user=i,
-                            chat=self.chat
+                            message=obj, user=i, chat=self.chat
                         )
                 for i in self.chat_centers:
                     if i.number not in numbers:
                         await database_sync_to_async(UnreadMessage.objects.create)(
-                            message=obj,
-                            center=i,
-                            chat=self.chat
+                            message=obj, center=i, chat=self.chat
                         )
                 for i in self.chat_doctors:
                     if i.number not in numbers:
                         await database_sync_to_async(UnreadMessage.objects.create)(
-                            message=obj,
-                            doctor=i,
-                            chat=self.chat
+                            message=obj, doctor=i, chat=self.chat
                         )
                 logger.debug(obj)
                 message = dict(data=self.serializer(instance=obj).data)
                 logger.debug(message)
                 action_type = "send_message"
 
-            case 'delete_message':
+            case "delete_message":
                 obj = await self.get_message_db(data["pk"])
                 logger.debug(obj)
                 await self.delete_message_db(data["pk"])
@@ -225,7 +231,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 logger.debug(message)
                 action_type = "delete_message"
 
-            case 'update_message':
+            case "update_message":
                 upd = await self.update_message_db(data["pk"], data["text"])
                 logger.debug(upd)
                 message = dict(data=self.serializer(instance=upd).data)
@@ -233,46 +239,29 @@ class MyConsumer(AsyncWebsocketConsumer):
                 action_type = "update_message"
 
         await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": action_type,
-                "action": action,
-                "message": message
-            }
+            self.group_name, {"type": action_type, "action": action, "message": message}
         )
         ### ACTION WITH CALLED WHEN SEND MESSAGE ###
-
 
     async def typing(self, event):
         await self.send(
             text_data=json.dumps(
-                {
-                    "aciton": event["action"],
-                    "message": f"{event['message']} typing..."
-                }
+                {"aciton": event["action"], "message": f"{event['message']} typing..."}
             )
         )
+
     async def update_message(self, event):
         await self.send(
             text_data=json.dumps(
-                {
-                    "action": event["action"],
-                    "message": event["message"]
-                }
+                {"action": event["action"], "message": event["message"]}
             )
         )
         await self.disconnect(401)
 
-
-
-
     async def send_message(self, event):
         await self.send(
             text_data=json.dumps(
-                {
-                    "action": event["action"],
-                    "message": event["message"]
-                }
+                {"action": event["action"], "message": event["message"]}
             )
         )
 
@@ -282,10 +271,7 @@ class MyConsumer(AsyncWebsocketConsumer):
     async def delete_message(self, event):
         await self.send(
             text_data=json.dumps(
-                {
-                    "action": event["action"],
-                    "message": event["message"]
-                }
+                {"action": event["action"], "message": event["message"]}
             )
         )
 

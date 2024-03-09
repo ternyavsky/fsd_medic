@@ -7,13 +7,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0016_alter_center_last_login_alter_center_password_and_more'),
+        ("api", "0016_alter_center_last_login_alter_center_password_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='news',
-            name='clinic',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='api.clinic', verbose_name='Клиника'),
+            model_name="news",
+            name="clinic",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="api.clinic",
+                verbose_name="Клиника",
+            ),
         ),
     ]

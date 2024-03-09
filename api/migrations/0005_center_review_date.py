@@ -5,13 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('api', '0004_delete_interview'),
+        ("api", "0004_delete_interview"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='center',
-            name='review_date',
-            field=models.DateTimeField(null=True, verbose_name='Предполагаемая дата и время интервью'),
+            model_name="center",
+            name="review_date",
+            field=models.DateTimeField(
+                null=True, verbose_name="Предполагаемая дата и время интервью"
+            ),
         ),
     ]

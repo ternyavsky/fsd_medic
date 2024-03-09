@@ -6,15 +6,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('api', '0002_initial'),
-        ('auth_doctor', '0001_initial'),
+        ("api", "0002_initial"),
+        ("auth_doctor", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='doctor',
-            name='city',
-            field=models.ForeignKey(max_length=220, null=True, on_delete=django.db.models.deletion.PROTECT,
-                                    to='api.city', verbose_name='Город'),
+            model_name="doctor",
+            name="city",
+            field=models.ForeignKey(
+                max_length=220,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="api.city",
+                verbose_name="Город",
+            ),
         ),
     ]

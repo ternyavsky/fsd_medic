@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0027_subscribe'),
+        ("api", "0027_subscribe"),
     ]
 
     operations = [
@@ -15,8 +15,8 @@ class Migration(migrations.Migration):
         #     name='country',
         # ),
         migrations.RemoveField(
-            model_name='clinic',
-            name='city',
+            model_name="clinic",
+            name="city",
         ),
         # migrations.RemoveField(
         #     model_name='clinic',

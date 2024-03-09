@@ -7,13 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0042_remove_clinic_country'),
+        ("api", "0042_remove_clinic_country"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clinic',
-            name='country',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='api.country', verbose_name='Страна'),
+            model_name="clinic",
+            name="country",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="api.country",
+                verbose_name="Страна",
+            ),
         ),
     ]

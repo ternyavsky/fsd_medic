@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0024_remove_country_cities_alter_user_city'),
+        ("api", "0024_remove_country_cities_alter_user_city"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='city',
+            model_name="user",
+            name="city",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='country',
+            model_name="user",
+            name="country",
         ),
     ]

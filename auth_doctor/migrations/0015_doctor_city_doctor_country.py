@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth_doctor', '0014_remove_doctor_city_remove_doctor_country_and_more'),
+        ("auth_doctor", "0014_remove_doctor_city_remove_doctor_country_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='doctor',
-            name='city',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Город'),
+            model_name="doctor",
+            name="city",
+            field=models.CharField(
+                blank=True, max_length=255, null=True, verbose_name="Город"
+            ),
         ),
         migrations.AddField(
-            model_name='doctor',
-            name='country',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Страна'),
+            model_name="doctor",
+            name="country",
+            field=models.CharField(
+                blank=True, max_length=255, null=True, verbose_name="Страна"
+            ),
         ),
     ]

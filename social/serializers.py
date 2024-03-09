@@ -32,6 +32,7 @@ class UnreadMsgSerializer(serializers.ModelSerializer):
     class Meta:
         model = UnreadMessage
         fields = "__all__"
+
     # depth = 1
 
 
@@ -56,4 +57,5 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = "__all__"
+
     # depth = 1

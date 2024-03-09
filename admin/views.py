@@ -27,18 +27,14 @@ class UserProfileViewset(viewsets.ViewSet):
         queryset = user_profile_data(pk)
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary="Все пользователи/Админка"
-    )
+    @swagger_auto_schema(operation_summary="Все пользователи/Админка")
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(
-        operation_summary="Конкретный пользователь/Админка"
-    )
+    @swagger_auto_schema(operation_summary="Конкретный пользователь/Админка")
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk=None):
         queryset = self.get_queryset(pk)
@@ -53,18 +49,14 @@ class ClinicProfileViewset(viewsets.ModelViewSet):
         queryset = clinic_profile_data(pk)
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary="Все клиники/Админка"
-    )
+    @swagger_auto_schema(operation_summary="Все клиники/Админка")
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=200)
 
-    @swagger_auto_schema(
-        operation_summary="Конкретная клиники/Админка"
-    )
+    @swagger_auto_schema(operation_summary="Конкретная клиники/Админка")
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk):
         queryset = self.get_queryset(pk=pk)
@@ -79,18 +71,14 @@ class CenterProfileViewset(viewsets.ModelViewSet):
         queryset = center_profile_data(pk)
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary="Все центры/Админка"
-    )
+    @swagger_auto_schema(operation_summary="Все центры/Админка")
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=200)
 
-    @swagger_auto_schema(
-        operation_summary="Конкретный центр/Админка"
-    )
+    @swagger_auto_schema(operation_summary="Конкретный центр/Админка")
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk):
         queryset = self.get_queryset(pk=pk)
@@ -99,9 +87,7 @@ class CenterProfileViewset(viewsets.ModelViewSet):
 
 
 class MainPage(APIView):
-    @swagger_auto_schema(
-        operation_summary="Сайт и приложение"
-    )
+    @swagger_auto_schema(operation_summary="Сайт и приложение")
     # @method_decorator(cache_page(60 * 60))
     def get(self, request):
         queryset = main_page_data()

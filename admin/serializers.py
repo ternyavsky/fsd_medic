@@ -4,7 +4,12 @@ from logging import Manager
 from django.core.cache import cache
 from rest_framework import serializers
 
-from api.serializers import DoctorGetSerializer, UserSerializer, NoteSerializer, AccessSerializer
+from api.serializers import (
+    DoctorGetSerializer,
+    UserSerializer,
+    NoteSerializer,
+    AccessSerializer,
+)
 from db.queries import *
 
 

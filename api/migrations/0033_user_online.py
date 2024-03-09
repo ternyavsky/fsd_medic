@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0032_alter_group_options_alter_subscribe_options_and_more'),
+        ("api", "0032_alter_group_options_alter_subscribe_options_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='online',
-            field=models.BooleanField(default=False, verbose_name='Онлайн'),
+            model_name="user",
+            name="online",
+            field=models.BooleanField(default=False, verbose_name="Онлайн"),
         ),
     ]

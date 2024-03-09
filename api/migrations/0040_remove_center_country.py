@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0039_remove_user_group_remove_url_params_group_and_more'),
+        ("api", "0039_remove_user_group_remove_url_params_group_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='center',
-            name='country',
+            model_name="center",
+            name="country",
         ),
     ]

@@ -34,6 +34,7 @@ def doctor_authenticate(number=None, password=None):
     except Doctor.DoesNotExist:
         return None
 
+
 def clinic_authenticate(number=None, password=None):
     try:
         clinics = cache.get_or_set("clinics", get_clinics())

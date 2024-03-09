@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth_doctor', '0012_doctor_email'),
+        ("auth_doctor", "0012_doctor_email"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='doctor',
-            name='image',
-            field=models.ImageField(blank=True, default='users_photos/AccauntPreview.png', upload_to='users_photos/', verbose_name='Фотография Пользователья'),
+            model_name="doctor",
+            name="image",
+            field=models.ImageField(
+                blank=True,
+                default="users_photos/AccauntPreview.png",
+                upload_to="users_photos/",
+                verbose_name="Фотография Пользователья",
+            ),
         ),
     ]

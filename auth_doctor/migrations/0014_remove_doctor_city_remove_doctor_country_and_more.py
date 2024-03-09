@@ -6,21 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth_doctor', '0013_doctor_image'),
+        ("auth_doctor", "0013_doctor_image"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='doctor',
-            name='city',
+            model_name="doctor",
+            name="city",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='country',
+            model_name="doctor",
+            name="country",
         ),
         migrations.AddField(
-            model_name='doctor',
-            name='main_status',
+            model_name="doctor",
+            name="main_status",
             field=models.BooleanField(blank=True, default=False, null=True),
         ),
     ]

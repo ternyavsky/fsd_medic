@@ -12,15 +12,15 @@ class ClinicCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         fields = [
-            'name',
-            'description',
-            'number',
-            'email',
-            'country',
-            'city',
-            'address',
-            'center',
-            'supported_diseases'
+            "name",
+            "description",
+            "number",
+            "email",
+            "country",
+            "city",
+            "address",
+            "center",
+            "supported_diseases",
         ]
 
 
@@ -40,7 +40,7 @@ class VerificationCodeSerializer(serializers.Serializer):
 
 
 class InterviewSerializer(serializers.ModelSerializer):
-    '''Упрвление собесами'''
+    """Упрвление собесами"""
 
     class Meta:
         model = Interview
@@ -54,55 +54,58 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = [
-            'number',
-            'first_name',
-            'middle_name',
-            'last_name',
-            'city',
-            'country',
-            'center',
-            'address',
-            'specialization',
-            'work_experience'
+            "number",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "city",
+            "country",
+            "center",
+            "address",
+            "specialization",
+            "work_experience",
         ]
 
 
 class DoctorVerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
+
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     reset_code = serializers.IntegerField()
 
 
 class DoctorNewPasswordSerializer(serializers.Serializer):
-    """Устанавливаем новый пароль в разделе 'забыли пароль' """
+    """Устанавливаем новый пароль в разделе 'забыли пароль'"""
+
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     password1 = serializers.CharField(min_length=8, max_length=128)
     password2 = serializers.CharField(min_length=8, max_length=128)
 
     def validate(self, data):
-        if data['password1'] != data['password2']:
+        if data["password1"] != data["password2"]:
             raise serializers.ValidationError("Passwords do not match.")
         return data
 
 
-
 class ClinicVerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
+
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     reset_code = serializers.IntegerField()
 
 
 class ClinicNewPasswordSerializer(serializers.Serializer):
-    """Устанавливаем новый пароль в разделе 'забыли пароль' """
+    """Устанавливаем новый пароль в разделе 'забыли пароль'"""
+
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     password1 = serializers.CharField(min_length=8, max_length=128)
     password2 = serializers.CharField(min_length=8, max_length=128)
 
     def validate(self, data):
-        if data['password1'] != data['password2']:
+        if data["password1"] != data["password2"]:
             raise serializers.ValidationError("Passwords do not match.")
         return data

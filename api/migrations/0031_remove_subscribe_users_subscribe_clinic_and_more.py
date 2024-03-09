@@ -8,28 +8,43 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0030_center_country_clinic_city_clinic_country'),
-        ('auth_doctor', '0015_doctor_city_doctor_country'),
+        ("api", "0030_center_country_clinic_city_clinic_country"),
+        ("auth_doctor", "0015_doctor_city_doctor_country"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='subscribe',
-            name='users',
+            model_name="subscribe",
+            name="users",
         ),
         migrations.AddField(
-            model_name='subscribe',
-            name='clinic',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.clinic'),
+            model_name="subscribe",
+            name="clinic",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.clinic",
+            ),
         ),
         migrations.AddField(
-            model_name='subscribe',
-            name='main_doctor',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='auth_doctor.doctor'),
+            model_name="subscribe",
+            name="main_doctor",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="auth_doctor.doctor",
+            ),
         ),
         migrations.AddField(
-            model_name='subscribe',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="subscribe",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

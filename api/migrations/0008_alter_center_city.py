@@ -6,14 +6,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('api', '0007_clinic_email_verification_code_clinic_reset_code_and_more'),
+        ("api", "0007_clinic_email_verification_code_clinic_reset_code_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='center',
-            name='city',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.PROTECT, to='api.city',
-                                    verbose_name='Город'),
+            model_name="center",
+            name="city",
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="api.city",
+                verbose_name="Город",
+            ),
         ),
     ]

@@ -12,6 +12,8 @@ from jwt import decode as jwt_decode
 from django.conf import settings
 from social.models import Doctor
 from channels.auth import AuthMiddlewareStack
+
+
 @database_sync_to_async
 def get_user(validated_token):
     try:
@@ -21,6 +23,7 @@ def get_user(validated_token):
 
     except User.DoesNotExist:
         return AnonymousUser()
+
 
 @database_sync_to_async
 def get_doctor(validated_token):
@@ -32,7 +35,6 @@ def get_doctor(validated_token):
         return AnonymousUser()
 
 
-
 @database_sync_to_async
 def get_center(validated_token):
     try:
@@ -42,12 +44,13 @@ def get_center(validated_token):
     except Center.DoesNotExist:
         return AnonymousUser()
 
+
 class JwtAuthMiddleware(BaseMiddleware):
     def __init__(self, inner):
         self.inner = inner
 
     async def __call__(self, scope, receive, send):
-       # Close old database connections to prevent usage of timed out connections
+        # Close old database connections to prevent usage of timed out connections
         close_old_connections()
 
         # Get the token
@@ -83,6 +86,7 @@ class JwtAuthMiddleware(BaseMiddleware):
                     scope["center"] = await get_center(validated_token=decoded_data)
 
         return await super().__call__(scope, receive, send)
+
 
 def JwtAuthMiddlewareStack(inner):
     return JwtAuthMiddleware(AuthMiddlewareStack(inner))

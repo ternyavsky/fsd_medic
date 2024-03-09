@@ -5,7 +5,10 @@ from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenObtainSerializer,
+)
 from django.core.cache import cache
 from db.queries import get_users, get_centers, get_cities, get_doctors
 from api.models import Disease, Center, User, Subscribe, Country
@@ -22,7 +25,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
     def validate(self, attrs):
         authenticate_kwargs = {
             self.username_field: attrs[self.username_field],
-            'password': attrs['password'],
+            "password": attrs["password"],
         }
         if "number" in attrs:
             authenticate_kwargs["number"] = attrs["number"]
@@ -30,31 +33,28 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
             authenticate_kwargs["email"] = attrs["email"]
 
         try:
-            authenticate_kwargs['request'] = self.context['request']
+            authenticate_kwargs["request"] = self.context["request"]
         except KeyError:
             pass
 
         try:
             user = None
             if "email" in authenticate_kwargs:
-                user = User.objects.get(email=authenticate_kwargs['email'])
+                user = User.objects.get(email=authenticate_kwargs["email"])
             elif "number" in authenticate_kwargs:
-                user = User.objects.get(number=authenticate_kwargs['number'])
+                user = User.objects.get(number=authenticate_kwargs["number"])
             if user:
                 print(authenticate_kwargs)
                 authenticate_kwargs.pop("request")
                 auth = user_authenticate(**authenticate_kwargs)
                 if auth is None:
-                    self.error_messages['no_active_account'] = _(
-                        'Incorrect password'
-                    )
+                    self.error_messages["no_active_account"] = _("Incorrect password")
                 logger.info("Incorrect password")
         except User.DoesNotExist:
-            self.error_messages['no_active_account'] = _(
-                'Account does not exist')
+            self.error_messages["no_active_account"] = _("Account does not exist")
             raise exceptions.AuthenticationFailed(
-                self.error_messages['no_active_account'],
-                'no_active_account',
+                self.error_messages["no_active_account"],
+                "no_active_account",
             )
 
         return super().validate(attrs)
@@ -68,7 +68,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSeri
 
 
 class CreateUserSerializer(serializers.Serializer):
-    '''Регистрация'''
+    """Регистрация"""
+
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     country = serializers.CharField()
@@ -77,7 +78,7 @@ class CreateUserSerializer(serializers.Serializer):
         self.create_validate(validated_data)
         user = User.objects.create_user(
             email=validated_data["email"],
-            password=validated_data['password'],
+            password=validated_data["password"],
         )
         user.country = Country.objects.get(name="Узбекистан")
         user.save()
@@ -87,37 +88,46 @@ class CreateUserSerializer(serializers.Serializer):
         return user
 
     def create_validate(self, validated_data):
-        password_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$')
-        if User.objects.filter(email=validated_data['email']).exists():
-            raise serializers.ValidationError('Email already in use')
-        if not password_pattern.match(validated_data['password']):
+        password_pattern = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$")
+        if User.objects.filter(email=validated_data["email"]).exists():
+            raise serializers.ValidationError("Email already in use")
+        if not password_pattern.match(validated_data["password"]):
             raise serializers.ValidationError(
-                {'password': 'The password must consist of numbers and letters of both cases'})
-        if len(validated_data['password']) < 8:
-            raise serializers.ValidationError({'password': 'Password must be at least 8 characters'})
+                {
+                    "password": "The password must consist of numbers and letters of both cases"
+                }
+            )
+        if len(validated_data["password"]) < 8:
+            raise serializers.ValidationError(
+                {"password": "Password must be at least 8 characters"}
+            )
 
 
 # sms code block ##
 class VerifyCodeSerializer(serializers.Serializer):
     """Отправка кода для проверки. Регистрация"""
+
     email = serializers.CharField()
     verification_code = serializers.IntegerField()
 
 
 class ResendCodeSerializer(serializers.Serializer):
     """Переотправка смс кода в разделе 'отправить код снова'. Регистрация."""
+
     email = serializers.CharField()
 
 
 class VerifyResetCodeSerializer(serializers.Serializer):
     """Проверка кода для сброса пароля"""
+
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     reset_code = serializers.IntegerField()
 
 
 class NewPasswordSerializer(serializers.Serializer):
-    """Устанавливаем новый пароль в разделе 'забыли пароль' """
+    """Устанавливаем новый пароль в разделе 'забыли пароль'"""
+
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
     password2 = serializers.CharField(min_length=8, max_length=128)
@@ -125,12 +135,13 @@ class NewPasswordSerializer(serializers.Serializer):
 
 ## number bind block
 class NumberBindingSerializer(serializers.Serializer):
-    """Привязка номера к аккаунту. Шаг 1 - отправка смс """
+    """Привязка номера к аккаунту. Шаг 1 - отправка смс"""
+
     number = serializers.CharField()
 
     def validate(self, data):
-        if User.objects.filter(number=data['number']).exists():
-            raise serializers.ValidationError({"number": 'Number already in use'})
+        if User.objects.filter(number=data["number"]).exists():
+            raise serializers.ValidationError({"number": "Number already in use"})
         return data
 
 
@@ -141,41 +152,48 @@ class VerifyNumberCodeSerializer(serializers.Serializer):
 
 # end block#
 
+
 class AdminSerializer(serializers.Serializer):
     """создаем админа"""
 
     def create(self, validated_data):
         self.create_validate(validated_data)
-        return User.objects.create_superuser(email=validated_data['email'],
-                                             first_name=validated_data['first_name'],
-                                             last_name=validated_data['last_name'],
-                                             password=validated_data['password'])
+        return User.objects.create_superuser(
+            email=validated_data["email"],
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            password=validated_data["password"],
+        )
 
     def create_validate(self, data):
-        number_pattern = re.compile('^[+]+[0-9]+$')
-        email_pattern = re.compile('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-        if data['email'] is None:
-            raise serializers.ValidationError('Enter email')
-        if data['first_name'] is None:
-            raise serializers.ValidationError('Enter firstname')
-        if data['last_name'] is None:
-            raise serializers.ValidationError('Enter lastname')
+        number_pattern = re.compile("^[+]+[0-9]+$")
+        email_pattern = re.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+        if data["email"] is None:
+            raise serializers.ValidationError("Enter email")
+        if data["first_name"] is None:
+            raise serializers.ValidationError("Enter firstname")
+        if data["last_name"] is None:
+            raise serializers.ValidationError("Enter lastname")
         # Проверка Почты
-        if not email_pattern.match(data['email']):
-            raise serializers.ValidationError('The email entered is incorrect')
+        if not email_pattern.match(data["email"]):
+            raise serializers.ValidationError("The email entered is incorrect")
 
-        if len(data['first_name']) < 1:
-            raise serializers.ValidationError('firstname cannot be shorter than 1 characters')
-        if len(data['first_name']) > 20:
-            raise serializers.ValidationError('firstname cannot be longer than 20 characters')
+        if len(data["first_name"]) < 1:
+            raise serializers.ValidationError(
+                "firstname cannot be shorter than 1 characters"
+            )
+        if len(data["first_name"]) > 20:
+            raise serializers.ValidationError(
+                "firstname cannot be longer than 20 characters"
+            )
         # Проверка Фамилии
         # Проверка телефона
-        if User.objects.filter(number=data['number']).exists():
-            raise serializers.ValidationError('Number already in use')
-        if len(data['last_name']) < 1:
-            raise serializers.ValidationError('Lastname cannot be shorter than 1 char')
-        if len(data['last_name']) > 30:
-            raise serializers.ValidationError('Lastname cannot be longer than 30 char')
+        if User.objects.filter(number=data["number"]).exists():
+            raise serializers.ValidationError("Number already in use")
+        if len(data["last_name"]) < 1:
+            raise serializers.ValidationError("Lastname cannot be shorter than 1 char")
+        if len(data["last_name"]) > 30:
+            raise serializers.ValidationError("Lastname cannot be longer than 30 char")
 
     def update_validate(self, data):
         pass

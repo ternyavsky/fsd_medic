@@ -6,22 +6,22 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0038_note_doctors'),
+        ("api", "0038_note_doctors"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='group',
+            model_name="user",
+            name="group",
         ),
         migrations.RemoveField(
-            model_name='url_params',
-            name='group',
+            model_name="url_params",
+            name="group",
         ),
         migrations.DeleteModel(
-            name='Group',
+            name="Group",
         ),
         migrations.DeleteModel(
-            name='Url_Params',
+            name="Url_Params",
         ),
     ]

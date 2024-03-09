@@ -7,9 +7,8 @@ from .jwt_decode import jwt_decode
 from django.core.cache import cache
 from db.queries import get_users, get_doctors
 
-def update_message(message:Message, text:str):
-    message = Message.objects.update(
-        text=text
-    )
+
+def update_message(message: Message, text: str):
+    message = Message.objects.update(text=text)
     message.save()
     return MessageSerializer(message).data

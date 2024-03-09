@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0037_remove_note_doctor'),
-        ('auth_doctor', '0017_doctor_online'),
+        ("api", "0037_remove_note_doctor"),
+        ("auth_doctor", "0017_doctor_online"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='note',
-            name='doctors',
-            field=models.ManyToManyField(to='auth_doctor.doctor', verbose_name='Врачи'),
+            model_name="note",
+            name="doctors",
+            field=models.ManyToManyField(to="auth_doctor.doctor", verbose_name="Врачи"),
         ),
     ]

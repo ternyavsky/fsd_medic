@@ -4,7 +4,11 @@ import os
 from django.core.cache import cache
 import requests
 from api.models import City, Country
-from auth_doctor.serializers import DoctorCreateSerializer, DoctorVerifyResetCodeSerializer, DoctorNewPasswordSerializer
+from auth_doctor.serializers import (
+    DoctorCreateSerializer,
+    DoctorVerifyResetCodeSerializer,
+    DoctorNewPasswordSerializer,
+)
 from db.queries import get_doctors
 from ..models import Doctor, LinkToInterview
 from rest_framework.response import Response
@@ -19,26 +23,29 @@ def doctor_set_newpassword_service(request):
     serializer = DoctorNewPasswordSerializer(data=request.data)
     if serializer.is_valid():
         if "email" in serializer.validated_data:
-            doctor = Doctor.objects.get(
-                email=serializer.validated_data["email"])
+            doctor = Doctor.objects.get(email=serializer.validated_data["email"])
 
         if "number" in serializer.validated_data:
-            doctor = Doctor.objects.get(
-                number=serializer.validated_data["number"])
+            doctor = Doctor.objects.get(number=serializer.validated_data["number"])
 
         else:
             logger.warning("Doctor not found")
             logger.warning(request.path)
-            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         doctor_set_new_password(doctor, serializer.validated_data["password2"])
         logger.debug("Password changed successfully")
         logger.debug(request.path)
-        return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Password changed successfully"}, status=status.HTTP_200_OK
+        )
     else:
         logger.warning(serializer.errors)
         logger.warning(request.path)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def doctor_resend_sms_service(request):
     number = request.data["number"]
@@ -51,68 +58,78 @@ def doctor_resend_sms_service(request):
         doctor.verification_code = code
         doctor.save()
         logger.debug(request.path)
-        return Response({'detail': 'SMS resent successfully'}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "SMS resent successfully"}, status=status.HTTP_200_OK
+        )
     else:
         logger.warning("Doctor not found")
         logger.warning(request.path)
-        return Response({'detail': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
 
 def doctor_verify_resetcode_service(request):
     serializer = DoctorVerifyResetCodeSerializer(data=request.data)
     if serializer.is_valid():
-        reset_code = serializer.validated_data['reset_code']
-        if 'email' in serializer.validated_data:
-            doctor = Doctor.objects.get(
-                email=serializer.validated_data['email'])
+        reset_code = serializer.validated_data["reset_code"]
+        if "email" in serializer.validated_data:
+            doctor = Doctor.objects.get(email=serializer.validated_data["email"])
         else:
-            doctor = Doctor.objects.get(
-                number=serializer.validated_data["number"])
+            doctor = Doctor.objects.get(number=serializer.validated_data["number"])
         if reset_code == doctor.reset_code:
             doctor.save()
             logger.debug("Doctor got the access to his account")
             logger.debug(request.path)
-            return Response({"message": "Doctor got the access to his account"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Doctor got the access to his account"},
+                status=status.HTTP_200_OK,
+            )
 
         else:
             logger.warning("Doctor didnt get the access to his account")
             logger.warning(request.path)
-            return Response({"message": "Doctor didnt get the access to his account"},
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "Doctor didnt get the access to his account"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
     else:
         logger.warning(serializer.errors)
         logger.warning(request.path)
         return Response(serializer.errors)
 
+
 def doctor_passoword_reset_service(request):
-    if 'number' in request.data:
+    if "number" in request.data:
         doctors = cache.get_or_set("doctors", get_doctors())
-        doctor = doctors.filter(number=request.data['number']).first()
+        doctor = doctors.filter(number=request.data["number"]).first()
         if doctor != None:
             code = generate_verification_code()
-            num = request.data['number']
+            num = request.data["number"]
             send_reset_sms.delay(num, code)
             doctor.reset_code = code
             logger.debug(code)
             doctor.save()
-            return Response({"message":"success"}, status=status.HTTP_200_OK)
+            return Response({"message": "success"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Doctor not found"}, 400)
 
-    if 'email' in request.data:
+    if "email" in request.data:
         doctors = cache.get_or_set("doctors", get_doctors())
-        doctor = doctors.filter(email=request.data['email']).first()
+        doctor = doctors.filter(email=request.data["email"]).first()
         if doctor != None:
             code = generate_verification_code()
-            email = request.data['email']
+            email = request.data["email"]
             send_reset_email.delay(email, code)
             doctor.reset_code = code
             logger.debug(code)
             doctor.save()
-            return Response({"message":"success"}, status=status.HTTP_200_OK)
+            return Response({"message": "success"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Doctor not found"}, 400)
     else:
         return Response({"error": "Not email or number"}, 400)
+
 
 def doctor_create_interview_service(request, doctor_hash):
     try:
@@ -132,26 +149,34 @@ def doctor_create_interview_service(request, doctor_hash):
         logger.exception("An error occurred: %s", str(e))
         return Response({"error": "Internal server error"}, 500)
 
+
 def doctor_datapast_service(request):
     serializer = DoctorCreateSerializer(data=request.data)
     if serializer.is_valid():
         validated_data = serializer.validated_data
         doctor_hash: str = doctor_data_pass(validated_data)
         try:
-            LinkToInterview.objects.create(
-                used=False,
-                link=doctor_hash
-            )
+            LinkToInterview.objects.create(used=False, link=doctor_hash)
             number = validated_data["number"]
             send_verification_code_doctor.delay(doctor_hash, number)
-            return Response({"message": f"Код для регистрации врача отправлен на номер {number}",
-                                "doctor_hash": doctor_hash}, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "message": f"Код для регистрации врача отправлен на номер {number}",
+                    "doctor_hash": doctor_hash,
+                },
+                status=status.HTTP_200_OK,
+            )
         except:  # noqa: E722
-            return Response({"message": "Запрос с такими данными уже существует, повторите попытку позже"},
-                            status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "message": "Запрос с такими данными уже существует, повторите попытку позже"
+                },
+                status.HTTP_400_BAD_REQUEST,
+            )
     else:
         # Если данные не прошли валидацию, верните ошибки
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def doctor_create(doctor_hash: str, datetime_obj):
     doctor_data = cache.get(doctor_hash)
@@ -166,18 +191,19 @@ def doctor_create(doctor_hash: str, datetime_obj):
         doctor.save()
         return {"message": "Успешно создан", "id": doctor.id}, 201
     else:
-        return {"message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"}, 400
-
+        return {
+            "message": "Такой сессии входа нет или время входы вышло, зарегистрируйтесь заново"
+        }, 400
 
 
 @shared_task
 def send_verification_code_doctor(doctor_hash, number_to):
-    key = os.getenv('API_KEY')
-    email = os.getenv('EMAIL')
-    url = f'https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number_to}&text=Ссылка+для+собедования+http://127.0.0.1:8000/api/create_doctor/{doctor_hash}&sign=SMSAero'
+    key = os.getenv("API_KEY")
+    email = os.getenv("EMAIL")
+    url = f"https://{email}:{key}@gate.smsaero.ru/v2/sms/send?number={number_to}&text=Ссылка+для+собедования+http://127.0.0.1:8000/api/create_doctor/{doctor_hash}&sign=SMSAero"
     res = requests.get(url)
     if res.status_code == 200:
-        print('отправилось')
+        print("отправилось")
     print("Хэш для вставки(Фронт)", doctor_hash)
     print("http://127.0.0.1:8000/api/create_doctor/{}".format(doctor_hash))
 

@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0054_city_created_at_city_updated_at'),
+        ("api", "0054_city_created_at_city_updated_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='news',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, null=True, verbose_name='Дата изменения'),
+            model_name="news",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, null=True, verbose_name="Дата изменения"
+            ),
         ),
     ]

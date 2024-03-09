@@ -11,64 +11,140 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('auth_doctor', '0001_initial'),
+        ("auth_doctor", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Chat',
+            name="Chat",
             fields=[
-                ('id', models.BigAutoField(db_index=True, primary_key=True, serialize=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('centers', models.ManyToManyField(blank=True, to='api.center', verbose_name='Центры')),
-                ('doctors', models.ManyToManyField(blank=True, to='auth_doctor.doctor', verbose_name='Врачи')),
-                ('users', models.ManyToManyField(blank=True, to=settings.AUTH_USER_MODEL, verbose_name='Пациенты')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("uuid", models.UUIDField(default=uuid.uuid4, editable=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "centers",
+                    models.ManyToManyField(
+                        blank=True, to="api.center", verbose_name="Центры"
+                    ),
+                ),
+                (
+                    "doctors",
+                    models.ManyToManyField(
+                        blank=True, to="auth_doctor.doctor", verbose_name="Врачи"
+                    ),
+                ),
+                (
+                    "users",
+                    models.ManyToManyField(
+                        blank=True, to=settings.AUTH_USER_MODEL, verbose_name="Пациенты"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Чат',
-                'verbose_name_plural': 'Чаты',
+                "verbose_name": "Чат",
+                "verbose_name_plural": "Чаты",
             },
         ),
         migrations.CreateModel(
-            name='Notification',
+            name="Notification",
             fields=[
-                ('id', models.BigAutoField(db_index=True, primary_key=True, serialize=False)),
-                ('text', models.CharField(blank=True, max_length=220)),
-                ('add', models.JSONField(default=None, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("text", models.CharField(blank=True, max_length=220)),
+                ("add", models.JSONField(default=None, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Уведомление',
-                'verbose_name_plural': 'Уведомления',
+                "verbose_name": "Уведомление",
+                "verbose_name_plural": "Уведомления",
             },
         ),
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('id', models.BigAutoField(db_index=True, primary_key=True, serialize=False)),
-                ('text', models.TextField(blank=True, max_length=500, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('center', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                                             to='api.center')),
-                ('chat', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='social.chat')),
-                ('doctor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                                             to='auth_doctor.doctor')),
-                ('news',
-                 models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='api.news')),
-                ('note',
-                 models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='api.note')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                                           to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("text", models.TextField(blank=True, max_length=500, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "center",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.center",
+                    ),
+                ),
+                (
+                    "chat",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="social.chat"
+                    ),
+                ),
+                (
+                    "doctor",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="auth_doctor.doctor",
+                    ),
+                ),
+                (
+                    "news",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="api.news",
+                    ),
+                ),
+                (
+                    "note",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="api.note",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Сообщение',
-                'verbose_name_plural': 'Сообщения',
+                "verbose_name": "Сообщение",
+                "verbose_name_plural": "Сообщения",
             },
         ),
     ]

@@ -5,53 +5,52 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('auth_doctor', '0008_alter_doctor_country'),
+        ("auth_doctor", "0008_alter_doctor_country"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='doctor',
-            managers=[
-            ],
+            name="doctor",
+            managers=[],
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='date_joined',
+            model_name="doctor",
+            name="date_joined",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='email',
+            model_name="doctor",
+            name="email",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='first_name',
+            model_name="doctor",
+            name="first_name",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='groups',
+            model_name="doctor",
+            name="groups",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='is_active',
+            model_name="doctor",
+            name="is_active",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='is_staff',
+            model_name="doctor",
+            name="is_staff",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='is_superuser',
+            model_name="doctor",
+            name="is_superuser",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='last_name',
+            model_name="doctor",
+            name="last_name",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='user_permissions',
+            model_name="doctor",
+            name="user_permissions",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='username',
+            model_name="doctor",
+            name="username",
         ),
     ]

@@ -3,79 +3,74 @@ from datetime import timedelta
 from pathlib import Path
 from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
-AUTH_USER_MODEL = 'api.User'
+
+AUTH_USER_MODEL = "api.User"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY",os.environ.get("SECRET_KEY"))
+SECRET_KEY = os.getenv("SECRET_KEY", os.environ.get("SECRET_KEY"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG_STATUS')
+DEBUG = os.getenv("DEBUG_STATUS")
 
-ALLOWED_HOSTS = ['*', ]
+ALLOWED_HOSTS = [
+    "*",
+]
 
 REST_FRAMEWORK = {
-
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-       ),
-    'DEFAULT_PAGINATION_CLASS': (
-        'rest_framework.pagination.LimitOffsetPagination'
-       ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PAGINATION_CLASS": ("rest_framework.pagination.LimitOffsetPagination"),
 }
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'templates',
-    'drf_yasg',
-    'djangochannelsrestframework',
-    'rest_framework',
-    'debug_toolbar',
-    'django_prometheus',
-    'django_filters',
-    'django_loki',
-    'storages',
-    'socketio',
-    'corsheaders',
-
-
-    'api.apps.ApiConfig',
-    'social.apps.SocialConfig',
-    'auth_user.apps.AuthUserConfig',
-    'auth_doctor.apps.AuthDoctorConfig',
-    'db.apps.DbConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "templates",
+    "drf_yasg",
+    "djangochannelsrestframework",
+    "rest_framework",
+    "debug_toolbar",
+    "django_prometheus",
+    "django_filters",
+    "django_loki",
+    "storages",
+    "socketio",
+    "corsheaders",
+    "api.apps.ApiConfig",
+    "social.apps.SocialConfig",
+    "auth_user.apps.AuthUserConfig",
+    "auth_doctor.apps.AuthDoctorConfig",
+    "db.apps.DbConfig",
 ]
 
 MIDDLEWARE = [
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
-    'api.middleware.open_access_middleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "api.middleware.open_access_middleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     # 'api.middleware.open_access_middleware',
-
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
-
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 INTERNAL_IPS = [
     # ...
@@ -84,16 +79,13 @@ INTERNAL_IPS = [
 ]
 
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:3001',
-    "http://localhost:3001"
-]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3001", "http://localhost:3001"]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:3001',
+    "http://127.0.0.1:3001",
     "http://192.168.0.14:3001",
     "http://172.17.0.1:3001",
-    "http://localhost:3001"
+    "http://localhost:3001",
 )
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
@@ -104,26 +96,26 @@ SIMPLE_JWT = {
     "VERIFYING_KEY": "Bearer",
 }
 
-ROOT_URLCONF = 'fsd_medic.urls'
+ROOT_URLCONF = "fsd_medic.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'fsd_medic.wsgi.application'
-ASGI_APPLICATION = 'fsd_medic.asgi.application'
+WSGI_APPLICATION = "fsd_medic.wsgi.application"
+ASGI_APPLICATION = "fsd_medic.asgi.application"
 
 # LOGGING = {
 #     'version': 1,
@@ -157,39 +149,30 @@ ASGI_APPLICATION = 'fsd_medic.asgi.application'
 #         }
 #     },
 # }
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
     }
 }
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
+    "default": {
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),
         #'NAME': "sys",
-        'NAME': os.getenv('DB_NAME'),
-       # 'USER': "root",
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
+        "NAME": os.getenv("DB_NAME"),
+        # 'USER': "root",
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
         #'PASSWORD': "root",
-        'PORT': os.getenv('DB_PORT'),
+        "PORT": os.getenv("DB_PORT"),
         #'HOST': "172.17.0.1" ,
-        'HOST': os.getenv('DB_HOST'),
-        'OPTIONS': {
-            'sql_mode': os.getenv('DB_SQL_MODE')
-        },
-
+        "HOST": os.getenv("DB_HOST"),
+        "OPTIONS": {"sql_mode": os.getenv("DB_SQL_MODE")},
     }
-
-
 }
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER")
@@ -215,25 +198,25 @@ CHANNEL_LAYERS = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = "ru"
 
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 
 USE_TZ = True
@@ -245,32 +228,32 @@ USE_TZ = True
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # EMAIL
-EMAIL_USE_TLS = os.getenv('EM_USE_TLS')
-EMAIL_HOST = os.getenv('EM_HOST')
-EMAIL_HOST_USER = os.getenv('EM_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EM_HOST_PASSWORD')
-EMAIL_PORT = os.getenv('EM_PORT')
+EMAIL_USE_TLS = os.getenv("EM_USE_TLS")
+EMAIL_HOST = os.getenv("EM_HOST")
+EMAIL_HOST_USER = os.getenv("EM_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EM_HOST_PASSWORD")
+EMAIL_PORT = os.getenv("EM_PORT")
 
 # S3 BUCKET
-AWS_ACCESS_KEY_ID = os.getenv('S3_ACCESS_KEY')
-AWS_SECRET_ACCESS_KEY = os.getenv('S3_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY")
+AWS_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = f'https://{os.getenv("S3_DOMAIN")}'
-AWS_S3_REGION_NAME = os.getenv('S3_REGION')
-AWS_LOCATION_STATIC = 'static'
-AWS_LOCATION_MEDIA = 'media'
-AWS_DEFAULT_ACL = os.getenv('S3_ACL')
+AWS_S3_REGION_NAME = os.getenv("S3_REGION")
+AWS_LOCATION_STATIC = "static"
+AWS_LOCATION_MEDIA = "media"
+AWS_DEFAULT_ACL = os.getenv("S3_ACL")
 
 
-STATIC_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_LOCATION_STATIC)
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-MEDIA_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_LOCATION_MEDIA)
-DEFAULT_FILE_STORAGE = 'fsd_medic.storage_backends.MediaStorage'
+STATIC_URL = "https://%s/%s/" % (AWS_S3_ENDPOINT_URL, AWS_LOCATION_STATIC)
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+MEDIA_URL = "https://%s/%s/" % (AWS_S3_ENDPOINT_URL, AWS_LOCATION_MEDIA)
+DEFAULT_FILE_STORAGE = "fsd_medic.storage_backends.MediaStorage"
 
-GEOIP_PATH = os.path.join(BASE_DIR, 'geoip/')
+GEOIP_PATH = os.path.join(BASE_DIR, "geoip/")
 PHONE_VERIFICATION = {
     "BACKEND": "phone_verify.backends.twilio.TwilioBackend",
     "OPTIONS": {

@@ -7,7 +7,8 @@ from .jwt_decode import jwt_decode
 from django.core.cache import cache
 from db.queries import get_users, get_doctors
 
-def delete_message(message:Message):
+
+def delete_message(message: Message):
     message = Message.objects.delete()
     message.save()
     return message

@@ -5,6 +5,8 @@ description = ""
 authors = ["ternyavsky <ilya.ternyavsky@yandex.ru>"]
 readme = "README.md"
 
+
+
 [tool.poetry.dependencies]
 python = "^3.11"
 amqp = "5.2.0"

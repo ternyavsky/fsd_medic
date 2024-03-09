@@ -7,18 +7,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0022_alter_user_options_remove_user_city_and_more'),
+        ("api", "0022_alter_user_options_remove_user_city_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='city',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.PROTECT, to='api.city', verbose_name='Город', null=True),
+            model_name="user",
+            name="city",
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="api.city",
+                verbose_name="Город",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='country',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.PROTECT, to='api.country', verbose_name='Страна'),
+            model_name="user",
+            name="country",
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="api.country",
+                verbose_name="Страна",
+            ),
         ),
     ]

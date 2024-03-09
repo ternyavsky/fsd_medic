@@ -12,10 +12,11 @@ import os
 import socketio
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fsd_medic.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fsd_medic.settings")
 application = get_wsgi_application()
 
 from social.gateway import server
+
 application = socketio.WSGIApp(server, application)
 
 
@@ -24,5 +25,5 @@ application = socketio.WSGIApp(server, application)
 import eventlet
 import eventlet.wsgi
 
-eventlet.wsgi.server(eventlet.listen(('', 8000)), application)
+eventlet.wsgi.server(eventlet.listen(("", 8000)), application)
 # pywsgi.WSGIServer(('', 8000), application=application).serve_forever()

@@ -6,18 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0011_alter_clinic_password'),
+        ("api", "0011_alter_clinic_password"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='center',
-            name='last_login',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='last login'),
+            model_name="center",
+            name="last_login",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="last login"
+            ),
         ),
         migrations.AlterField(
-            model_name='center',
-            name='password',
-            field=models.CharField(max_length=128, verbose_name='password'),
+            model_name="center",
+            name="password",
+            field=models.CharField(max_length=128, verbose_name="password"),
         ),
     ]

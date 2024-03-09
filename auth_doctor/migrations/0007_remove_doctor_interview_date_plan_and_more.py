@@ -5,30 +5,32 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('auth_doctor', '0006_alter_linktointerview_link'),
+        ("auth_doctor", "0006_alter_linktointerview_link"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='doctor',
-            name='interview_date_plan',
+            model_name="doctor",
+            name="interview_date_plan",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='is_approved_for_interview',
+            model_name="doctor",
+            name="is_approved_for_interview",
         ),
         migrations.RemoveField(
-            model_name='doctor',
-            name='is_approved_for_work',
+            model_name="doctor",
+            name="is_approved_for_work",
         ),
         migrations.AddField(
-            model_name='doctor',
-            name='review_date',
-            field=models.DateTimeField(null=True, verbose_name='Предполагаемая дата и время интервью'),
+            model_name="doctor",
+            name="review_date",
+            field=models.DateTimeField(
+                null=True, verbose_name="Предполагаемая дата и время интервью"
+            ),
         ),
         migrations.AddField(
-            model_name='doctor',
-            name='review_passed',
-            field=models.BooleanField(null=True, verbose_name='Собеседование пройдено'),
+            model_name="doctor",
+            name="review_passed",
+            field=models.BooleanField(null=True, verbose_name="Собеседование пройдено"),
         ),
     ]

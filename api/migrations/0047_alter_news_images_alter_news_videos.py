@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0046_rename_email_verification_code_user_number_verification_code'),
+        ("api", "0046_rename_email_verification_code_user_number_verification_code"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='news',
-            name='images',
-            field=models.ManyToManyField(blank=True, to='api.newsphotos', verbose_name='Фото к новости'),
+            model_name="news",
+            name="images",
+            field=models.ManyToManyField(
+                blank=True, to="api.newsphotos", verbose_name="Фото к новости"
+            ),
         ),
         migrations.AlterField(
-            model_name='news',
-            name='videos',
-            field=models.ManyToManyField(blank=True, to='api.newsvideos', verbose_name='Видео к новости'),
+            model_name="news",
+            name="videos",
+            field=models.ManyToManyField(
+                blank=True, to="api.newsvideos", verbose_name="Видео к новости"
+            ),
         ),
     ]

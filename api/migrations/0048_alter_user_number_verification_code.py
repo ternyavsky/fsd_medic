@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0047_alter_news_images_alter_news_videos'),
+        ("api", "0047_alter_news_images_alter_news_videos"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='number_verification_code',
-            field=models.PositiveIntegerField(default=1, verbose_name='Код для привязки номера к аккаунту'),
+            model_name="user",
+            name="number_verification_code",
+            field=models.PositiveIntegerField(
+                default=1, verbose_name="Код для привязки номера к аккаунту"
+            ),
         ),
     ]

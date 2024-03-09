@@ -6,21 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0031_remove_subscribe_users_subscribe_clinic_and_more'),
+        ("api", "0031_remove_subscribe_users_subscribe_clinic_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='group',
-            options={'verbose_name': 'Группа', 'verbose_name_plural': 'Группы'},
+            name="group",
+            options={"verbose_name": "Группа", "verbose_name_plural": "Группы"},
         ),
         migrations.AlterModelOptions(
-            name='subscribe',
-            options={'verbose_name': 'Подписка', 'verbose_name_plural': 'Подписки'},
+            name="subscribe",
+            options={"verbose_name": "Подписка", "verbose_name_plural": "Подписки"},
         ),
         migrations.AlterField(
-            model_name='user',
-            name='number',
-            field=models.CharField(blank=True, max_length=30, null=True, unique=True, verbose_name='Номер'),
+            model_name="user",
+            name="number",
+            field=models.CharField(
+                blank=True, max_length=30, null=True, unique=True, verbose_name="Номер"
+            ),
         ),
     ]

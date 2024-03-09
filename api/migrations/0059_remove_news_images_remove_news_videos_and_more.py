@@ -7,26 +7,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0058_disease_created_at_disease_updated_at'),
+        ("api", "0058_disease_created_at_disease_updated_at"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='news',
-            name='images',
+            model_name="news",
+            name="images",
         ),
         migrations.RemoveField(
-            model_name='news',
-            name='videos',
+            model_name="news",
+            name="videos",
         ),
         migrations.AddField(
-            model_name='newsphotos',
-            name='news',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.news'),
+            model_name="newsphotos",
+            name="news",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.news",
+            ),
         ),
         migrations.AddField(
-            model_name='newsvideos',
-            name='news',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.news'),
+            model_name="newsvideos",
+            name="news",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.news",
+            ),
         ),
     ]

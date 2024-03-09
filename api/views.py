@@ -3,6 +3,7 @@ import logging
 from django.core.cache import cache
 from django.db.models import Subquery
 from django_filters.rest_framework import DjangoFilterBackend
+
 # REST IMPORTS
 from rest_framework import status
 from rest_framework import viewsets
@@ -17,6 +18,7 @@ from .serializers import *
 
 from drf_yasg.utils import swagger_auto_schema
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,8 +27,6 @@ class AbstractViewSetMeta(abc.ABCMeta, type(viewsets.ModelViewSet)):
 
 
 class AbstractViewSet(viewsets.ModelViewSet, metaclass=AbstractViewSetMeta):
-
-
     def get_queryset(self):
         if not self.request.user.is_staff:
             return self.queryset.filter(user=self.request.user)
@@ -38,7 +38,7 @@ class SubscribeViewSet(AbstractViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SubscribeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user', 'clinic', 'main_doctor']
+    filterset_fields = ["user", "clinic", "main_doctor"]
 
 
 class SaveViewSet(AbstractViewSet):
@@ -46,7 +46,7 @@ class SaveViewSet(AbstractViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SavedSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user', 'news']
+    filterset_fields = ["user", "news"]
 
 
 class LikeViewSet(AbstractViewSet):
@@ -54,29 +54,39 @@ class LikeViewSet(AbstractViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user', 'news']
+    filterset_fields = ["user", "news"]
 
 
 class NoteViewSet(AbstractViewSet):
-    queryset = Note.objects.all().prefetch_related('doctors')
+    queryset = Note.objects.all().prefetch_related("doctors")
     permission_classes = [IsAuthenticated]
     serializer_class = NoteSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user', 'online', 'problem', 'center', 'clinic', 'special_check', 'status']
+    filterset_fields = [
+        "user",
+        "online",
+        "problem",
+        "center",
+        "clinic",
+        "special_check",
+        "status",
+    ]
 
 
 class NewsViewSet(AbstractViewSet):
-    queryset = News.objects.filter_by_user().prefetch_related("news_images", "news_videos")
+    queryset = News.objects.filter_by_user().prefetch_related(
+        "news_images", "news_videos"
+    )
     permission_classes = [AllowAny]
     serializer_class = NewsSerializer
     filter_backends = [DjangoFilterBackend]
-    search_fields = ['title', 'text', 'clinic', 'disease']
-    ordering_fields = ['clinic', 'disease']
-    filterset_fields = ['title', 'text', 'clinic', 'disease']
+    search_fields = ["title", "text", "clinic", "disease"]
+    ordering_fields = ["clinic", "disease"]
+    filterset_fields = ["title", "text", "clinic", "disease"]
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        news = self.queryset.order_by('-created_at')
+        news = self.queryset.order_by("-created_at")
         user = self.request.user
         if user.is_staff:
             return news
@@ -96,9 +106,9 @@ class SearchView(APIView):
         centers = cache.get_or_set("centers", get_centers())
         doctors = cache.get_or_set("doctors", get_doctors())
         search_results = {
-            'clinics': clinics,
-            'centers': centers,
-            'doctors': doctors,
+            "clinics": clinics,
+            "centers": centers,
+            "doctors": doctors,
         }
         serializer = self.serializer_class(search_results)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -106,11 +116,12 @@ class SearchView(APIView):
 
 class CountryListView(ListAPIView):
     """List all countries"""
+
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name']
+    filterset_fields = ["name"]
 
 
 class CityListView(ListAPIView):
@@ -118,4 +129,4 @@ class CityListView(ListAPIView):
     serializer_class = CitySerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name']
+    filterset_fields = ["name"]

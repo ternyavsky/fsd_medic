@@ -31,9 +31,15 @@ class DoctorsListView(generics.ListAPIView):
     queryset = Doctor.objects.all()
     permissions_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['country', 'city', 'first_name', 'last_name', 'work_experience',
-                        'specialization', 'main_status'
-                        ]
+    filterset_fields = [
+        "country",
+        "city",
+        "first_name",
+        "last_name",
+        "work_experience",
+        "specialization",
+        "main_status",
+    ]
 
     def get_queryset(self):
         return self.queryset.filter(country=self.request.user.country)
@@ -48,7 +54,7 @@ class ClinicDataPast(APIView):
         responses={
             # status.HTTP_200_OK: DoctorDataResponseSerializer(),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
-        }
+        },
     )
     def post(self, request, *args, **kwargs):
         return clinic_datapast_service(request)
@@ -73,7 +79,7 @@ class DoctorDataPast(APIView):
         responses={
             # status.HTTP_200_OK: DoctorDataResponseSerializer(),
             status.HTTP_400_BAD_REQUEST: "Bad Request",
-        }
+        },
     )
     @transaction.atomic
     def post(self, request, *args, **kwargs):
@@ -92,6 +98,7 @@ class DoctorInterviewCreate(APIView):
 
 class DoctorPasswordResetView(APIView):
     """Сброс пароля. Этап отправки"""
+
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
@@ -100,8 +107,9 @@ class DoctorPasswordResetView(APIView):
             type=openapi.TYPE_OBJECT,
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
-                "email": openapi.Schema(type=openapi.TYPE_STRING)
-            }),
+                "email": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
     )
     def post(self, request):
         return doctor_passoword_reset_service(request)
@@ -109,6 +117,7 @@ class DoctorPasswordResetView(APIView):
 
 class DoctorVerifyResetCodeView(APIView):
     """Проверка кода для сброса пароля"""
+
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
@@ -119,8 +128,9 @@ class DoctorVerifyResetCodeView(APIView):
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "reset_code": openapi.Schema(type=openapi.TYPE_INTEGER)
-            }),
+                "reset_code": openapi.Schema(type=openapi.TYPE_INTEGER),
+            },
+        ),
     )
     def post(self, request):
         return doctor_verify_resetcode_service(request)
@@ -128,6 +138,7 @@ class DoctorVerifyResetCodeView(APIView):
 
 class DoctorResendSmsView(APIView):
     """Переотправка смс, в разделе 'получить смс снова'"""
+
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
@@ -136,8 +147,8 @@ class DoctorResendSmsView(APIView):
             type=openapi.TYPE_OBJECT,
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
-
-            }),
+            },
+        ),
     )
     def post(self, request):
         return doctor_resend_sms_service(request)
@@ -157,8 +168,8 @@ class DoctorSetNewPasswordView(APIView):
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
                 "password1": openapi.Schema(type=openapi.TYPE_STRING),
                 "password2": openapi.Schema(type=openapi.TYPE_STRING),
-            }),
-
+            },
+        ),
     )
     def post(self, request):
         return doctor_set_newpassword_service(request)
@@ -174,8 +185,9 @@ class ClinicPasswordResetView(APIView):
             type=openapi.TYPE_OBJECT,
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
-                "email": openapi.Schema(type=openapi.TYPE_STRING)
-            }),
+                "email": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
     )
     def post(self, request):
         return clinic_password_reset_service(request)
@@ -191,8 +203,8 @@ class ClinicResendSmsView(APIView):
             type=openapi.TYPE_OBJECT,
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
-
-            }),
+            },
+        ),
     )
     def post(self, request):
         return clinic_resend_sms_service(request)
@@ -210,8 +222,9 @@ class ClinicVerifyResetCodeView(APIView):
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "reset_code": openapi.Schema(type=openapi.TYPE_INTEGER)
-            }),
+                "reset_code": openapi.Schema(type=openapi.TYPE_INTEGER),
+            },
+        ),
     )
     def post(self, request):
         return clinic_verify_resetcode_service(request)
@@ -231,7 +244,8 @@ class ClinicSetNewPasswordView(APIView):
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
                 "password1": openapi.Schema(type=openapi.TYPE_STRING),
                 "password2": openapi.Schema(type=openapi.TYPE_STRING),
-            }),
+            },
+        ),
     )
     def post(self, request):
         return clinic_set_password_service(request)
@@ -264,10 +278,12 @@ class LoginDoctor(APIView):
                 {
                     "number": doctor.number,
                     "type": "doctor",
-                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                    "exp": datetime.datetime.now(tz=timezone.utc)
+                    + datetime.timedelta(days=30),
                 },
                 "Bearer",
-                algorithm="HS256")
+                algorithm="HS256",
+            )
             return Response({"access_token": doctor_jwt}, status=status.HTTP_200_OK)
         return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -284,7 +300,8 @@ class LoginCenter(APIView):
                     "exp": datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
                 },
                 "Bearer",
-                algorithm="HS256")
+                algorithm="HS256",
+            )
             return Response({"access_token": center_jwt}, status=status.HTTP_200_OK)
         return Response({"error": "Center not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -301,6 +318,7 @@ class LoginClinic(APIView):
                     "exp": datetime.datetime.now(tz=timezone.utc),
                 },
                 "Bearer",
-                algorithm="HS256")
+                algorithm="HS256",
+            )
             return Response({"access_token": clinic_jwt}, status=status.HTTP_200_OK)
         return Response({"error": "Clinic not found"}, status=status.HTTP_404_NOT_FOUND)

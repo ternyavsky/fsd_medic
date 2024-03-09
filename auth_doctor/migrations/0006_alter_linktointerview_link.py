@@ -5,13 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('auth_doctor', '0005_remove_linktointerview_center_and_more'),
+        ("auth_doctor", "0005_remove_linktointerview_center_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='linktointerview',
-            name='link',
-            field=models.CharField(max_length=220, unique=True, verbose_name='Ссылка на интервью'),
+            model_name="linktointerview",
+            name="link",
+            field=models.CharField(
+                max_length=220, unique=True, verbose_name="Ссылка на интервью"
+            ),
         ),
     ]

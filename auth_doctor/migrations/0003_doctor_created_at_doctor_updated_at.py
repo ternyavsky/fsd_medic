@@ -5,18 +5,22 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('auth_doctor', '0002_alter_doctor_city'),
+        ("auth_doctor", "0002_alter_doctor_city"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='doctor',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания'),
+            model_name="doctor",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, null=True, verbose_name="Дата создания"
+            ),
         ),
         migrations.AddField(
-            model_name='doctor',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, null=True, verbose_name='Дата Изменения'),
+            model_name="doctor",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, null=True, verbose_name="Дата Изменения"
+            ),
         ),
     ]

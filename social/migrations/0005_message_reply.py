@@ -7,13 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social', '0004_remove_chat_centers_remove_message_center'),
+        ("social", "0004_remove_chat_centers_remove_message_center"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='message',
-            name='reply',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='reply_message', to='social.message'),
+            model_name="message",
+            name="reply",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="reply_message",
+                to="social.message",
+            ),
         ),
     ]

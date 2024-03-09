@@ -6,14 +6,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('api', '0002_initial'),
+        ("api", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='interest',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                                    related_name='interest', to='api.disease', verbose_name='Интерес к заболеванию'),
+            model_name="user",
+            name="interest",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="interest",
+                to="api.disease",
+                verbose_name="Интерес к заболеванию",
+            ),
         ),
     ]

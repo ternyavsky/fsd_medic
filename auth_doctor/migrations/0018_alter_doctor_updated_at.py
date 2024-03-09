@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth_doctor', '0017_doctor_online'),
+        ("auth_doctor", "0017_doctor_online"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='doctor',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, null=True, verbose_name='Дата изменения'),
+            model_name="doctor",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, null=True, verbose_name="Дата изменения"
+            ),
         ),
     ]

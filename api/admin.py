@@ -7,9 +7,6 @@ from .models import *
 # Register your models here.
 
 
-
-
-
 # class CenterAdmin(admin.ModelAdmin):
 #     list_display = ['id', 'name', 'is_required',  'country', 'address', 'lng', 'lat',
 #                     'created_at', 'updated_at']

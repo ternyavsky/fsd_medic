@@ -11,14 +11,26 @@ from api.models import *
 from django.test import TestCase
 
 
-
 class SearchViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.view = SearchView.as_view()
-        self.uri = '/api/search/'
+        self.uri = "/api/search/"
 
     def test_search_view(self):
         request = self.factory.get(self.uri)
         response = self.view(request)
         self.assertEqual(response.status_code, 200)
+
+
+# write test for likeviewset with apiclient and force_authenticate
+class LikeViewSetTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.view = LikeViewSet.as_view({"post": "create"})
+        self.uri = "/api/like/"
+
+    def test_like_view(self):
+        request = self.factory.post(self.uri)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)

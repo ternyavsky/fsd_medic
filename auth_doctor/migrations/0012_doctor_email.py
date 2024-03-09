@@ -5,13 +5,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('auth_doctor', '0011_doctor_email_verification_code_doctor_reset_code_and_more'),
+        (
+            "auth_doctor",
+            "0011_doctor_email_verification_code_doctor_reset_code_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='doctor',
-            name='email',
-            field=models.CharField(max_length=220, null=True, verbose_name='Почта'),
+            model_name="doctor",
+            name="email",
+            field=models.CharField(max_length=220, null=True, verbose_name="Почта"),
         ),
     ]

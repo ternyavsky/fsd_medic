@@ -7,13 +7,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0023_user_city_user_country'),
+        ("api", "0023_user_city_user_country"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='country',
-            name='cities',
+            model_name="country",
+            name="cities",
         ),
-
     ]

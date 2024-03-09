@@ -7,21 +7,48 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0017_news_clinic'),
+        ("api", "0017_news_clinic"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='news',
-            name='image',
+            model_name="news",
+            name="image",
         ),
         migrations.CreateModel(
-            name='NewsMedia',
+            name="NewsMedia",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(default='news_photos/news_photo.jpg', upload_to='news_photos/', verbose_name='Фото к новости')),
-                ('video', models.FileField(default='news_photos/news_photo.jpg', upload_to='news_videos', verbose_name='Видеo к нoвoсти')),
-                ('news', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.news')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        default="news_photos/news_photo.jpg",
+                        upload_to="news_photos/",
+                        verbose_name="Фото к новости",
+                    ),
+                ),
+                (
+                    "video",
+                    models.FileField(
+                        default="news_photos/news_photo.jpg",
+                        upload_to="news_videos",
+                        verbose_name="Видеo к нoвoсти",
+                    ),
+                ),
+                (
+                    "news",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.news"
+                    ),
+                ),
             ],
         ),
     ]

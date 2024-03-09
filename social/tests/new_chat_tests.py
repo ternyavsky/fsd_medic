@@ -20,13 +20,13 @@ class TestChatCreate(APITestCase):
     def test_clinic_create_1(self):
         # все норм
 
-        url = reverse('chat_create')
+        url = reverse("chat_create")
 
         req_data = {
-            'user_ids': [1, 2],
-            'center_ids': [1],
+            "user_ids": [1, 2],
+            "center_ids": [1],
         }
-        response = self.client.post(url, format='json', data=req_data)
+        response = self.client.post(url, format="json", data=req_data)
         data = response.data
         print(data)
         self.assertEqual(200, response.status_code)
@@ -38,13 +38,13 @@ class TestChatCreate(APITestCase):
     def test_clinic_create_2(self):
         # все норм
 
-        url = reverse('chat_create')
+        url = reverse("chat_create")
 
         req_data = {
-            'user_ids': [1, 2],
-            'center_ids': [],
+            "user_ids": [1, 2],
+            "center_ids": [],
         }
-        response = self.client.post(url, format='json', data=req_data)
+        response = self.client.post(url, format="json", data=req_data)
         data = response.data
         print(data)
         self.assertEqual(400, response.status_code)
@@ -52,13 +52,13 @@ class TestChatCreate(APITestCase):
     def test_clinic_create_3(self):
         # все норм
 
-        url = reverse('chat_create')
+        url = reverse("chat_create")
 
         req_data = {
-            'user_ids': [],
-            'center_ids': [1],
+            "user_ids": [],
+            "center_ids": [1],
         }
-        response = self.client.post(url, format='json', data=req_data)
+        response = self.client.post(url, format="json", data=req_data)
         data = response.data
         print(data)
         self.assertEqual(400, response.status_code)

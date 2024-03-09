@@ -6,14 +6,16 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('api', '0006_center_review_passed_clinic_review_passed'),
-        ('auth_doctor', '0007_remove_doctor_interview_date_plan_and_more'),
+        ("api", "0006_center_review_passed_clinic_review_passed"),
+        ("auth_doctor", "0007_remove_doctor_interview_date_plan_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='doctor',
-            name='country',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='api.country'),
+            model_name="doctor",
+            name="country",
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.PROTECT, to="api.country"
+            ),
         ),
     ]

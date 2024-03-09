@@ -5,11 +5,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('api', '0003_alter_user_interest'),
+        ("api", "0003_alter_user_interest"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Interview',
+            name="Interview",
         ),
     ]

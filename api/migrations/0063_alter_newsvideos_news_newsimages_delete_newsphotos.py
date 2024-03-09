@@ -7,24 +7,54 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0062_remove_news_images_remove_news_videos'),
+        ("api", "0062_remove_news_images_remove_news_videos"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='newsvideos',
-            name='news',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='news_videos', to='api.news'),
+            model_name="newsvideos",
+            name="news",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="news_videos",
+                to="api.news",
+            ),
         ),
         migrations.CreateModel(
-            name='NewsImages',
+            name="NewsImages",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(default='news_photos/news_photo.jpg', upload_to='news_photos/', verbose_name='Фото к новости')),
-                ('news', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='news_images', to='api.news')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        default="news_photos/news_photo.jpg",
+                        upload_to="news_photos/",
+                        verbose_name="Фото к новости",
+                    ),
+                ),
+                (
+                    "news",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="news_images",
+                        to="api.news",
+                    ),
+                ),
             ],
         ),
         migrations.DeleteModel(
-            name='NewsPhotos',
+            name="NewsPhotos",
         ),
     ]

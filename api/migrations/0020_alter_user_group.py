@@ -7,13 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0019_newsphotos_newsvideos_delete_newsmedia_news_images_and_more'),
+        ("api", "0019_newsphotos_newsvideos_delete_newsmedia_news_images_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.group', verbose_name='Группа'),
+            model_name="user",
+            name="group",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="api.group",
+                verbose_name="Группа",
+            ),
         ),
     ]

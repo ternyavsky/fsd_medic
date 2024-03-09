@@ -6,20 +6,23 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0021_alter_user_image'),
+        ("api", "0021_alter_user_image"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='user',
-            options={'verbose_name': 'Пользователи', 'verbose_name_plural': 'Пользователи'},
+            name="user",
+            options={
+                "verbose_name": "Пользователи",
+                "verbose_name_plural": "Пользователи",
+            },
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='city',
+            model_name="user",
+            name="city",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='country',
+            model_name="user",
+            name="country",
         ),
     ]

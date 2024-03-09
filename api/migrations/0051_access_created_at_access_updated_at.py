@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0050_subscribe_created_at_subscribe_updated_at'),
+        ("api", "0050_subscribe_created_at_subscribe_updated_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='access',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания'),
+            model_name="access",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, null=True, verbose_name="Дата создания"
+            ),
         ),
         migrations.AddField(
-            model_name='access',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, null=True, verbose_name='Дата изменения'),
+            model_name="access",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, null=True, verbose_name="Дата изменения"
+            ),
         ),
     ]

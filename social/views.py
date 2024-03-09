@@ -6,6 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
 # REST IMPORTS
 from rest_framework.views import APIView
 
@@ -31,7 +32,6 @@ class NotifyView(APIView):
 
 
 class ChatCreate(APIView):
-
     def post(self, request):
         serializer = ChatCreateSerializer(data=self.request.data)
         if serializer.is_valid(raise_exception=True):
@@ -54,7 +54,9 @@ class MessageView(APIView):
 class ChatView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(operation_summary="Получение чатов по конкретному пользователю")
+    @swagger_auto_schema(
+        operation_summary="Получение чатов по конкретному пользователю"
+    )
     def get(self, request):
         chat = cache.get_or_set("chats", get_chats())
         result = chat.filter(users=request.user)
