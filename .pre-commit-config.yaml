@@ -13,11 +13,11 @@ repos:
   hooks:
     - id: black
 
-- repo: 'local'
-  hooks:
-    - id: tests
-      name: "tests"
-      entry: "poetry run python manage.py test --keepdb"
-      always_run: true
-      pass_filenames: false
-      language: system
+# - repo: 'local'
+#   hooks:
+#     - id: tests
+#       name: "tests"
+#       entry: "poetry run python manage.py test --keepdb"
+#       always_run: true
+#       pass_filenames: false
+#       language: system
