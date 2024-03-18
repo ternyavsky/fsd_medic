@@ -167,16 +167,13 @@ class AdminSerializer(serializers.Serializer):
 
     def create_validate(self, data):
         number_pattern = re.compile("^[+]+[0-9]+$")
-        email_pattern = re.compile("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
         if data["email"] is None:
             raise serializers.ValidationError("Enter email")
         if data["first_name"] is None:
             raise serializers.ValidationError("Enter firstname")
         if data["last_name"] is None:
             raise serializers.ValidationError("Enter lastname")
-        # Проверка Почты
-        if not email_pattern.match(data["email"]):
-            raise serializers.ValidationError("The email entered is incorrect")
+            # Проверка Почты
 
         if len(data["first_name"]) < 1:
             raise serializers.ValidationError(
