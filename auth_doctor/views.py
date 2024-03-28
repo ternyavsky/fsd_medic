@@ -14,7 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from auth_user.serializers import ResendCodeSerializer
-from api.serializers import CenterSerializer
+from api.serializers import CenterSerializer, DoctorGetSerializer
 from auth_user.service import set_new_password
 from api.backends import *
 from db.queries import *
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class DoctorsListView(generics.ListAPIView):
+    serializer_class = DoctorGetSerializer
     queryset = Doctor.objects.all()
     permissions_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
