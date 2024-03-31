@@ -1,10 +1,12 @@
 version: "3.8"
 services:
   app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: fsd_medic.app
       #command:  bash -c "gunicorn fsd_medic.asgi:application --bind 0.0.0.0:8000  -k uvicorn.workers.UvicornWorker"
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
-    build: .
+    command: "uvicorn --factory fsd_medic.wsgi:application --reload --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
     links:
@@ -14,7 +16,7 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
-  memcached:
+  memcached:  
     container_name: fsd_medic.memcached
     image: memcached:latest
     ports:

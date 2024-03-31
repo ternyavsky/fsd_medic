@@ -2,17 +2,19 @@ FROM python:3.11
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
-COPY requirements.txt .
-COPY manage.py ./
-RUN python3 -m pip install --no-cache-dir --no-warn-script-location --upgrade pip \
-    && python3 -m pip install -r requirements.txt
+WORKDIR /app
 
-COPY . /app
+RUN apt update -y && \
+    apt install -y python3-dev \
+    gcc \
+    musl-dev
 
+ADD pyproject.toml /app
 
-#cmd setting
-EXPOSE 8000
+RUN pip install --upgrade pip
+RUN pip install poetry
 
-#CMD [ "gunicorn", "fsd_medic.asgi:application", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker" ]
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-root --no-interaction --no-ansi
 
-CMD [ "python", "manage.py", "runserver" "0.0.0.0:8000" ]
+COPY . /app/

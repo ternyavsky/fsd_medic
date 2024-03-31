@@ -14,9 +14,9 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fsd_medic.settings")
 application = get_wsgi_application()
-
 from social.gateway import server
 
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 application = socketio.WSGIApp(server, application)
 
 
