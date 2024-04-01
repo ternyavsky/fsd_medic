@@ -163,15 +163,15 @@ SWAGGER_SETTINGS = {
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),
-        #'NAME': "sys",
-        "NAME": os.getenv("DB_NAME"),
-        # 'USER': "root",
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        #'PASSWORD': "root",
+        "NAME": "db_prod",
+        # "NAME": os.getenv("DB_NAME"),
+        "USER": "root",
+        # "USER": os.getenv("DB_USER"),
+        # "PASSWORD": os.getenv("DB_PASSWORD"),
+        "PASSWORD": "root",
         "PORT": os.getenv("DB_PORT"),
-        #'HOST': "172.17.0.1" ,
-        "HOST": os.getenv("DB_HOST"),
+        "HOST": "172.17.0.1",
+        # "HOST": os.getenv("DB_HOST"),
         "OPTIONS": {"sql_mode": os.getenv("DB_SQL_MODE")},
     }
 }
