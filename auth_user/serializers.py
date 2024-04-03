@@ -72,7 +72,7 @@ class CreateUserSerializer(serializers.Serializer):
 
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    country = serializers.CharField()
+    country = serializers.CharField(required=False)
 
     def create(self, validated_data):
         self.create_validate(validated_data)
@@ -80,9 +80,10 @@ class CreateUserSerializer(serializers.Serializer):
             email=validated_data["email"],
             password=validated_data["password"],
         )
-        user.country = Country.objects.get(name="Узбекистан")
+        country = Country.objects.get(name="Узбекистан")
+        user.country = country
         user.save()
-        main_doctor = get_doctors(country="Узбекистан", main_status=True).first()
+        main_doctor = get_doctors(country__name="Узбекистан", main_status=True).first()
         Subscribe.objects.create(user=user, main_doctor=main_doctor)
         # Chat create with mdoctor
         return user
