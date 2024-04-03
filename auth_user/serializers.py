@@ -80,8 +80,8 @@ class CreateUserSerializer(serializers.Serializer):
             email=validated_data["email"],
             password=validated_data["password"],
         )
-        country = Country.objects.get(name="Узбекистан")
-        user.country = country
+        if "country" in validated_data:
+            user.country = Country.objects.get(name=validated_data["country"])
         user.save()
         main_doctor = get_doctors(country__name="Узбекистан", main_status=True).first()
         Subscribe.objects.create(user=user, main_doctor=main_doctor)
