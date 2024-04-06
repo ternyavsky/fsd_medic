@@ -86,6 +86,7 @@ CORS_ORIGIN_WHITELIST = (
     "http://192.168.0.14:3001",
     "http://172.17.0.1:3001",
     "http://localhost:3001",
+    "http://pre-recover.com",
 )
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
