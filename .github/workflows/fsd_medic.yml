@@ -52,3 +52,15 @@ jobs:
         run: docker build -t ${{ secrets.DOCKER_LOGIN }}/${{secrets.DOCKER_NAME }} .
       - name: Push image
         run: docker push $LOGIN/$NAME
+
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: remote ssh rebuild
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{  secrets.SSH_HOST  }}
+          username: ${{  secrets.SSH_USER}}
+          key: ${{  secrets.SSH_KEY}}
+          script:  | 
+                  bash /opt/git/fsd_medic/build.sh
