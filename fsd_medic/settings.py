@@ -162,7 +162,7 @@ SWAGGER_SETTINGS = {
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),
-        # "NAME": "db_prod",
+        # "NAME": "mysql",
         "NAME": os.getenv("DB_NAME"),
         # "USER": "root",
         "USER": os.getenv("DB_USER"),
@@ -172,7 +172,7 @@ DATABASES = {
         # "HOST": "172.17.0.1",
         "HOST": os.getenv("DB_HOST"),
         "OPTIONS": {"sql_mode": os.getenv("DB_SQL_MODE")},
-    }
+    },
 }
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER")

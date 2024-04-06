@@ -46,7 +46,7 @@ services:
         - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_prod 
+      MYSQL_DATABASE: mysql 
       MYSQL_PASSWORD: root
     volumes:
       - ./dbdata:/var/lib/mysql/

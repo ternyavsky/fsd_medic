@@ -5,7 +5,8 @@ description = ""
 authors = ["ternyavsky <ilya.ternyavsky@yandex.ru>"]
 readme = "README.md"
 
-
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "fsd_medic.settings"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -99,6 +100,8 @@ wsproto = "1.2.0"
 zope-event = "5.0"
 zope-interface = "6.1"
 uvicorn = "^0.29.0"
+pytest-django = "^4.8.0"
+pytest = "^8.1.1"
 
 
 [build-system]

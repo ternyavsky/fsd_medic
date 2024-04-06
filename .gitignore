@@ -5,3 +5,4 @@ db.sqlite3
 pyrightconfig.json
 fsd_medic/.env
 .env
+dbdata/
