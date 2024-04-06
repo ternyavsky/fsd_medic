@@ -89,6 +89,17 @@ class UserView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["sex", "clinic", "disease"]
 
+
+    @swagger_auto_schema(
+        operation_summary="Регистрация",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING),
+                "password": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+    )
     def post(self, request, *args, **kwargs):
         code = generate_verification_code()
         serializer = CreateUserSerializer(data=request.data)
