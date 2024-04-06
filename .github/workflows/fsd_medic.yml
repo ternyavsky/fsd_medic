@@ -54,6 +54,7 @@ jobs:
         run: docker push $LOGIN/$NAME
 
   deployment:
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: remote ssh rebuild
@@ -63,4 +64,4 @@ jobs:
           username: ${{  secrets.SSH_USER}}
           key: ${{  secrets.SSH_KEY}}
           script:  | 
-                  bash /opt/git/fsd_medic/build.sh
+                  bash build.sh
