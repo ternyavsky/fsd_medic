@@ -131,7 +131,7 @@ class NewPasswordSerializer(serializers.Serializer):
 
     email = serializers.CharField(allow_null=True, required=False)
     number = serializers.CharField(allow_null=True, required=False)
-    password2 = serializers.CharField(min_length=8, max_length=128)
+    password = serializers.CharField(min_length=8, max_length=128)
 
 
 ## number bind block

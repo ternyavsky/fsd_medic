@@ -89,7 +89,6 @@ class UserView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["sex", "clinic", "disease"]
 
-
     @swagger_auto_schema(
         operation_summary="Регистрация",
         request_body=openapi.Schema(
@@ -229,12 +228,11 @@ class SetNewPasswordView(APIView):
         operation_summary="Установка нового пароля (Пользователь)",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["password1", "password2"],
+            required=["password"],
             properties={
                 "number": openapi.Schema(type=openapi.TYPE_STRING),
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "password1": openapi.Schema(type=openapi.TYPE_STRING),
-                "password2": openapi.Schema(type=openapi.TYPE_STRING),
+                "password": openapi.Schema(type=openapi.TYPE_STRING),
             },
         ),
     )

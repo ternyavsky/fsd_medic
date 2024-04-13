@@ -232,6 +232,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # EMAIL
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = os.getenv("EM_USE_TLS")
 EMAIL_HOST = os.getenv("EM_HOST")
 EMAIL_HOST_USER = os.getenv("EM_HOST_USER")
