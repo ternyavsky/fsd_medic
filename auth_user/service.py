@@ -36,42 +36,24 @@ def send_reset_sms(number, code):
 
 @shared_task
 def send_reset_email(email, code):
-    # send_mail(
-    #     "Восстановление пароля",
-    #     f"Вы пытаетесь восстановить доступ к аккаунту, ваш код доступа - {code}",
-    #     str(os.getenv("EM_HOST_USER")),
-    #     [email],
-    #     fail_silently=False,
-    # )
-    connection = smtplib.SMTP("smtp.gmail.com")
-    connection.starttls()
-    connection.login(user="prerecovergroup@gmail.com", password="ptqp xhuz eogq jevj")
-    connection.sendmail(
-        from_addr="prerecovergroup@gmail.com",
-        to_addrs=email,
-        msg=f"Вы пытаетесь восстановить доступ к аккаунту, ваш код доступа - {code}",
+    send_mail(
+        "Восстановление пароля",
+        f"Вы пытаетесь восстановить доступ к аккаунту, ваш код доступа - {code}",
+        str(os.getenv("EM_HOST_USER")),
+        [email],
+        fail_silently=False,
     )
-    connection.close()
 
 
 @shared_task
 def send_email(user_email, code):
-    # send_mail(
-    #     "Регистрация",
-    #     f"Регистрация была успешно пройдена, ваш код подтверждения {code}",
-    #     os.getenv("EM_HOST_USER"),
-    #     [user_email],
-    #     fail_silently=False,
-    # )
-    connection = smtplib.SMTP("smtp.gmail.com")
-    connection.starttls()
-    connection.login(user="prerecovergroup@gmail.com", password="ptqp xhuz eogq jevj")
-    connection.sendmail(
-        from_addr="prerecovergroup@gmail.com",
-        to_addrs=user_email,
-        msg=f"Регистрация была успешно пройдена, ваш код подтверждения {code}",
+    send_mail(
+        "Регистрация",
+        f"Регистрация была успешно пройдена, ваш код подтверждения {code}",
+        os.getenv("EM_HOST_USER"),
+        [user_email],
+        fail_silently=False,
     )
-    connection.close()
 
 
 @shared_task
