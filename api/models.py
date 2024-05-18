@@ -343,6 +343,11 @@ class Clinic(AbstractBaseUser, BaseModel):
     name = models.CharField(verbose_name=_("Название Клиники"), max_length=100)
     password = models.CharField(_("password"), max_length=128, null=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
+    weekends = models.BooleanField(_("Выходные"), blank=True, default=None)
+    specialization = models.CharField(_("Специализация"), blank=True, max_length=220)
+    admin_firstname = models.CharField(_("Имя админа"), blank=True, max_length=220)
+    admin_surname = models.CharField(_("Фамилия админа"), blank=True, max_length=220)
+    admin_lastname = models.CharField(_("Отчество админа"), blank=True, max_length=220)
     admin = models.ForeignKey(
         "User",
         on_delete=models.CASCADE,

@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "auth_user.apps.AuthUserConfig",
     "auth_doctor.apps.AuthDoctorConfig",
     "db.apps.DbConfig",
+    "money.apps.MoneyConfig",
 ]
 
 MIDDLEWARE = [
