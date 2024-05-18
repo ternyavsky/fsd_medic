@@ -6,33 +6,43 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_initial'),
+        ("api", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='clinic',
-            name='admin_firstname',
-            field=models.CharField(blank=True, max_length=220, verbose_name='Имя админа'),
+            model_name="clinic",
+            name="admin_firstname",
+            field=models.CharField(
+                blank=True, max_length=220, verbose_name="Имя админа"
+            ),
         ),
         migrations.AddField(
-            model_name='clinic',
-            name='admin_lastname',
-            field=models.CharField(blank=True, max_length=220, verbose_name='Отчество админа'),
+            model_name="clinic",
+            name="admin_lastname",
+            field=models.CharField(
+                blank=True, max_length=220, verbose_name="Отчество админа"
+            ),
         ),
         migrations.AddField(
-            model_name='clinic',
-            name='admin_surname',
-            field=models.CharField(blank=True, max_length=220, verbose_name='Фамилия админа'),
+            model_name="clinic",
+            name="admin_surname",
+            field=models.CharField(
+                blank=True, max_length=220, verbose_name="Фамилия админа"
+            ),
         ),
         migrations.AddField(
-            model_name='clinic',
-            name='specialization',
-            field=models.CharField(blank=True, max_length=220, verbose_name='Специализация'),
+            model_name="clinic",
+            name="specialization",
+            field=models.CharField(
+                blank=True, max_length=220, verbose_name="Специализация"
+            ),
         ),
         migrations.AddField(
-            model_name='clinic',
-            name='weekends',
-            field=models.BooleanField(blank=True, default=None, verbose_name='Выходные'),
+            model_name="clinic",
+            name="weekends",
+            field=models.BooleanField(
+                blank=True, default=None, verbose_name="Выходные"
+            ),
         ),
     ]

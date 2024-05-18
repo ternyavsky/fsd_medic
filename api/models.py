@@ -348,6 +348,7 @@ class Clinic(AbstractBaseUser, BaseModel):
     admin_firstname = models.CharField(_("Имя админа"), blank=True, max_length=220)
     admin_surname = models.CharField(_("Фамилия админа"), blank=True, max_length=220)
     admin_lastname = models.CharField(_("Отчество админа"), blank=True, max_length=220)
+    admin_number = models.CharField(_("Номер админа"), blank=True, max_length=220)
     admin = models.ForeignKey(
         "User",
         on_delete=models.CASCADE,
@@ -374,7 +375,7 @@ class Clinic(AbstractBaseUser, BaseModel):
     )
     number = models.CharField(verbose_name=_("Номер"), max_length=30, unique=True)
     email = models.CharField(
-        verbose_name=_("Электронный адрес"), max_length=100, unique=True
+        verbose_name=_("Электронный адрес"), max_length=100, unique=True, default=None
     )
     employees = models.ManyToManyField(
         to="auth_doctor.Doctor",

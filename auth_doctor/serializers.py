@@ -1,27 +1,37 @@
 from rest_framework import serializers
 
-from api.models import Clinic
+from api.models import City, Clinic, Country
 from .models import Doctor
 from .models import Interview
 
 
 class ClinicCreateSerializer(serializers.ModelSerializer):
-    city = serializers.CharField()
-    country = serializers.CharField()
+    city = serializers.CharField(required=True)
+    country = serializers.CharField(required=True)
 
     class Meta:
         model = Clinic
         fields = [
             "name",
-            "description",
-            "number",
-            "email",
-            "country",
             "city",
+            "country",
+            "specialization",
+            "number",
             "address",
-            "center",
-            "supported_diseases",
+            "admin_number",
+            "admin_firstname",
+            "admin_lastname",
+            "weekends",
         ]
+
+    def create(self, validated_data):
+        city, country = validated_data.pop("city"), validated_data.pop("country")
+        clinic = Clinic.objects.create(
+            **validated_data,
+            city=City.objects.get(name=city),
+            country=Country.objects.get(name=country),
+        )
+        return clinic
 
 
 class DateTimeUpdateSerializer(serializers.Serializer):

@@ -9,71 +9,250 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LinkToInterview',
+            name="LinkToInterview",
             fields=[
-                ('id', models.BigAutoField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, null=True, verbose_name='Дата изменения')),
-                ('link', models.CharField(max_length=220, unique=True, verbose_name='Ссылка на интервью')),
-                ('used', models.BooleanField(default=False, verbose_name='Использована')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, null=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, null=True, verbose_name="Дата изменения"
+                    ),
+                ),
+                (
+                    "link",
+                    models.CharField(
+                        max_length=220, unique=True, verbose_name="Ссылка на интервью"
+                    ),
+                ),
+                (
+                    "used",
+                    models.BooleanField(default=False, verbose_name="Использована"),
+                ),
             ],
             options={
-                'verbose_name': 'Интервью',
-                'verbose_name_plural': 'Интервью',
+                "verbose_name": "Интервью",
+                "verbose_name_plural": "Интервью",
             },
         ),
         migrations.CreateModel(
-            name='Doctor',
+            name="Doctor",
             fields=[
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('id', models.BigAutoField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, null=True, verbose_name='Дата изменения')),
-                ('main_status', models.BooleanField(blank=True, default=False, null=True)),
-                ('online', models.BooleanField(blank=True, default=False, null=True)),
-                ('first_name', models.CharField(max_length=50, null=True, verbose_name='Имя')),
-                ('last_name', models.CharField(max_length=50, null=True, verbose_name='Фамилия')),
-                ('number', models.CharField(max_length=30, verbose_name='Номер телефона')),
-                ('email', models.CharField(blank=True, max_length=220, null=True, verbose_name='Почта')),
-                ('image', models.ImageField(blank=True, default='users_photos/AccauntPreview.png', upload_to='users_photos/', verbose_name='Фотография Пользователья')),
-                ('middle_name', models.CharField(max_length=50, verbose_name='Отчетсво')),
-                ('address', models.CharField(max_length=200, verbose_name='Адрес')),
-                ('specialization', models.CharField(max_length=200, verbose_name='Специальность/должность')),
-                ('work_experience', models.DecimalField(decimal_places=1, max_digits=3, verbose_name='Опыт работы, лет')),
-                ('registration_date', models.DateTimeField(auto_now_add=True)),
-                ('review_date', models.DateTimeField(blank=True, null=True, verbose_name='Предполагаемая дата и время интервью')),
-                ('review_passed', models.BooleanField(null=True, verbose_name='Собеседование пройдено')),
-                ('verification_code', models.PositiveIntegerField(default=1, verbose_name='СМС код подтверждения')),
-                ('reset_code', models.PositiveIntegerField(default=1, verbose_name='Код для сброса пароля')),
-                ('email_verification_code', models.PositiveIntegerField(default=0, verbose_name='Код для привязки почты к аккаунту')),
-                ('center', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.center', verbose_name='Центр, в котором зарегистрирован врач')),
-                ('clinic', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.clinic', verbose_name='Клиника, где врач работает')),
-                ('country', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='api.country', verbose_name='Страна')),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "id",
+                    models.BigAutoField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, null=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, null=True, verbose_name="Дата изменения"
+                    ),
+                ),
+                (
+                    "main_status",
+                    models.BooleanField(blank=True, default=False, null=True),
+                ),
+                ("online", models.BooleanField(blank=True, default=False, null=True)),
+                (
+                    "first_name",
+                    models.CharField(max_length=50, null=True, verbose_name="Имя"),
+                ),
+                (
+                    "last_name",
+                    models.CharField(max_length=50, null=True, verbose_name="Фамилия"),
+                ),
+                (
+                    "number",
+                    models.CharField(max_length=30, verbose_name="Номер телефона"),
+                ),
+                (
+                    "email",
+                    models.CharField(
+                        blank=True, max_length=220, null=True, verbose_name="Почта"
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        blank=True,
+                        default="users_photos/AccauntPreview.png",
+                        upload_to="users_photos/",
+                        verbose_name="Фотография Пользователья",
+                    ),
+                ),
+                (
+                    "middle_name",
+                    models.CharField(max_length=50, verbose_name="Отчетсво"),
+                ),
+                ("address", models.CharField(max_length=200, verbose_name="Адрес")),
+                (
+                    "specialization",
+                    models.CharField(
+                        max_length=200, verbose_name="Специальность/должность"
+                    ),
+                ),
+                (
+                    "work_experience",
+                    models.DecimalField(
+                        decimal_places=1, max_digits=3, verbose_name="Опыт работы, лет"
+                    ),
+                ),
+                ("registration_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "review_date",
+                    models.DateTimeField(
+                        blank=True,
+                        null=True,
+                        verbose_name="Предполагаемая дата и время интервью",
+                    ),
+                ),
+                (
+                    "review_passed",
+                    models.BooleanField(
+                        null=True, verbose_name="Собеседование пройдено"
+                    ),
+                ),
+                (
+                    "verification_code",
+                    models.PositiveIntegerField(
+                        default=1, verbose_name="СМС код подтверждения"
+                    ),
+                ),
+                (
+                    "reset_code",
+                    models.PositiveIntegerField(
+                        default=1, verbose_name="Код для сброса пароля"
+                    ),
+                ),
+                (
+                    "email_verification_code",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="Код для привязки почты к аккаунту"
+                    ),
+                ),
+                (
+                    "center",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.center",
+                        verbose_name="Центр, в котором зарегистрирован врач",
+                    ),
+                ),
+                (
+                    "clinic",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.clinic",
+                        verbose_name="Клиника, где врач работает",
+                    ),
+                ),
+                (
+                    "country",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="api.country",
+                        verbose_name="Страна",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Врач',
-                'verbose_name_plural': 'Врачи',
+                "verbose_name": "Врач",
+                "verbose_name_plural": "Врачи",
             },
         ),
         migrations.CreateModel(
-            name='Interview',
+            name="Interview",
             fields=[
-                ('id', models.BigAutoField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, null=True, verbose_name='Дата изменения')),
-                ('center', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.center', verbose_name='Центр')),
-                ('clinic', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.clinic', verbose_name='Клиника')),
-                ('doctor', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='auth_doctor.doctor', verbose_name='Врач')),
-                ('link', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='auth_doctor.linktointerview')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, null=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, null=True, verbose_name="Дата изменения"
+                    ),
+                ),
+                (
+                    "center",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.center",
+                        verbose_name="Центр",
+                    ),
+                ),
+                (
+                    "clinic",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.clinic",
+                        verbose_name="Клиника",
+                    ),
+                ),
+                (
+                    "doctor",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="auth_doctor.doctor",
+                        verbose_name="Врач",
+                    ),
+                ),
+                (
+                    "link",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="auth_doctor.linktointerview",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

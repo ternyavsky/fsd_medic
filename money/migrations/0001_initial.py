@@ -9,20 +9,42 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('api', '0003_clinic_admin_firstname_clinic_admin_lastname_and_more'),
+        ("api", "0003_clinic_admin_firstname_clinic_admin_lastname_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Balance',
+            name="Balance",
             fields=[
-                ('id', models.BigAutoField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, null=True, verbose_name='Дата изменения')),
-                ('clinic', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='api.clinic')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, null=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, null=True, verbose_name="Дата изменения"
+                    ),
+                ),
+                (
+                    "clinic",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.clinic",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

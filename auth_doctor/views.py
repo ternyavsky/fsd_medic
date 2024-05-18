@@ -10,11 +10,12 @@ from drf_yasg import openapi
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from auth_user.serializers import ResendCodeSerializer
-from api.serializers import CenterSerializer, DoctorGetSerializer
+from api.serializers import CenterSerializer, ClinicSerializer, DoctorGetSerializer
 from auth_user.service import set_new_password
 from api.backends import *
 from db.queries import *
@@ -25,6 +26,25 @@ from .services.clinic_reg_service import *
 from .services.doctor_reg_services import *
 
 logger = logging.getLogger(__name__)
+
+
+class ClinicViewSet(ModelViewSet):
+    serializer_class = ClinicSerializer
+    queryset = Clinic.objects.all()
+
+    @swagger_auto_schema(
+        operation_summary="Регистрация клиники", request_body=ClinicCreateSerializer
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = ClinicCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        clinic = serializer.save()
+        headers = self.get_success_headers(self.get_serializer(clinic).data)
+        return Response(
+            self.get_serializer(clinic).data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
 
 
 class DoctorsListView(generics.ListAPIView):
