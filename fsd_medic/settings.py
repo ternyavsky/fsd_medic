@@ -62,6 +62,7 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "api.middleware.open_access_middleware",
     "django.middleware.security.SecurityMiddleware",
+    "fsd_medic.middlewares.AuthMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     # 'api.middleware.open_access_middleware',

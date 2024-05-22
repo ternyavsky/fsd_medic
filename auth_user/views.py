@@ -69,6 +69,8 @@ class LoginView(APIView):
             if auth is None:
                 raise exceptions.AuthenticationFailed("Incorrect password")
             refresh = RefreshToken.for_user(user)
+            refresh["type"] = "user"
+            refresh["number"] = user.number
             return Response(
                 {
                     "access_token": str(refresh.access_token),

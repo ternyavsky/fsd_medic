@@ -37,8 +37,7 @@ def doctor_authenticate(number=None, password=None):
 
 def clinic_authenticate(number=None, password=None):
     try:
-        clinics = cache.get_or_set("clinics", get_clinics())
-        clinic = clinics.filter(number=number).first()
+        clinic = Clinic.objects.filter(number=number).first()
         if password == clinic.password:
             return clinic
         else:

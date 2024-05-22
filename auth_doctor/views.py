@@ -330,6 +330,8 @@ class LoginCenter(APIView):
 class LoginClinic(APIView):
     def post(self, request):
         number, password = request.data["number"], request.data["password"]
+        print(number, password)
+        clinics = cache.get_or_set("clinics", get_clinics())
         clinic = clinic_authenticate(number, password)
         if clinic != None:
             clinic_jwt = jwt.encode(

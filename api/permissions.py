@@ -1,6 +1,16 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
+class IsClinicAuthenticated(BasePermission):
+    def has_permission(self, request, view):
+        return request.clinic
+
+
+class IsDoctorAuthenticated(BasePermission):
+    def has_permission(self, request, view):
+        return request.doctor
+
+
 class IsStaffUser(BasePermission):
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:

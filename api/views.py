@@ -13,6 +13,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.permissions import IsDoctorAuthenticated
 from db.queries import *
 from .serializers import *
 
