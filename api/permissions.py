@@ -1,4 +1,6 @@
+from rest_framework import status
 from rest_framework.permissions import SAFE_METHODS, BasePermission
+from rest_framework.exceptions import APIException
 
 
 class IsClinicAuthenticated(BasePermission):

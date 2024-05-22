@@ -25,6 +25,9 @@ class AuthMiddleware:
 
     def __call__(self, request):
         print(request.headers)
+        request.clinic = None
+        request.user = None
+        request.doctor = None
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split(" ")[1]
             req = self.jwt_decode(token, request)
