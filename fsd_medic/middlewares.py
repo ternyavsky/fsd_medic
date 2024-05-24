@@ -10,7 +10,6 @@ class AuthMiddleware:
 
     def jwt_decode(self, token: str, request):
         data = jwt.decode(token, "Bearer", algorithms=["HS256"])
-        print(data)
         match data["type"]:
             case "clinic":
                 clinic = Clinic.objects.get(number=data["number"])
@@ -24,7 +23,6 @@ class AuthMiddleware:
         return request
 
     def __call__(self, request):
-        print(request.headers)
         request.clinic = None
         request.user = None
         request.doctor = None
