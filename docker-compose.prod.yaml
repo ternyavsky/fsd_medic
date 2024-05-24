@@ -61,12 +61,14 @@ services:
   celery:
     build: .
     container_name: fsd_medic.celery
+    restart: always
     command: celery -A fsd_medic worker --loglevel=info
 
 
   rabbitmq:
     container_name: fsd_medic.rabbitmq
     image: rabbitmq:3.13.2-management
+    restart: always
     # environment:
     #   - RABBITMQ_DEFAULT_USER=guest
     #   - RABBITMQ_DEFAULT_PASS=guest
