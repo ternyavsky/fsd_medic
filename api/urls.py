@@ -17,6 +17,7 @@ router.register(r"api/likes", LikeViewSet, basename="likes")
 router.register(r"api/subscribes", SubscribeViewSet, basename="subscribes")
 
 urlpatterns = [
+    path("healthcheck", HealthView.as_view(), name="health"),
     path("api/token/", LoginView.as_view(), name="token_obtain_pair_url"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh_url"),
     path("api/search/", SearchView.as_view(), name="search_view_url"),

@@ -9,8 +9,15 @@ services:
     command: "uvicorn --factory fsd_medic.wsgi:application --reload --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
+    restart: always
     links:
       - redis
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsSL http://localhost:8000/healthcheck"]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
   redis:
     container_name: fsd_medic.redis
     image: redis:alpine

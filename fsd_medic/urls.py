@@ -4,6 +4,8 @@ from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from . import settings
 
@@ -19,6 +21,7 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),

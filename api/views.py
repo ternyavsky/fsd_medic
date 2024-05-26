@@ -23,6 +23,11 @@ from drf_yasg.utils import swagger_auto_schema
 logger = logging.getLogger(__name__)
 
 
+class HealthView(APIView):
+    def get(self, request):
+        return Response("OK", 200)
+
+
 class AbstractViewSetMeta(abc.ABCMeta, type(viewsets.ModelViewSet)):
     pass
 
