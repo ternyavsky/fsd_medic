@@ -12,6 +12,7 @@ class AuthMiddleware:
         data = jwt.decode(token, "Bearer", algorithms=["HS256"])
         match data["type"]:
             case "clinic":
+                print(1)
                 clinic = Clinic.objects.get(number=data["number"])
                 request.clinic = clinic
             case "doctor":

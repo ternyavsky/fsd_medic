@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from api.models import City, Clinic, Country
 from .models import Doctor
+
+
 from .models import Interview
 
 

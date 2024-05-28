@@ -4,7 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: fsd_medic.app
+    container_name:
+      fsd_medic.app
       #command:  bash -c "gunicorn fsd_medic.asgi:application --bind 0.0.0.0:8000  -k uvicorn.workers.UvicornWorker"
     command: "uvicorn --factory fsd_medic.wsgi:application --reload --host 0.0.0.0 --port 8000"
     ports:
@@ -36,9 +37,9 @@ services:
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yaml'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
   grafana:
     container_name: fsd_medic.grafana
     volumes:
@@ -71,7 +72,6 @@ services:
     restart: always
     command: celery -A fsd_medic worker --loglevel=info
 
-
   rabbitmq:
     container_name: fsd_medic.rabbitmq
     image: rabbitmq:3.13.2-management
@@ -95,7 +95,7 @@ services:
 #     - '3307:3306'
 #   environment:
 
-        #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+#     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
 volumes:
   # dbdata:
   grafana_storage: {}

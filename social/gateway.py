@@ -4,6 +4,7 @@ from .helpers.jwt_decode import jwt_decode
 # server = socketio.Server(async_mode="eventlet")
 server = socketio.Server(cors_allowed_origins="*", async_mode="eventlet")
 from api.serializers import UserSerializer
+
 from .serializers import ChatSerializer
 from db.queries import get_chats, get_messages
 from django.core.cache import cache
