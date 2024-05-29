@@ -1,6 +1,20 @@
 from django.urls import path
 
-from .views import *
+from .views import (
+    LoginView,
+    UserView,
+    AccessViewSet,
+    CreateAdminView,
+    UserDetailView,
+    VerifyCodeView,
+    ResendSmsView,
+    PasswordResetView,
+    VerifyResetCodeView,
+    SetNewPasswordView,
+    NumberBindingView,
+    VerifyNumberCodeView,
+    GetDiseasesView,
+)
 
 urlpatterns = [
     path("api/login", LoginView.as_view(), name="login"),

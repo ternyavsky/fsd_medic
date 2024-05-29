@@ -71,6 +71,7 @@ class LoginView(APIView):
             refresh = RefreshToken.for_user(user)
             refresh["type"] = "user"
             refresh["number"] = user.number
+            refresh["email"] = user.email
             return Response(
                 {
                     "access_token": str(refresh.access_token),

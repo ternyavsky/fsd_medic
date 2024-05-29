@@ -500,7 +500,6 @@ class NewsVideos(models.Model):
 
 
 class News(BaseModel):
-    id = models.BigAutoField(primary_key=True, db_index=True)
     title = models.CharField(
         verbose_name=_("Заголовок новости"), max_length=40, null=True, blank=True
     )

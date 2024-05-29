@@ -1,6 +1,7 @@
+from django.db import models
 import jwt
 
-from api.models import Clinic, User
+from api.models import Clinic, User, BaseModel
 from auth_doctor.models import Doctor
 
 
@@ -8,18 +9,34 @@ class AuthMiddleware:
     def __init__(self, get_response) -> None:
         self.get_response = get_response
 
+    def get_instance(self, model, param):
+        instance = model.objects.get(**param)
+        return instance
+
     def jwt_decode(self, token: str, request):
-        data = jwt.decode(token, "Bearer", algorithms=["HS256"])
+        data: dict = jwt.decode(token, "Bearer", algorithms=["HS256"])
+        print(data)
         match data["type"]:
             case "clinic":
-                print(1)
-                clinic = Clinic.objects.get(number=data["number"])
+                clinic = None
+                if data["number"] != None:
+                    clinic = self.get_instance(Clinic, {"number": data["number"]})
+                elif data["email"] != None:
+                    clinic = self.get_instance(Clinic, {"email": data["email"]})
                 request.clinic = clinic
             case "doctor":
-                doctor = Doctor.objects.get(number=data["number"])
+                doctor = None
+                if data["number"] != None:
+                    doctor = self.get_instance(Doctor, {"number": data["number"]})
+                elif data["email"] != None:
+                    doctor = self.get_instance(Doctor, {"email": data["email"]})
                 request.doctor = doctor
             case "user":
-                user = User.objects.get(number=data["number"])
+                user = None
+                if data["number"] != None:
+                    user = self.get_instance(User, {"number": data["number"]})
+                elif data["email"] != None:
+                    user = self.get_instance(User, {"email": data["email"]})
                 request.user = user
         return request
 

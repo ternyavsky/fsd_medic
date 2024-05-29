@@ -298,6 +298,7 @@ class LoginDoctor(APIView):
             doctor_jwt = jwt.encode(
                 {
                     "number": doctor.number,
+                    "email": doctor.email,
                     "type": "doctor",
                     "exp": datetime.datetime.now(tz=timezone.utc)
                     + datetime.timedelta(days=30),
@@ -317,6 +318,7 @@ class LoginCenter(APIView):
             center_jwt = jwt.encode(
                 {
                     "number": center.number,
+                    "email": center.email,
                     "type": "center",
                     "exp": datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
                 },
@@ -337,6 +339,7 @@ class LoginClinic(APIView):
             clinic_jwt = jwt.encode(
                 {
                     "number": clinic.number,
+                    "email": clinic.email,
                     "type": "clinic",
                     "exp": datetime.datetime.now(tz=timezone.utc),
                 },
