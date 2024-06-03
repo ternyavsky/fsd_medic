@@ -2,7 +2,7 @@ version: "3.8"
 services:
   redis:
     container_name: fsd_medic.redis
-    image: redis:alpine
+    image: dockerhub.timeweb.cloud/redis:alpine
     expose:
       - "6379"
     ports:
@@ -15,12 +15,12 @@ services:
       start_period: 10s
   memcached:
     container_name: fsd_medic.memcached
-    image: memcached:latest
+    image: dockerhub.timeweb.cloud/memcached:latest
     ports:
       - "11211:11211"
   mysql:
     container_name: fsd_medic.mysql
-    image: mysql
+    image: dockerhub.timeweb.cloud/mysql
     ports:
       - "3306:3306"
     environment:
@@ -64,7 +64,7 @@ services:
 
   rabbitmq:
     container_name: fsd_medic.rabbitmq
-    image: rabbitmq
+    image: dockerhub.timeweb.cloud/rabbitmq
     ports:
       - "5672:5672"
     healthcheck:

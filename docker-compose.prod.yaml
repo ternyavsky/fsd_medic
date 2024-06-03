@@ -21,17 +21,17 @@ services:
       start_period: 10s
   redis:
     container_name: fsd_medic.redis
-    image: redis:alpine
+    image: dockerhub.timeweb.cloud/redis:alpine
     ports:
       - "6379:6379"
   memcached:
     container_name: fsd_medic.memcached
-    image: memcached:latest
+    image: dockerhub.timeweb.cloud/memcached:latest
     ports:
       - "11211:11211"
   prometheus:
     container_name: fsd_medic.prometheus
-    image: prom/prometheus
+    image: dockerhub.timeweb.cloud/prom/prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -44,7 +44,7 @@ services:
     container_name: fsd_medic.grafana
     volumes:
       - grafana_storage:/var/lib/grafana
-    image: grafana/grafana
+    image: dockerhub.timeweb.cloud/grafana/grafana
     ports:
       - "3000:3000"
   # mysql:
@@ -62,7 +62,7 @@ services:
 
   loki:
     container_name: fsd_medic.loki
-    image: grafana/loki
+    image: dockerhub.timeweb.cloud/grafana/loki
     ports:
       - "3100:3100"
     restart: unless-stopped
@@ -74,7 +74,7 @@ services:
 
   rabbitmq:
     container_name: fsd_medic.rabbitmq
-    image: rabbitmq:3.13.2-management
+    image: dockerhub.timeweb.cloud/rabbitmq:3.13.2-management
     restart: always
     # environment:
     #   - RABBITMQ_DEFAULT_USER=guest
