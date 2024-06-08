@@ -6,3 +6,9 @@ pyrightconfig.json
 fsd_medic/.env
 .env
 dbdata/
+.env
+pyrightconfig.json
+__pycache__/
+*.py[cod]
+*$py.class
+.mypy_cache
