@@ -1,6 +1,8 @@
+from django.db import transaction
+from django.db.transaction import atomic
 from rest_framework import serializers
 
-from api.models import City, Clinic, Country
+from api.models import City, Clinic, ClinicAdmin, Country
 from .models import Doctor
 
 
@@ -10,28 +12,45 @@ from .models import Interview
 class ClinicCreateSerializer(serializers.ModelSerializer):
     city = serializers.CharField(required=True)
     country = serializers.CharField(required=True)
+    admin_number = serializers.CharField(required=True)
+    admin_birthday = serializers.DateField(required=True)
+    admin_firstname = serializers.CharField(required=True)
+    admin_surname = serializers.CharField(required=True)
 
     class Meta:
         model = Clinic
         fields = [
             "name",
-            "city",
-            "country",
-            "specialization",
             "number",
-            "address",
+            "country",
+            "city",
             "admin_number",
+            "admin_birthday",
             "admin_firstname",
-            "admin_lastname",
-            "weekends",
+            "admin_surname",
+            "address",
+            "specialization",
+            "employees",
+            "workdays",
+            "worktime",
         ]
 
+    @transaction.atomic
     def create(self, validated_data):
-        city, country = validated_data.pop("city"), validated_data.pop("country")
+        d = validated_data
+        city, country = d.pop("city"), d.pop("country")
+        admin = ClinicAdmin.objects.create(
+            number=d.pop("admin_number"),
+            firstname=d.pop("admin_firstname"),
+            surname=d.pop("admin_surname"),
+            birthday=d.pop("admin_birthday"),
+        )
+        admin.save()
         clinic = Clinic.objects.create(
-            **validated_data,
+            **d,
             city=City.objects.get(name=city),
             country=Country.objects.get(name=country),
+            admin=admin,
         )
         return clinic
 

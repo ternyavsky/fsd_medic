@@ -65,7 +65,7 @@ MIDDLEWARE = [
     "fsd_medic.middlewares.AuthMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    # 'api.middleware.open_access_middleware',
+    "api.middleware.open_access_middleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -79,9 +79,22 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "ngrok-skip-browser-warning",
+)
+CORS_ALLOW_ALL_ORIGINS = True
 
-
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3001", "http://localhost:3001"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:3001",
+    "http://localhost:3001",
+    "https://c16c-95-179-120-234.ngrok-free.app",
+]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     "http://127.0.0.1:3001",
@@ -89,6 +102,7 @@ CORS_ORIGIN_WHITELIST = (
     "http://172.17.0.1:3001",
     "http://localhost:3001",
     "http://pre-recover.com",
+    "https://c16c-95-179-120-234.ngrok-free.app",
 )
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
@@ -98,6 +112,7 @@ SIMPLE_JWT = {
     "SIGNING_KEY": "Bearer",
     "VERIFYING_KEY": "Bearer",
 }
+
 
 ROOT_URLCONF = "fsd_medic.urls"
 

@@ -171,6 +171,8 @@ class NewsSerializer(serializers.ModelSerializer):
             "quant_likes",
             "upload_images",
             "upload_videos",
+            "created_at",
+            "updated_at",
         ]
 
     def get_quant_likes(self, obj):

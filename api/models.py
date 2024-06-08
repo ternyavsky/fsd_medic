@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password
+from django_mysql.models import ListCharField
 
 from .choices import NOTE_CHOICES, PROCESS
 from .managers.base_manager import SimpleManager
@@ -338,22 +339,48 @@ class Center(AbstractBaseUser):
         verbose_name = "Центр"
 
 
+class ClinicAdmin(BaseModel):
+    firstname = models.CharField(_("Имя админа"), blank=True, max_length=220)
+    surname = models.CharField(_("Фамилия админа"), blank=True, max_length=220)
+    birthday = models.DateField(
+        verbose_name=_("Дата рождения админа"), null=True, blank=True
+    )
+    lastname = models.CharField(_("Отчество админа"), blank=True, max_length=220)
+    number = models.CharField(_("Номер админа"), blank=True, max_length=220)
+    photo = models.ImageField(
+        _("Фото админа"), upload_to="clinic_admin_photos/", default=None, blank=True
+    )
+
+    def __str__(self) -> str:
+        return f"Администратор {self.firstname} {self.surname}"
+
+    class Meta:
+        verbose_name_plural = "Администраторы клиник"
+        verbose_name = "Администратор клиники"
+
+
 class Clinic(AbstractBaseUser, BaseModel):
     USERNAME_FIELD = "number"
     name = models.CharField(verbose_name=_("Название Клиники"), max_length=100)
-    password = models.CharField(_("password"), max_length=128, null=True)
+    password = models.CharField(_("password"), max_length=128, null=True, blank=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
-    weekends = models.BooleanField(_("Выходные"), blank=True, default=None)
     specialization = models.CharField(_("Специализация"), blank=True, max_length=220)
-    admin_firstname = models.CharField(_("Имя админа"), blank=True, max_length=220)
-    admin_surname = models.CharField(_("Фамилия админа"), blank=True, max_length=220)
-    admin_lastname = models.CharField(_("Отчество админа"), blank=True, max_length=220)
-    admin_number = models.CharField(_("Номер админа"), blank=True, max_length=220)
+    workdays = ListCharField(
+        base_field=models.CharField(max_length=2),
+        size=7,
+        max_length=(7 * 3),
+        null=True,
+        blank=True,
+    )
+    worktime = models.IntegerField(
+        _("Время активности на сайте (в минутах)"), default=0
+    )
     admin = models.ForeignKey(
-        "User",
+        "ClinicAdmin",
         on_delete=models.CASCADE,
         verbose_name=_("Администартор"),
         null=True,
+        blank=True,
         related_name="admin_clinic",
     )
     is_required = models.BooleanField(
@@ -377,11 +404,7 @@ class Clinic(AbstractBaseUser, BaseModel):
     email = models.CharField(
         verbose_name=_("Электронный адрес"), max_length=100, unique=True, default=None
     )
-    employees = models.ManyToManyField(
-        to="auth_doctor.Doctor",
-        verbose_name=_("Сотрудники"),
-        related_name="clinic_employees",
-    )
+    employees = models.IntegerField(_("Кол-во сотрудников"), default=0)
     supported_diseases = models.ManyToManyField(
         "Disease", verbose_name="Изученные заболевания"
     )
@@ -403,10 +426,6 @@ class Clinic(AbstractBaseUser, BaseModel):
     center = models.ForeignKey(
         Center, verbose_name="Центры", null=True, on_delete=models.CASCADE
     )
-    review_date = models.DateTimeField(
-        null=True, verbose_name="Предполагаемая дата и время интервью"
-    )
-    review_passed = models.BooleanField(_("Собеседование пройдено"), null=True)
     verification_code = models.PositiveIntegerField(
         verbose_name=_("СМС код подтверждения"), default=1
     )

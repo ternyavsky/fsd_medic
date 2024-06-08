@@ -94,10 +94,8 @@ def get_clinics(**kwargs):
             "center",
         )
         .prefetch_related(
-            "employees",
             "supported_diseases",
             "center__supported_diseases",
-            "center__employees",
         )
         .filter(**kwargs)
     )
@@ -134,7 +132,6 @@ def get_users(**kwargs):
             "centers",
             "centers__employees",
             "centers__supported_diseases",
-            "clinic__employees",
             "clinic__supported_diseases",
         )
     )

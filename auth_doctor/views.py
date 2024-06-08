@@ -33,7 +33,8 @@ class ClinicViewSet(ModelViewSet):
     queryset = Clinic.objects.all()
 
     @swagger_auto_schema(
-        operation_summary="Регистрация клиники", request_body=ClinicCreateSerializer
+        operation_summary="Регистрация клиники",
+        request_body=ClinicCreateSerializer,
     )
     def create(self, request, *args, **kwargs):
         serializer = ClinicCreateSerializer(data=request.data)

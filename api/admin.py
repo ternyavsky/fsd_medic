@@ -18,6 +18,7 @@ from .models import *
 #     readonly_fields = ['id', 'created_at', 'updated_at']
 
 admin.site.register(Center)
+admin.site.register(ClinicAdmin)
 admin.site.register(User)
 admin.site.register(Country)
 admin.site.register(City)

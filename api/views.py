@@ -10,6 +10,7 @@ from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -87,7 +88,7 @@ class NewsViewSet(AbstractViewSet):
     serializer_class = NewsSerializer
     filter_backends = [DjangoFilterBackend]
     search_fields = ["title", "text", "clinic", "disease"]
-    ordering_fields = ["clinic", "disease"]
+    ordering_fields = ["clinic", "disease", "likes"]
     filterset_fields = ["title", "text", "clinic", "disease"]
     pagination_class = PageNumberPagination
 
@@ -107,7 +108,7 @@ class SearchView(APIView):
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())
         centers = cache.get_or_set("centers", get_centers())
         doctors = cache.get_or_set("doctors", get_doctors())

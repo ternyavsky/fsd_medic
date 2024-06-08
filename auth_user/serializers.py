@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, TokenObtainSerializer):
-
     # Overiding validate function in the TokenObtainSerializer
     def validate(self, attrs):
         authenticate_kwargs = {

@@ -147,20 +147,19 @@ def verify_reset_code_service(request):
 def set_new_password_service(request):
     serializer = NewPasswordSerializer(data=request.data)
     if serializer.is_valid():
-        # if "email" in serializer.validated_data:
-        user = User.objects.filter(email=serializer.validated_data["email"]).first()
-
-        # if "number" in serializer.validated_data:
-        #     user = User.objects.filter(
-        #         number=serializer.validated_data["number"]
-        #     ).first()
-
-        #         else:
-        #             logger.warning("User not found")
-        #             logger.warning(request.path)
-        #             return Response(
-        #                 {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
-        #             )
+        user = None
+        if "email" in serializer.validated_data:
+            user = User.objects.filter(email=serializer.validated_data["email"]).first()
+        elif "number" in serializer.validated_data:
+            user = User.objects.filter(
+                number=serializer.validated_data["number"]
+            ).first()
+        else:
+            logger.warning("User not found")
+            logger.warning(request.path)
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         set_new_password(user, serializer.validated_data["password"])
         logger.debug("Password changed successfully")

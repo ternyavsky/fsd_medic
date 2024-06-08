@@ -2,6 +2,7 @@ version: "3.8"
 services:
   redis:
     container_name: fsd_medic.redis
+
     image: dockerhub.timeweb.cloud/redis:alpine
     expose:
       - "6379"
@@ -18,18 +19,18 @@ services:
     image: dockerhub.timeweb.cloud/memcached:latest
     ports:
       - "11211:11211"
-  mysql:
-    container_name: fsd_medic.mysql
-    image: dockerhub.timeweb.cloud/mysql
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mysql
-      MYSQL_PASSWORD: root
-    volumes:
-      - ./dbdata:/var/lib/mysql
-      - ./default_db.sql:/docker-entrypoint-initdb.d/default_db.sql
+  # mysql:
+  #   container_name: fsd_medic.mysql
+  #   image: dockerhub.timeweb.cloud/mysql
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: mysql
+  #     MYSQL_PASSWORD: root
+  #   volumes:
+  #     - ./dbdata:/var/lib/mysql
+  #     - ./default_db.sql:/docker-entrypoint-initdb.d/default_db.sql
   # prometheus:
   #   container_name: fsd_medic.prometheus
   #   image: prom/prometheus
@@ -64,7 +65,7 @@ services:
 
   rabbitmq:
     container_name: fsd_medic.rabbitmq
-    image: dockerhub.timeweb.cloud/rabbitmq
+    image: dockerhub.timeweb.cloud/rabbitmq:3.12.2-management
     ports:
       - "5672:5672"
     healthcheck:

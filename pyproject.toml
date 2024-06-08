@@ -102,6 +102,7 @@ zope-interface = "6.1"
 uvicorn = "^0.29.0"
 pytest-django = "^4.8.0"
 pytest = "^8.1.1"
+django-mysql = "^4.13.0"
 
 
 [build-system]
