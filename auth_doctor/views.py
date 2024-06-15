@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from auth_user.serializers import ResendCodeSerializer
 from api.serializers import CenterSerializer, ClinicSerializer, DoctorGetSerializer
+from api.permissions import IsUsermanAuthenticated
 from auth_user.service import set_new_password
 from api.backends import *
 from db.queries import *
@@ -51,7 +52,7 @@ class ClinicViewSet(ModelViewSet):
 class DoctorsListView(generics.ListAPIView):
     serializer_class = DoctorGetSerializer
     queryset = Doctor.objects.all()
-    permissions_classes = [IsAuthenticated]
+    permissions_classes = [IsUsermanAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
         "country",
@@ -64,7 +65,7 @@ class DoctorsListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return self.queryset.filter(country=self.request.user.country)
+        return self.queryset.filter(country=self.request.userman.country)
 
 
 class ClinicDataPast(APIView):
@@ -342,7 +343,8 @@ class LoginClinic(APIView):
                     "number": clinic.number,
                     "email": clinic.email,
                     "type": "clinic",
-                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
+                    "exp": datetime.datetime.now(tz=timezone.utc)
+                    + datetime.timedelta(days=30),
                 },
                 "Bearer",
                 algorithm="HS256",
