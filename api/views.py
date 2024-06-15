@@ -41,8 +41,8 @@ class AbstractViewSetMeta(abc.ABCMeta, type(viewsets.ModelViewSet)):
 
 class AbstractViewSet(viewsets.ModelViewSet, metaclass=AbstractViewSetMeta):
     def get_queryset(self):
-        if not self.request.user.is_staff:
-            return self.queryset.filter(user=self.request.user)
+        if not self.request.userman.is_staff:
+            return self.queryset.filter(user=self.request.userman)
         return self.queryset
 
 

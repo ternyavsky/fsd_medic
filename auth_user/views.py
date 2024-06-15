@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from api.models import User
-from api.permissions import OnlyCreate
+from api.permissions import IsUsermanAuthenticated, OnlyCreate
 from api.serializers import (
     UserSerializer,
     DiseaseSerializer,
@@ -119,10 +119,10 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Получение, редактирование отдельного пользователя по id"""
 
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUsermanAuthenticated]
 
     def get_object(self):
-        data = self.request.user
+        data = self.request.usermanman
         logger.debug(data)
         logger.debug(self.request.path)
         return data
@@ -131,7 +131,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().get(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        instance = self.request.user
+        instance = self.request.usermanman
         serializer = UserUpdateSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -309,10 +309,10 @@ class AccessViewSet(APIView):
     def get_queryset(self):
         users = get_users()
         queryset = get_access()
-        if self.request.user.is_staff:
+        if self.request.userman.is_staff:
             return queryset
         else:
-            user = users.filter(id=self.request.user.id).first()
+            user = users.filter(id=self.request.userman.id).first()
             return queryset.filter(user=user)
 
     @swagger_auto_schema(operation_summary="Получение доступа пользователя")
