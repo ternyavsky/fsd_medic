@@ -122,7 +122,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsUsermanAuthenticated]
 
     def get_object(self):
-        data = self.request.usermanman
+        data = self.request.userman
         logger.debug(data)
         logger.debug(self.request.path)
         return data
@@ -131,7 +131,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().get(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        instance = self.request.usermanman
+        instance = self.request.userman
         serializer = UserUpdateSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
         serializer.save()
