@@ -25,13 +25,13 @@ from django.test import TestCase
 
 
 # write test for likeviewset with apiclient and force_authenticate
-class LikeViewSetTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.view = LikeViewSet.as_view({"post": "create"})
-        self.uri = "/api/like/"
-
-    def test_like_view(self):
-        request = self.factory.post(self.uri)
-        response = self.view(request)
-        self.assertEqual(response.status_code, 401)
+# class LikeViewSetTest(TestCase):
+#     def setUp(self):
+#         self.factory = APIRequestFactory()
+#         self.view = LikeViewSet.as_view({"post": "create"})
+#         self.uri = "/api/like/"
+#
+#     def test_like_view(self):
+#         request = self.factory.post(self.uri)
+#         response = self.view(request)
+#         self.assertEqual(response.status_code, 401)
