@@ -37,16 +37,20 @@ class AuthMiddleware:
                     user = self.get_instance(User, {"number": data["number"]})
                 elif data["email"] != None:
                     user = self.get_instance(User, {"email": data["email"]})
-                request.user = user
+                request.userman = user
         return request
 
     def __call__(self, request):
         request.clinic = None
-        request.user = None
+        request.userman = None
         request.doctor = None
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split(" ")[1]
             req = self.jwt_decode(token, request)
+            print(
+                req.clinic,
+                req.userman,
+            )
             response = self.get_response(req)
             return response
         return self.get_response(request)

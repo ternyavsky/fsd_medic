@@ -342,7 +342,7 @@ class LoginClinic(APIView):
                     "number": clinic.number,
                     "email": clinic.email,
                     "type": "clinic",
-                    "exp": datetime.datetime.now(tz=timezone.utc),
+                    "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=30),
                 },
                 "Bearer",
                 algorithm="HS256",

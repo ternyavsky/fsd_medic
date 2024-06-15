@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.db.transaction import atomic
 from rest_framework import serializers
@@ -10,27 +11,11 @@ from .models import Interview
 
 
 class ClinicCreateSerializer(serializers.ModelSerializer):
-    city = serializers.CharField(required=True)
-    country = serializers.CharField(required=True)
-    admin_number = serializers.CharField(required=True)
-    admin_birthday = serializers.DateField(required=True)
-    admin_firstname = serializers.CharField(required=True)
-    admin_surname = serializers.CharField(required=True)
-
     class Meta:
         model = Clinic
         fields = [
-            "name",
             "number",
-            "country",
-            "city",
-            "admin_number",
-            "admin_birthday",
-            "admin_firstname",
-            "admin_surname",
-            "address",
-            "specialization",
-            "employees",
+            "password",
             "workdays",
             "worktime",
         ]
@@ -38,19 +23,10 @@ class ClinicCreateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         d = validated_data
-        city, country = d.pop("city"), d.pop("country")
-        admin = ClinicAdmin.objects.create(
-            number=d.pop("admin_number"),
-            firstname=d.pop("admin_firstname"),
-            surname=d.pop("admin_surname"),
-            birthday=d.pop("admin_birthday"),
-        )
-        admin.save()
+        password = d.pop("password")
         clinic = Clinic.objects.create(
+            password=make_password(password),
             **d,
-            city=City.objects.get(name=city),
-            country=Country.objects.get(name=country),
-            admin=admin,
         )
         return clinic
 

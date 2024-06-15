@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import status
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 from rest_framework.exceptions import APIException
@@ -5,12 +6,20 @@ from rest_framework.exceptions import APIException
 
 class IsClinicAuthenticated(BasePermission):
     def has_permission(self, request, view):
+        print(request.clinic, 8)
         return request.clinic
 
 
 class IsDoctorAuthenticated(BasePermission):
     def has_permission(self, request, view):
+        print(request.doctor, 13)
         return request.doctor
+
+
+class IsUsermanAuthenticated(BasePermission):
+    def has_permission(self, request, view):
+        print(request.userman, request.clinic, request.doctor, 21)
+        return request.userman
 
 
 class IsStaffUser(BasePermission):

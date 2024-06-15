@@ -9,12 +9,18 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from api.permissions import IsClinicAuthenticated, IsDoctorAuthenticated
+from api.authentication import CustomAuthentication
+from api.permissions import (
+    IsClinicAuthenticated,
+    IsDoctorAuthenticated,
+    IsUsermanAuthenticated,
+)
 from db.queries import *
 from .serializers import *
 
@@ -42,7 +48,7 @@ class AbstractViewSet(viewsets.ModelViewSet, metaclass=AbstractViewSetMeta):
 
 class SubscribeViewSet(AbstractViewSet):
     queryset = Subscribe.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUsermanAuthenticated]
     serializer_class = SubscribeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["user", "clinic", "main_doctor"]
@@ -50,7 +56,7 @@ class SubscribeViewSet(AbstractViewSet):
 
 class SaveViewSet(AbstractViewSet):
     queryset = Saved.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUsermanAuthenticated]
     serializer_class = SavedSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["user", "news"]
@@ -58,7 +64,7 @@ class SaveViewSet(AbstractViewSet):
 
 class LikeViewSet(AbstractViewSet):
     queryset = Like.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUsermanAuthenticated]
     serializer_class = LikeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["user", "news"]
@@ -66,7 +72,7 @@ class LikeViewSet(AbstractViewSet):
 
 class NoteViewSet(AbstractViewSet):
     queryset = Note.objects.all().prefetch_related("doctors")
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUsermanAuthenticated]
     serializer_class = NoteSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
@@ -84,7 +90,9 @@ class NewsViewSet(AbstractViewSet):
     queryset = News.objects.filter_by_user().prefetch_related(
         "news_images", "news_videos"
     )
+
     permission_classes = [AllowAny]
+    # authentication_classes = [CustomAuthentication]
     serializer_class = NewsSerializer
     filter_backends = [DjangoFilterBackend]
     search_fields = ["title", "text", "clinic", "disease"]
@@ -94,13 +102,14 @@ class NewsViewSet(AbstractViewSet):
 
     def get_queryset(self):
         news = self.queryset.order_by("-created_at")
-        user = self.request.user
-        if user.is_staff:
-            return news
-        elif user.is_authenticated:
-            return news.filter_by_user(user)
+        user = self.request.userman
+        if user:
+            if user.is_staff:
+                return news
+            elif user.is_authenticated:
+                return news.filter_by_user(user)
         else:
-            return news
+            return news[:3]
 
 
 class SearchView(APIView):

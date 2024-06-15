@@ -435,7 +435,7 @@ class Clinic(AbstractBaseUser, BaseModel):
     )
 
     def __str__(self):
-        return self.name
+        return self.number
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
