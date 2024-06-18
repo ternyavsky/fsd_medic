@@ -24,6 +24,8 @@ services:
     container_name: fsd_medic.nginx
     image: dockerhub.timeweb.cloud/nginx:stable-alpine
     restart: always
+    volumes:
+      - "./nginx.conf:/etc/nginx/conf.d/default.conf"
     ports:
       - "80:80"
       - "443:443"
@@ -37,15 +39,6 @@ services:
     image: dockerhub.timeweb.cloud/memcached:latest
     ports:
       - "11211:11211"
-  certbot:
-    image: dockerhub.timeweb.cloud/certbot/certbot
-    container_name: fsd_medic.certbot
-    volumes:
-      - ./docker/certbot/conf:/etc/letsencrypt:rw
-      - ./docker/certbot/www:/var/www/certbot:rw
-    command: certonly --webroot --webroot-path=/var/www/certbot/ --email ilya.ternyavsky@yandex.ru --agree-tos --no-eff-email -d 83.147.246.220
-    depends_on:
-      - nginx
   # prometheus:
   # prometheus:
   #   container_name: fsd_medic.prometheus  #   container_name: fsd_medic.prometheus

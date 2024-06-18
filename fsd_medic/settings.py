@@ -20,7 +20,12 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG_STATUS")
 
-ALLOWED_HOSTS = ["83.147.246.220", "localhost:8000"]
+ALLOWED_HOSTS = [
+    "83.147.246.220",
+    "localhost",
+    "pre-recover.com",
+    "www.pre-recover.com",
+]
 
 REST_FRAMEWORK = {
     # "DEFAULT_AUTHENTICATION_CLASSES": (
