@@ -19,6 +19,14 @@ services:
       timeout: 60s
       retries: 5
       start_period: 10s
+
+  nginx:
+    container_name: fsd_medic.nginx
+    image: dockerhub.timeweb.cloud/nginx:stable-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
   redis:
     container_name: fsd_medic.redis
     image: dockerhub.timeweb.cloud/redis:alpine
@@ -29,24 +37,34 @@ services:
     image: dockerhub.timeweb.cloud/memcached:latest
     ports:
       - "11211:11211"
-  prometheus:
-    container_name: fsd_medic.prometheus
-    image: dockerhub.timeweb.cloud/prom/prometheus
-    ports:
-      - "9090:9090"
+  certbot:
+    image: dockerhub.timeweb.cloud/certbot/certbot
+    container_name: fsd_medic.certbot
     volumes:
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yaml"
-      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-      - "--web.console.templates=/usr/share/prometheus/consoles"
-  grafana:
-    container_name: fsd_medic.grafana
-    volumes:
-      - grafana_storage:/var/lib/grafana
-    image: dockerhub.timeweb.cloud/grafana/grafana
-    ports:
-      - "3000:3000"
+      - ./docker/certbot/conf:/etc/letsencrypt:rw
+      - ./docker/certbot/www:/var/www/certbot:rw
+    command: certonly --webroot --webroot-path=/var/www/certbot/ --email ilya.ternyavsky@yandex.ru --agree-tos --no-eff-email -d 83.147.246.220
+    depends_on:
+      - nginx
+  # prometheus:
+  # prometheus:
+  #   container_name: fsd_medic.prometheus  #   container_name: fsd_medic.prometheus
+  #   image: dockerhub.timeweb.cloud/prom/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+  #   command:
+  #     - "--config.file=/etc/prometheus/prometheus.yaml"
+  #     - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+  #     - "--web.console.templates=/usr/share/prometheus/consoles"
+  # grafana:
+  #   container_name: fsd_medic.grafana
+  #   volumes:
+  #     - grafana_storage:/var/lib/grafana
+  #   image: dockerhub.timeweb.cloud/grafana/grafana
+  #   ports:
+  #     - "3000:3000"
   # mysql:
   #   container_name: fsd_medic.mysql
   #   image: mysql
@@ -60,12 +78,12 @@ services:
   #     - ./dbdata:/var/lib/mysql/
   #     - ./default_db.sql:/docker-entrypoint-initdb.d/default_db.sql
 
-  loki:
-    container_name: fsd_medic.loki
-    image: dockerhub.timeweb.cloud/grafana/loki
-    ports:
-      - "3100:3100"
-    restart: unless-stopped
+  # loki:
+  #   container_name: fsd_medic.loki
+  #   image: dockerhub.timeweb.cloud/grafana/loki
+  #   ports:
+  #     - "3100:3100"
+  #   restart: unless-stopped
   celery:
     build: .
     container_name: fsd_medic.celery
