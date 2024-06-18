@@ -93,6 +93,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3001",
     "http://localhost:3001",
+    "https://ms-lkuqx8dcc-ternyavskys-projects.vercel.app",
     "https://c16c-95-179-120-234.ngrok-free.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
@@ -100,6 +101,7 @@ CORS_ORIGIN_WHITELIST = (
     "http://127.0.0.1:3001",
     "http://192.168.0.14:3001",
     "http://172.17.0.1:3001",
+    "https://ms-lkuqx8dcc-ternyavskys-projects.vercel.app",
     "http://localhost:3001",
     "http://pre-recover.com",
     "https://c16c-95-179-120-234.ngrok-free.app",
