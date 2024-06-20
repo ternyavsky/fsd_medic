@@ -22,9 +22,11 @@ DEBUG = os.getenv("DEBUG_STATUS")
 
 ALLOWED_HOSTS = [
     "83.147.246.220",
+    "0.0.0.0",
+    "127.0.0.1",
     "localhost",
-    "pre-recover.com",
-    "www.pre-recover.com",
+    "api.pre-recover.com",
+    "www.api.pre-recover.com",
 ]
 
 REST_FRAMEWORK = {

@@ -565,7 +565,11 @@ class Like(BaseModel):
 
 
 class Saved(BaseModel):
-    user = models.OneToOneField("User", on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(
+        "User",
+        verbose_name=_("Пользователь"),
+        on_delete=models.CASCADE,
+    )
     news = models.ForeignKey(
         "News",
         verbose_name=_("Новость"),
