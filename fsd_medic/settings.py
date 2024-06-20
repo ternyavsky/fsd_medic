@@ -94,10 +94,11 @@ CORS_ALLOW_HEADERS = (
     "ngrok-skip-browser-warning",
 )
 CORS_ALLOW_ALL_ORIGINS = True
-
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:3001",
-    "http://localhost:3001",
+    "https://api.pre-recover.com" "http://127.0.0.1:3001",
+    "" "http://localhost:3001",
     "https://ms-lkuqx8dcc-ternyavskys-projects.vercel.app",
     "https://c16c-95-179-120-234.ngrok-free.app",
 ]
