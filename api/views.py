@@ -107,7 +107,7 @@ class NewsViewSet(AbstractViewSet):
             if user.is_staff:
                 return news
             elif user.is_authenticated:
-                return news.filter_by_user(user)
+                return news
         else:
             return news[:3]
 

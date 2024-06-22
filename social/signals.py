@@ -20,27 +20,27 @@ def notify_center(sender, instance, **kwargs):
             )
 
 
-@receiver(post_save, sender=Note)
-def notify_note(sender, instance, created, **kwargs):
-    if not created:
-        notify = None
-        if instance.special_check:
-            notify = Notification.objects.create(
-                user=instance.user,
-                text="Созданная запись прошла дополнительную проверку",
-            )
-        if instance.status == "Rejected":
-            notify = Notification.objects.create(
-                user=instance.user, text="Запись была отклонена вашим центром"
-            )
-        elif instance.status == "Passed":
-            notify = Notification.objects.create(
-                user=instance.user, text="Запись была подтверждена вашим центром"
-            )
-        notify.save()
-        server.emit(
-            "notification", {"notification": NotificationSerializer(notify).data}
-        )
+# @receiver(post_save, sender=Note)
+# def notify_note(sender, instance, created, **kwargs):
+#     if not created:
+#         notify = None
+#         if instance.special_check:
+#             notify = Notification.objects.create(
+#                 user=instance.user,
+#                 text="Созданная запись прошла дополнительную проверку",
+#             )
+#         if instance.status == "Rejected":
+#             notify = Notification.objects.create(
+#                 user=instance.user, text="Запись была отклонена вашим центром"
+#             )
+#         elif instance.status == "Passed":
+#             notify = Notification.objects.create(
+#                 user=instance.user, text="Запись была подтверждена вашим центром"
+#             )
+#         notify.save()
+#         server.emit(
+#             "notification", {"notification": NotificationSerializer(notify).data}
+#         )
 
 
 @receiver(post_save, sender=User)
