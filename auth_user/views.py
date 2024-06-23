@@ -4,6 +4,7 @@ import logging
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import transaction
 from drf_yasg import openapi
@@ -120,6 +121,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = UserSerializer
     permission_classes = [IsUsermanAuthenticated]
+    parser_classes = [FormParser, MultiPartParser]
 
     def get_object(self):
         data = self.request.userman
