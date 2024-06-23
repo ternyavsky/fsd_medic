@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 10s
+
+scrape_configs:
+  - job_name: "fsd_medic"
+    static_configs:
+      - targets:
+          - 89.223.125.74:8000

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+
+<ul class="messagelist">
+    {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+    {% endfor %}
+</ul>
+<form action="{% url 'create_user_url' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+
+    <p>
+        <label class='form-label' for="{{ form.number.id_for_label }}">{{ form.number.label }}</label>
+        {{ form.number_code }}
+        {{ form.number }}
+    </p>
+
+    <p><label class='form-label'
+              for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>{{ form.password1 }}</p>
+
+    <p><label class='form-label'
+              for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>{{ form.password2 }}</p>
+
+
+    <p><label class='form-label'
+              for="{{ form.center.id_for_label }}">{{ form.center.label }}</label>{{ form.center }}</p>
+
+    <p><label class='form-label'
+              for="{{ form.is_patient.id_for_label }}">{{ form.is_patient.label }}</label>{{ form.is_patient }}</p>
+
+    <p><label class='form-label'
+              for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>{{ form.code }}</p>
+
+    <p><label class='form-label'
+              for="{{ form.agree_terms.id_for_label }}">{{ form.agree_terms.label }}</label>{{ form.agree_terms }}</p>
+
+    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul class="messagelist">
+    {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+    {% endfor %}
+</ul>
+
+<h1>{{ password }}</h1>
+<form action="{% url 'login_user_url' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+
+    <p><label class='form-label' for="{{ form.email_or_number.id_for_label }}">{{ form.email_or_number.label }}</label>{{ form.email_or_number }}
+    </p>
+
+    <p><label class='form-label' for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>{{ form.password }}</p>
+
+    <button type="submit" class="btn btn-primary">Войти</button>
+</form>
+</body>
+</html>

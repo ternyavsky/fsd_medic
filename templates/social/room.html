@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Chat Room</title>
+</head>
+
+<body>
+    <div class="" id="app">
+        <h5>{{ user.password }}</h5>
+        <h5> {{ user.username }}</h5>
+
+        <ol>
+            <li v-for="message in messages">
+                [[ message.text ]]
+
+
+            </li>
+        </ol>
+    </div>
+    <input id="chat-message-delete" type="button" value="Удалить">
+    <h1 id="room_name">{{ chat }}</h1>
+    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <input id="chat-message-input" type="text" size="100"><br>
+    <input id="chat-message-submit" type="button" value="Send">
+    <input id="delete_message" type="button" value="Удалить">
+    <input id="exit" type="button" value="Close">
+    <input id="update_message" type="button" value="Обновить">
+    <input id="chat-message-send2" type="button" value="отправить 2">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script type="module">
+        import {io} from "https://cdn.socket.io/4.7.4/socket.io.esm.min.js"
+
+        const socket = io("http://127.0.0.1:8000")
+        const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA5MTEyMTQ4LCJpYXQiOjE3MDY1MjAxNDgsImp0aSI6Ijk3OGJhNmIzODlkNTQxYjg5MjI1NmYwOGY0N2E5NThlIiwidXNlcl9pZCI6MX0.dmBySsxhsPM3hmBCGYSlAaoS-85Jv2Cnhrge1Ct2a4U"
+        socket.emit("connectCall", token)
+        socket.emit("typing", token, 1)
+        socket.emit("send_message", token, 1, "Hello")
+        socket.on("send_message", message => {
+            console.log(message)
+        })
+        socket.on("connectCall", (instance) => {
+            console.log(instance)
+        })
+        socket.on("disconnectCall", (instance) => {
+            console.log(instance)
+        })
+        socket.on("typing", data => {
+            console.log(data)
+        })
+
+
+        window.onbeforeunload = function () {
+            console.log('unload')
+            socket.emit('disconnectCall',token );
+    }
+        socket.on('test', function (data) {
+    console.log(data);
+})
+
+    </script>
+    <script>
+
+
+        var app = new Vue({
+
+            el: '#app',
+            delimiters: ["[[", "]]"],
+            data() {
+                return {
+                    messages: [],
+                };
+            },
+            methods: {
+                reverse: function () {
+                    this.message = this.message.split('').reverse().join('')
+                }
+            },
+
+        })
+        const user_id = 1
+        const token_1 = ""
+        const token_2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAyOTA0Mzc0LCJpYXQiOjE3MDAzMTIzNzQsImp0aSI6Ijg1OTkyN2Q4NWM3MDQ3YTVhMTI4ZWRlMDQ4MzY3MjFmIiwidXNlcl9pZCI6MiwidHlwZSI6InVzZXIiLCJudW1iZXIiOiIrNzkxMTExMTExMTEifQ._oR8FgyQQB6qLz5QrhdpdmqdDOW0OwiYXu0Se7R69mA"
+
+        const chat_uuid = '1f46a5ca-6557-4675-9955-6afa451b51fe'
+        const chat_uuid2 = '9f868277-d73b-47c9-bf58-25dbfa7b1f2f'
+        const user = '{{ user }}'
+        console.log(user_id)
+        const request_id = new Date().getTime()
+        const ws = new
+
+
+        // usehotkeys etc...
+        ws.send(JSON.stringify({
+            action: 'typing'
+        }))
+
+
+
+        document.querySelector("#update_message").onclick = function (e) {
+            ws.send(JSON.stringify({
+                action: "update_message",
+                pk: 8,
+                text: "hello timur blya"
+            }
+            ))
+        }
+
+        document.querySelector('#delete_message').onclick = function (e) {
+            ws.send(JSON.stringify({
+                action: 'delete_message',
+                pk: 9,
+            }))
+        }
+
+
+        document.querySelector("#exit").onclick = (e) => {
+            ws.send(JSON.stringify({
+                action: "disconnect_entity",
+                type: "user",
+                id: 1
+            }))
+        }
+
+        document.querySelector('#chat-message-input').addEventListener("keydown", (e) => {
+            console.log("typing")
+        })
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            // if (e.keyCode === 13) {  // enter, return
+            //     document.querySelector('#chat-message-submit').click();
+            // }
+            console.log('typing')
+        };
+
+        document.querySelector("#chat-message-send2").onclick = (e) => {
+            const messageinput = document.querySelector('#chat-message-input');
+            const message = messageinput.value;
+
+            ws1.send(JSON.stringify({
+                action: 'send_message',
+                chat_uuid: chat_uuid2,
+                text: message,
+                user_id: user_id
+            }))
+        }
+
+        document.querySelector('#chat-message-submit').onclick = function (e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+
+            ws.send(JSON.stringify({
+                action: 'send_message',
+                text: message,
+                //note_id: note_id,
+                //doctor_id: doctor_id,
+                //center_id: center_id
+            }));
+            messageInputDom.value = ''
+        };
+    </script>
+    <script>
+
+    </script>
+</body>
+
+</html>

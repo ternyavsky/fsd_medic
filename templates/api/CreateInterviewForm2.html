@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul class="messagelist">
+    {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+    {% endfor %}
+</ul>
+<form action="{% url 'create_interview_2_url' parameter=parameter %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+
+    <p><label class='form-label'
+              for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>{{ form.date }}
+    </p>
+
+    <p><label class='form-label'
+              for="{{ form.application.id_for_label }}">{{ form.application.label }}</label>{{ form.application }}</p>
+
+    <p><label class='form-label'
+              for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>{{ form.code }}</p>
+
+    <button type="submit" class="btn btn-primary">Отправить заявку</button>
+</form>
+</body>
+</html>

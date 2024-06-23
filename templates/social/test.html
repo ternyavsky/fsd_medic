@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% block css %}{% endblock css %}
+</head>
+
+<body>
+
+    {% block content %}{% endblock content %}
+    {% block extra_js %}{% endblock extra_js %}
+    <form action="" method="post">
+        <h1>{{ request.user.login }}</h1>
+        <input type="text" name="text">
+        <button type="submit">Отправить</button>
+    </form>
+    <script>
+        const request_id = new Date().getTime()
+        const token_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAyOTAzMTcwLCJpYXQiOjE3MDAzMTExNzAsImp0aSI6ImJkYjJlNzQ4MTAwNzQ5N2I4ZDgzNmE1ZDg4MmQ4Y2RhIiwidXNlcl9pZCI6MSwidHlwZSI6InVzZXIiLCJudW1iZXIiOiIrNzk5OTk5OTk5MDAifQ.WDN9bfr5i9dwMX3iGmx0w_htmsfge49pU7xbBV73ZgI"
+        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/notify/?token=${token_1}`);
+        console.log(ws.url)
+
+        ws.onopen = () => {
+
+            console.log('connect')
+            ws.send(JSON.stringify({
+                action: "subscribe_to_notify_activity",
+                request_id: request_id,
+
+            }))
+
+
+
+        }
+        ws.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            console.log(data)
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1 @@
+from .CorsMiddleWare import open_access_middleware

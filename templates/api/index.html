@@ -1,0 +1,147 @@
+<html>
+<head>
+
+    <title>Add Map</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="http://api-maps.yandex.ru/1.1/index.xml?key=a6c48dfc-9bed-4724-a05f-dbd9af5bbf47"></script>
+    <script>
+        function initMap() {
+            let map;
+            let circles = []
+
+            myMapOptions = {
+                scrollwheel: true,
+                mapTypeControl: false,
+                center: {
+                    lat: 55.754170,
+                    lng: 37.622178
+                },
+                zoom: 13,
+                streetViewControl: false,
+                zoomControl: true
+            };
+            map = new google.maps.Map(document.getElementById('map'), myMapOptions);
+
+            var marker = new google.maps.Marker({
+                position: myMapOptions.center,
+                draggable: true,
+                map: map,
+                animation: google.maps.Animation.DROP,
+            });
+
+            marker1 = new google.maps.Marker({
+                position: myMapOptions.center,
+                draggable: true,
+                map: map,
+                animation: google.maps.Animation.DROP,
+            });
+            marker2 = new google.maps.Marker({
+                position: myMapOptions.center,
+                draggable: true,
+                map: map,
+                animation: google.maps.Animation.DROP,
+            });
+            marker3 = new google.maps.Marker({
+                position: myMapOptions.center,
+                draggable: true,
+                map: map,
+                animation: google.maps.Animation.DROP,
+            });
+
+
+            findLocation()
+
+            const locationButton = document.createElement("button");
+
+            locationButton.textContent = "Определить местоположение";
+            locationButton.classList.add("custom-map-control-button");
+            map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+            locationButton.addEventListener("click", () => {
+                findLocation()
+            });
+
+            google.maps.event.addListener(map, "click", function (event) {
+                marker.setPosition(event.latLng);
+                createCircles(event.latLng)
+                lat = event.latLng.lat()
+                lng = event.latLng.lng()
+                marker1.setPosition({lat: lat - 0.03, lng: lng + 0.03})
+                marker2.setPosition({lat: lat + 0.02, lng: lng - 0.03})
+                marker3.setPosition({lat: lat - 0.03, lng: lng - 0.02})
+            });
+
+            google.maps.event.addListener(marker, "dragend", function (event) {
+                marker.setPosition(event.latLng);
+                createCircles(event.latLng)
+                lat = event.latLng.lat()
+                lng = event.latLng.lng()
+                marker1.setPosition({lat: lat - 0.03, lng: lng + 0.03})
+                marker2.setPosition({lat: lat + 0.02, lng: lng - 0.03})
+                marker3.setPosition({lat: lat - 0.03, lng: lng - 0.02})
+            });
+
+
+            function findLocation() {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        marker1.setPosition({lat: pos.lat - 0.03, lng: pos.lng + 0.03})
+                        marker2.setPosition({lat: pos.lat + 0.02, lng: pos.lng - 0.03})
+                        marker3.setPosition({lat: pos.lat - 0.03, lng: pos.lng - 0.02})
+                        marker.setPosition(pos)
+                        map.setCenter(pos);
+                        createCircles(pos)
+                    },
+                )
+
+            }
+
+                function setNullOnAll() {
+                    for (var i = 0; i < circles.length; i++) {
+                        circles[i].setMap(null);
+                    }
+                }
+
+                function createCircles(coords) {
+                    setNullOnAll();
+                    var myCircle = new google.maps.Circle(
+                        {
+                            strokeColor: "#0000ff",
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: "#0000ff",
+                            fillOpacity: 0.35,
+                            map: map,
+                            center: coords,
+                            radius: 5000
+                        });
+                    circles.push(myCircle)
+                }
+            }
+
+    </script>
+
+    <style>
+        #map {
+            height: 500px;
+            width: 650px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h3>Map</h3>
+<div id="map"></div>
+<script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAXgV7Xnqc6mVvOVbz8ljhMF1_BEjopOEA&language=ru
+&callback=initMap&v=weekly"
+        defer
+        async
+></script>
+</body>
+</html>
