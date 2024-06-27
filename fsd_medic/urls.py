@@ -29,6 +29,7 @@ urlpatterns = [
     path("", include("social.urls")),
     path("", include("auth_user.urls")),
     path("", include("auth_doctor.urls")),
+    path("", include("money.urls")),
     path("", include("admin.urls")),
     path(
         "swagger<format>/", schema_view.without_ui(cache_timeout=0), name="schema-json"

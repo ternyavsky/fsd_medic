@@ -2,7 +2,6 @@ from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
-from social.gateway import server
 from auth_doctor.models import Doctor, Interview
 from auth_user.service import start_time_reminder
 from social.models import Chat, Message, Notification

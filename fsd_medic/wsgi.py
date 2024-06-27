@@ -14,10 +14,10 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fsd_medic.settings")
 application = get_wsgi_application()
-from social.gateway import server
+from fsd_medic.settings import SOCKET_IO
 
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
-application = socketio.WSGIApp(server, application)
+application = socketio.WSGIApp(SOCKET_IO, application)
 
 
 # from gevent import pywsgi

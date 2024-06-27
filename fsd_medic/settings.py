@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
+import socketio
 
 AUTH_USER_MODEL = "api.User"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -63,6 +64,8 @@ INSTALLED_APPS = [
     "money.apps.MoneyConfig",
 ]
 
+SOCKET_IO = socketio.Server(cors_allowed_origins="*", async_mode="eventlet")
+
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "api.middleware.open_access_middleware",
@@ -121,6 +124,7 @@ SIMPLE_JWT = {
     "VERIFYING_KEY": "Bearer",
 }
 
+CELERY_IMPORTS = ("social.signals", "social.gateway")
 
 ROOT_URLCONF = "fsd_medic.urls"
 

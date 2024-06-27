@@ -1,7 +1,10 @@
 from django.urls import path
 
-from .views import ChatView, MessageView, NotifyView
+from .views import ChatView, MessageView, NotificationViewSet
+from rest_framework.routers import DefaultRouter
 
+router = DefaultRouter()
+router.register(r"api/notifications", NotificationViewSet, basename="notifications")
 urlpatterns = [
     path(
         "api/chat/", ChatView.as_view(), name="chat_view_url"
@@ -9,5 +12,5 @@ urlpatterns = [
     path(
         "api/messages/<int:chat_id>/", MessageView.as_view(), name="messages_view_url"
     ),  # Chat messages with chat_id
-    path("api/notifications/", NotifyView.as_view(), name="notify_view_url"),
 ]
+urlpatterns += router.urls

@@ -84,7 +84,7 @@ services:
     build: .
     container_name: fsd_medic.celery
     restart: always
-    command: celery -A fsd_medic worker --loglevel=info
+    command: celery -A fsd_medic worker --loglevel=debug
 
   rabbitmq:
     container_name: fsd_medic.rabbitmq

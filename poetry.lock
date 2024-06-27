@@ -1810,6 +1810,21 @@ doc = ["sphinx"]
 test = ["pytest", "pytest-cov"]
 
 [[package]]
+name = "stripe"
+version = "9.12.0"
+description = "Python bindings for the Stripe API"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "stripe-9.12.0-py2.py3-none-any.whl", hash = "sha256:14dd20ef1e6386a52e1f7aea07701fc6a80223706d72e3509e4966adb599e138"},
+    {file = "stripe-9.12.0.tar.gz", hash = "sha256:cbc526abd0f001c920c323ba7c40cce3dee1647d920e9dbecae3488f37367524"},
+]
+
+[package.dependencies]
+requests = {version = ">=2.20", markers = "python_version >= \"3.0\""}
+typing-extensions = {version = ">=4.5.0", markers = "python_version >= \"3.7\""}
+
+[[package]]
 name = "twisted"
 version = "23.10.0"
 description = "An asynchronous networking framework written in Python"
@@ -2092,4 +2107,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "0f9a3c22b1ca824b659149ad8078226e0bcac66df3799d025b66ee3ee5c98eab"
+content-hash = "8503bef4061b7595e9ba7c6b47ae0b4c7b31b3ba5044b1c4db24fa20c1d911c7"

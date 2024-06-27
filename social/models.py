@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from api.models import News, Center, Note, BaseModel
 from auth_doctor.models import Doctor
-from fsd_medic.settings import AUTH_USER_MODEL
+from fsd_medic.settings import AUTH_USER_MODEL, SOCKET_IO
 
 
 User = AUTH_USER_MODEL
@@ -25,6 +25,7 @@ class Notification(BaseModel):
     class Meta:
         verbose_name = "Уведомление"
         verbose_name_plural = "Уведомления"
+
 
 
 class Chat(BaseModel):

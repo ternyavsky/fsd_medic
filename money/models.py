@@ -8,6 +8,7 @@ from api.models import BaseModel
 
 class Balance(BaseModel):
     clinic = models.ForeignKey("api.Clinic", on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey("api.User", on_delete=models.CASCADE, null=True)
     amount = models.DecimalField(
         verbose_name=_("Баланс"), max_digits=10, decimal_places=2, default=0
     )

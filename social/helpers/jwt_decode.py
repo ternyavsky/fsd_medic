@@ -7,9 +7,8 @@ from django.core.cache import cache
 
 
 def jwt_decode(token: str, connect: bool = True) -> User | Doctor:
-    token = token.split(" ")[1]
     instance = jwt.decode(token, "Bearer", algorithms="HS256")
-    if "type" in instance:
+    if instance["type"] == "doctor":
         doctor = (
             cache.get_or_set("doctors", get_doctors())
             .filter(number=instance["number"])

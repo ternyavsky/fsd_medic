@@ -121,7 +121,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = UserSerializer
     permission_classes = [IsUsermanAuthenticated]
-    parser_classes = [FormParser, MultiPartParser]
+    # parser_classes = [FormParser, MultiPartParser]
 
     def get_object(self):
         data = self.request.userman

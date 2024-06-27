@@ -6,6 +6,8 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from api.permissions import IsUsermanAuthenticated
+from api.views import AbstractViewSet
 
 # REST IMPORTS
 from rest_framework.views import APIView
@@ -20,15 +22,10 @@ import socketio
 logger = logging.getLogger(__name__)
 
 
-class NotifyView(APIView):
-    # permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        notifications = cache.get_or_set("notifications", get_notifications())
-        serializer = NotificationSerializer(notifications, many=True)
-        logger.debug(serializer.data)
-        logger.debug(self.request.path)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class NotificationViewSet(AbstractViewSet):
+    permission_classes = [IsUsermanAuthenticated]
+    queryset = get_notifications().order_by("-id")
+    serializer_class = NotificationSerializer
 
 
 class ChatCreate(APIView):
