@@ -13,10 +13,10 @@ def get_news(**kwargs):
     """Получение новостей"""
     return (
         News.objects.select_related(
-            "center",
+            "clinic",
             "disease",
         )
-        .prefetch_related("center__employees", "center__supported_diseases")
+        .prefetch_related("news_images", "news_videos")
         .filter(**kwargs)
     )
 
@@ -74,7 +74,7 @@ def get_notes(**kwargs):
     """Получение записей"""
     return (
         Note.objects.select_related(
-            "user", "center", "user__group", "clinic", "center__admin", "clinic__admin"
+            "user", "center", "clinic", "center__admin", "clinic__admin"
         )
         .prefetch_related(
             "center__employees",
@@ -82,6 +82,7 @@ def get_notes(**kwargs):
             "center__supported_diseases",
             "user__disease",
             "clinic__supported_diseases",
+            "doctors"
         )
         .filter(**kwargs)
     )

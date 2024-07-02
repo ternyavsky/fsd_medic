@@ -43,21 +43,21 @@ class UserProfileViewset(viewsets.ViewSet):
 
 
 class ClinicProfileViewset(viewsets.ModelViewSet):
-    serializer_class = ClinicUserProfileSerializer
+    serializer_class = ClinicProfileSerializer
 
     def get_queryset(self, pk=None):
         queryset = clinic_profile_data(pk)
         return queryset
 
     @swagger_auto_schema(operation_summary="Все клиники/Админка")
-    @method_decorator(cache_page(60 * 60))
+    # @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return Response(serializer.data, status=200)
 
     @swagger_auto_schema(operation_summary="Конкретная клиники/Админка")
-    @method_decorator(cache_page(60 * 60))
+    # @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, pk):
         queryset = self.get_queryset(pk=pk)
         serializer = self.serializer_class(queryset)

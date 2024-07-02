@@ -5,7 +5,9 @@ from django.core.cache import cache
 from rest_framework import serializers
 
 from api.serializers import (
+    ClinicSerializer,
     DoctorGetSerializer,
+    NewsSerializer,
     UserSerializer,
     NoteSerializer,
     AccessSerializer,
@@ -151,28 +153,12 @@ class CenterUserProfileSerializer(serializers.Serializer):
     pacients = UserSerializer(many=True, read_only=True)
 
 
-class ClinicProfileSerializer(serializers.ModelSerializer):
-    online_notes = serializers.SerializerMethodField()
-    offline_notes = serializers.SerializerMethodField()
-    visit_online = serializers.SerializerMethodField()
-    visit_offline = serializers.SerializerMethodField()
-    employees = DoctorGetSerializer(many=True)
-
-    class Meta:
-        model = Clinic
-        fields = "__all__"
-
-    def get_online_notes(self, obj):
-        return obj.online_notes
-
-    def get_offline_notes(self, obj):
-        return obj.offline_notes
-
-    def get_visit_online(self, obj):
-        return obj.visit_online
-
-    def get_visit_offline(self, obj):
-        return obj.visit_offline
+class ClinicProfileSerializer(serializers.Serializer):
+    online_notes = NoteSerializer(many=True)
+    offline_notes = NoteSerializer(many=True)
+    clinic = ClinicSerializer(many=True)
+    doctors = DoctorGetSerializer(many=True)
+    news = NewsSerializer(many=True)
 
 
 class ClinicUserProfileSerializer(serializers.Serializer):

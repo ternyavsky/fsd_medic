@@ -111,19 +111,28 @@ def center_profile_data(pk):
 def clinic_profile_data(pk):
     clinics = cache.get_or_set("clinics", get_clinics())
     clinics = clinics.filter(pk=pk) if pk else clinics
-    clinics = clinics.annotate(
-        online_notes=Count("note", filter=Q(note__online=True)),
-        offline_notes=Count("note", filter=Q(note__online=False)),
-        visit_online=Count(
-            "note", filter=Q(note__online=True, note__time_start__day=date.today().day)
-        ),
-        visit_offline=Count(
-            "note", filter=Q(note__online=False, note__time_start__day=date.today().day)
-        ),
+    # clinics = clinics.annotate(
+    #     online_notes=Count("note", filter=Q(note__online=True)),
+    #     offline_notes=Count("note", filter=Q(note__online=False)),
+    # )
+    # news = cache.get_or_set("news", get_news())
+    online_notes = get_notes()
+    online_notes = online_notes.filter(clinic__id__in=clinics.values("id"), online=True)
+    offline_notes = online_notes.filter(
+        clinic__id__in=clinics.values("id"), online=False
     )
-    users = cache.get_or_set("users", get_users())
-    users = users.filter(clinic__id__in=clinics.values("id"))
-    return {"clinic": clinics, "pacients": users}
+
+    news = get_news()
+    news = news.filter(clinic__id__in=clinics.values("id"))
+    doctors = cache.get_or_set("doctors", get_doctors())
+    doctors = doctors.filter(clinic__id__in=clinics.values("id"))
+    return {
+        "clinic": clinics,
+        "news": news,
+        "doctors": doctors,
+        "online_notes": online_notes,
+        "offline_notes": offline_notes,
+    }
 
 
 def main_page_data():
