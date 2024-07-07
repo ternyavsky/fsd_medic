@@ -86,6 +86,15 @@ class NoteViewSet(AbstractViewSet):
     ]
 
 
+class ServiceViewSet(viewsets.ModelViewSet):
+    queryset = (
+        Service.objects.all().prefetch_related("doctors").select_related("clinic")
+    )
+    permission_classes = [IsUsermanAuthenticated]
+    serializer_class = ServiceSerializer
+    filter_backends = [DjangoFilterBackend]
+
+
 class NewsViewSet(AbstractViewSet):
     queryset = News.objects.filter_by_user().prefetch_related(
         "news_images", "news_videos"

@@ -5,6 +5,7 @@ from auth_doctor.views import *
 
 router = DefaultRouter()
 router.register(r"api/clinic", ClinicViewSet, basename="clinic")
+router.register(r"api/doctor", DoctorViewSet, basename="doctor")
 urlpatterns = [
     path(
         "api/create_clinic/<str:clinic_hash>/",

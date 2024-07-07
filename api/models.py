@@ -192,6 +192,29 @@ class Access(BaseModel):
         verbose_name = "Доступ"
 
 
+class Service(BaseModel):
+    title = models.CharField(verbose_name=_("Название услуги"), max_length=255)
+    description = models.TextField(verbose_name=_("Описание услуги"))
+    online = models.BooleanField(verbose_name=_("Онлайн"), default=False)
+
+    duration = models.IntegerField(
+        verbose_name=_("Длительность"), null=True, blank=True
+    )
+    doctors = models.ManyToManyField("auth_doctor.Doctor", verbose_name=_("Врачи"))
+    price = models.FloatField(
+        verbose_name=_("Цена"),
+        max_length=12,
+    )
+    clinic = models.ForeignKey("api.Clinic", on_delete=models.CASCADE, blank=True)
+
+    def __str__(self):
+        return f"Услуга {self.title}"
+
+    class Meta:
+        verbose_name_plural = "Услуги"
+        verbose_name = "Услуга"
+
+
 class Note(BaseModel):
     user = models.ForeignKey(
         "User",

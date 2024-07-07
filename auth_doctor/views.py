@@ -29,6 +29,11 @@ from .services.doctor_reg_services import *
 logger = logging.getLogger(__name__)
 
 
+class DoctorViewSet(ModelViewSet):
+    serializer_class = DoctorGetSerializer
+    queryset = cache.get_or_set("doctors", get_doctors())
+
+
 class ClinicViewSet(ModelViewSet):
     serializer_class = ClinicSerializer
     queryset = Clinic.objects.all()

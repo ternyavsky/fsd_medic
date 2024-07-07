@@ -14,6 +14,7 @@ router.register(r"api/news", NewsViewSet, basename="news")
 router.register(r"api/notes", NoteViewSet, basename="notes")
 router.register(r"api/saved", SaveViewSet, basename="saved")
 router.register(r"api/likes", LikeViewSet, basename="likes")
+router.register(r"api/services", ServiceViewSet, basename="services")
 router.register(r"api/subscribes", SubscribeViewSet, basename="subscribes")
 
 urlpatterns = [
