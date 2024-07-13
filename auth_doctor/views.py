@@ -33,6 +33,17 @@ class DoctorViewSet(ModelViewSet):
     serializer_class = DoctorGetSerializer
     queryset = cache.get_or_set("doctors", get_doctors())
 
+    def create(self, request, *args, **kwargs):
+        serializer = DoctorCreatSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        doctor = serializer.save()
+        headers = self.get_success_headers(self.get_serializer(doctor).data)
+        return Response(
+            self.get_serializer(doctor).data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
 
 class ClinicViewSet(ModelViewSet):
     serializer_class = ClinicSerializer

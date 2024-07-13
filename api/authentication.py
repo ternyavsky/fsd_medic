@@ -12,10 +12,10 @@ from datetime import date, datetime
 
 # write custom auth for socket
 
+
 #  smash on clinic, center, doctor
 class CustomAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
-
         token = request.headers["Authorization"].split(" ")
         if token[0] != "Bearer":
             raise exceptions.AuthenticationFailed("No valid secret word")

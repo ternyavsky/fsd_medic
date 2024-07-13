@@ -14,21 +14,28 @@ class ClinicCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         fields = [
+            "name",
             "number",
-            "password",
+            "start_time",
+            "end_time",
+            "admin_number",
+            "address",
             "workdays",
-            "worktime",
         ]
 
     @transaction.atomic
     def create(self, validated_data):
         d = validated_data
-        password = d.pop("password")
         clinic = Clinic.objects.create(
-            password=make_password(password),
             **d,
         )
         return clinic
+
+
+class DoctorCreatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ["first_name", "last_name", "specialization"]
 
 
 class DateTimeUpdateSerializer(serializers.Serializer):

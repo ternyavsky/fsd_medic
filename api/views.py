@@ -90,7 +90,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
     queryset = (
         Service.objects.all().prefetch_related("doctors").select_related("clinic")
     )
-    permission_classes = [IsUsermanAuthenticated]
+    # permission_classes = [IsUsermanAuthenticated]
     serializer_class = ServiceSerializer
     filter_backends = [DjangoFilterBackend]
 
@@ -128,11 +128,11 @@ class SearchView(APIView):
     @swagger_auto_schema(operation_summary="Получение данных для раздела 'Поиск'")
     def get(self, request: Request, *args, **kwargs):
         clinics = cache.get_or_set("clinics", get_clinics())
-        centers = cache.get_or_set("centers", get_centers())
+        services = cache.get_or_set("services", get_services())
         doctors = cache.get_or_set("doctors", get_doctors())
         search_results = {
             "clinics": clinics,
-            "centers": centers,
+            "services": services,
             "doctors": doctors,
         }
         serializer = self.serializer_class(search_results)

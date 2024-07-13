@@ -41,6 +41,7 @@ class Doctor(AbstractBaseUser, BaseModel):
         Center,
         on_delete=models.CASCADE,
         verbose_name=_("Центр, в котором зарегистрирован врач"),
+        null=True,
     )
     clinic = models.ForeignKey(
         Clinic,
@@ -54,7 +55,7 @@ class Doctor(AbstractBaseUser, BaseModel):
         max_length=200, verbose_name=_("Специальность/должность")
     )
     work_experience = models.DecimalField(
-        verbose_name=_("Опыт работы, лет"), max_digits=3, decimal_places=1
+        verbose_name=_("Опыт работы, лет"), max_digits=3, decimal_places=1, null=True
     )
     registration_date = models.DateTimeField(auto_now_add=True)
     review_date = models.DateTimeField(

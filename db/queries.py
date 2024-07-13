@@ -21,6 +21,17 @@ def get_news(**kwargs):
     )
 
 
+def get_services(**kwargs):
+    """Получение услуг"""
+    return (
+        Service.objects.select_related(
+            "clinic",
+        )
+        .prefetch_related("doctors")
+        .filter(**kwargs)
+    )
+
+
 def get_likes(**kwargs):
     return (
         Like.objects.filter(**kwargs)
@@ -73,16 +84,14 @@ def get_saved(**kwargs):
 def get_notes(**kwargs):
     """Получение записей"""
     return (
-        Note.objects.select_related(
-            "user", "center", "clinic", "center__admin", "clinic__admin"
-        )
+        Note.objects.select_related("user", "center", "clinic", "center__admin")
         .prefetch_related(
             "center__employees",
             "user__centers",
             "center__supported_diseases",
             "user__disease",
             "clinic__supported_diseases",
-            "doctors"
+            "doctors",
         )
         .filter(**kwargs)
     )
@@ -110,16 +119,12 @@ def get_disease(**kwargs):
 
 def get_centers(**kwargs):
     """Получение центров"""
-    return (
-        Center.objects.select_related("admin")
-        .prefetch_related(
-            "supported_diseases",
-            "employees",
-            "admin__centers",
-            "admin__disease",
-        )
-        .filter(**kwargs)
-    )
+    return Center.objects.prefetch_related(
+        "supported_diseases",
+        "employees",
+        "admin__centers",
+        "admin__disease",
+    ).filter(**kwargs)
 
 
 # user

@@ -31,21 +31,21 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = "__all__"
-        # depth = 1
+        depth = 1
 
 
 class ClinicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         fields = "__all__"
-        # depth = 1
+        depth = 1
 
 
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = "__all__"
-        # depth = 1
+        depth = 1
 
 
 class CitySerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = "__all__"
-        # depth = 1
+        depth = 1
 
 
 class CenterSerializer(serializers.ModelSerializer):
@@ -239,7 +239,7 @@ class DoctorGetSerializer(serializers.ModelSerializer):
 class SearchSerializer(serializers.Serializer):
     doctors = DoctorGetSerializer(read_only=True, many=True)
     clinics = ClinicSerializer(read_only=True, many=True)
-    centers = CenterSerializer(read_only=True, many=True)
+    services = ServiceSerializer(read_only=True, many=True)
 
 
 class SavedSerializer(serializers.ModelSerializer):

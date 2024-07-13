@@ -194,7 +194,9 @@ class Access(BaseModel):
 
 class Service(BaseModel):
     title = models.CharField(verbose_name=_("Название услуги"), max_length=255)
-    description = models.TextField(verbose_name=_("Описание услуги"))
+    description = models.TextField(
+        verbose_name=_("Описание услуги"), null=True, blank=True
+    )
     online = models.BooleanField(verbose_name=_("Онлайн"), default=False)
 
     duration = models.IntegerField(
@@ -386,6 +388,8 @@ class Clinic(AbstractBaseUser, BaseModel):
     USERNAME_FIELD = "number"
     name = models.CharField(verbose_name=_("Название Клиники"), max_length=100)
     password = models.CharField(_("password"), max_length=128, null=True, blank=True)
+    start_time = models.IntegerField(_("Начало работы"), null=True)
+    end_time = models.IntegerField(_("Конец работы"), null=True)
     last_login = models.DateTimeField(_("last login"), blank=True, null=True)
     specialization = models.CharField(_("Специализация"), blank=True, max_length=220)
     workdays = ListCharField(
@@ -398,14 +402,14 @@ class Clinic(AbstractBaseUser, BaseModel):
     worktime = models.IntegerField(
         _("Время активности на сайте (в минутах)"), default=0
     )
-    admin = models.ForeignKey(
-        "ClinicAdmin",
-        on_delete=models.CASCADE,
-        verbose_name=_("Администартор"),
-        null=True,
-        blank=True,
-        related_name="admin_clinic",
-    )
+    # admin = models.ForeignKey(
+    #     "ClinicAdmin",
+    #     on_delete=models.CASCADE,
+    #     verbose_name=_("Администартор"),
+    #     null=True,
+    #     blank=True,
+    #     related_name="admin_clinic",
+    # )
     is_required = models.BooleanField(
         verbose_name=_("Статус подтверждения"), default=False
     )
@@ -424,6 +428,9 @@ class Clinic(AbstractBaseUser, BaseModel):
         blank=True,
     )
     number = models.CharField(verbose_name=_("Номер"), max_length=30, unique=True)
+    admin_number = models.CharField(
+        verbose_name=_("Номер Админа"), max_length=30, unique=True, null=True
+    )
     email = models.CharField(
         verbose_name=_("Электронный адрес"), max_length=100, unique=True, default=None
     )
