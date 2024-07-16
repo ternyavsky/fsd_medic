@@ -12,19 +12,7 @@ YOUR_DOMAIN = "http://127.0.0.1:8000/"
 
 stripe.api_key = api_key
 
+
 class MoneyView(APIView):
-    def get(self, request):
-        checkout_session = stripe.checkout.Session.create(
-            line_items=[
-                {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    "price": "price_1PVDQ5HilqN7vT0tAFjvphT5",
-                    "quantity": 1,
-                },
-            ],
-            payment_method_types=["card",],
-            mode="subscription",
-            success_url=YOUR_DOMAIN + "?success=true",
-            cancel_url=YOUR_DOMAIN + "?canceled=true",
-        )
-        return redirect(checkout_session.url, code=303)
+    def post(self, request):
+        return Response(request.data, status=200)
