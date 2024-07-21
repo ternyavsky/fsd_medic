@@ -21,4 +21,5 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-root --no-interaction --no-ansi
 
 EXPOSE 587
+EXPOSE 80
 COPY . /app/
